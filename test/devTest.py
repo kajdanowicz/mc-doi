@@ -1,10 +1,10 @@
-import model.parameters.CorrelationMatrix
+import model.parameters as model
 
 
 def main():
-    cm = CorrelationMatrix(100)
+    cm = model.CorrelationMatrix(100)
     cm.generateRandomCorrelationMatrix()
-    print(cm.correlationMatrix)
+    print(cm.testSymetry())
 
 if __name__ == "__main__":
     main()

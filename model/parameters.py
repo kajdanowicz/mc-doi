@@ -15,10 +15,6 @@ class CorrelationMatrix():
 
             Returns:
                 bool: The return value. True for success, False otherwise.
-
-            .. _PEP 484:
-                https://www.python.org/dev/peps/pep-0484/
-
             """
         C = np.random.random((self.size, self.size))
         C = C * 2 - 1
@@ -26,3 +22,10 @@ class CorrelationMatrix():
         C = C + np.transpose(C) + self.correlationMatrix
         self.correlationMatrix = C
 
+    def testSymetry(self):
+        for i in range(self.size):
+            for j in range(i+1,self.size):
+                if self.correlationMatrix[i][j]!=self.correlationMatrix[j][i]:
+                    return False
+
+        return True

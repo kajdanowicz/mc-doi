@@ -7,11 +7,12 @@ eventsFile = config.local['eventsFile']
 
 def main():
     # testLoadData(eventsFile)
-    testEliminationOfEventsWithMinOccurTags(fileName=eventsFile, minOccur=10)
+    # testEliminationOfEventsWithMinOccurTags(fileName=eventsFile, minOccur=10)
+    testEstimateCorrelationMatrixFromData(fileName=eventsFile, minOccur=40000)
 
 def testCreationOfRandomCorrelationMatrix(size=100):
-    cm = model.CorrelationMatrix(size)
-    print(cm.generateRandomCorrelationMatrix())
+    cm = model.CorrelationMatrix()
+    print(cm.generateRandomCorrelationMatrix(size))
 
 def testSymetry(cm):
     print(cm.testSymetry())
@@ -25,7 +26,12 @@ def testEliminationOfEventsWithMinOccurTags(fileName, minOccur = 10):
     frame = events.EventsData(fileName=fileName)
     print(frame.getEventsMinOccurences(minOccur).shape)
 
-
+def testEstimateCorrelationMatrixFromData(fileName, minOccur = 10):
+    frame = events.EventsData(fileName=fileName)
+    cm = model.CorrelationMatrix()
+    cm.estimateCorrelationMatrixFromData(frame.getEventsMinOccurences(minOccur))
+    print(cm.correlationMatrix)
+    testSymetry(cm)
 
 if __name__ == "__main__":
     main()

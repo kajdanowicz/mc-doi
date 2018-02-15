@@ -24,5 +24,9 @@ class CorrelationMatrix():
                 https://www.python.org/dev/peps/pep-0484/
 
             """
-        self.correlationMatrix = Maciek
+        C = np.random.random((self.size, self.size))
+        C = C * 2 - 1
+        C *= np.tri(*C.shape, k=-1)
+        C = C + np.transpose(C) + self.correlationMatrix
+        self.correlationMatrix = C
 

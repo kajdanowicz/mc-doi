@@ -1,4 +1,6 @@
 import pandas as pd
+from collections import defaultdict
+
 
 class EventsData():
 
@@ -19,4 +21,9 @@ class EventsData():
         temp = self.data.groupby(by='tag').count().reset_index()[['tag', 'ts']]
         series = temp[(temp['ts'] > minOccur)]['tag']
         temp = self.data[self.data['tag'].isin(series)]
-        return (temp)
+        t = defaultdict(lambda: len(t))
+        temp['tagID'] = temp.apply(lambda row: t[row['tag']], axis=1)
+        u = defaultdict(lambda: len(u))
+        temp.apply(lambda row: u[row['user']], axis=1)
+        temp['user']=temp['user'].map(u)
+        return temp

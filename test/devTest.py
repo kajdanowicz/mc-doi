@@ -1,8 +1,9 @@
 import model.parameters as model
 import data.Events as events
+import config.config as config
 
 
-eventsFile = '/home/tomek/Dokumenty/Documents/Nauka/Dane/mc-doi_data/df_tag'
+eventsFile = config.local['eventsFile']
 
 def main():
     # testLoadData(eventsFile)

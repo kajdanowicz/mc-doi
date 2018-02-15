@@ -102,4 +102,4 @@ ENV/
 
 # PyCharm
 .DS_Store
-.idea
+.idea/

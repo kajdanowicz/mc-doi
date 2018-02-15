@@ -15,7 +15,7 @@ class EventsData():
 
     def getEventsMinOccurences(self, minOccur):
         ''' Return events that uses tags appearing in the data minOccur times.'''
-
-
-
-        return ()
+        temp = self.data.groupby(by='tag').count().reset_index()[['tag', 'ts']]
+        series = temp[(temp['ts'] > minOccur)]['tag']
+        temp = self.data[self.data['tag'].isin(series)]
+        return (temp)

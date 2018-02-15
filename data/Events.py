@@ -11,7 +11,7 @@ class EventsData():
             self.data = pd.DataFrame()
 
     def loadCSV(self, fileName):
-        return EventsData(pd.read_csv(fileName))
+        return EventsData(dataFrame=pd.read_csv(fileName))
 
     def getEventsMinOccurences(self, minOccur):
         ''' Return events that uses tags appearing in the data minOccur times.'''

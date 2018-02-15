@@ -12,7 +12,7 @@ def testSymetry(cm):
     print(cm.testSymetry())
 
 def testLoadData(fileName):
-    frame = events.EventsData(fileName)
+    frame = events.EventsData(fileName=fileName)
     print(frame.data.shape)
 
 

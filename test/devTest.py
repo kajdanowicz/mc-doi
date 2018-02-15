@@ -2,11 +2,7 @@ import model.parameters as model
 import data.Events as events
 
 def main():
-    testLoadData()
-
-
-
-
+    testLoadData('/home/tomek/Dokumenty/Documents/Nauka/Dane/mc-doi_data/df_tag')
 
 def testCreationOfRandomCorrelationMatrix(size=100):
     cm = model.CorrelationMatrix(size)
@@ -16,7 +12,10 @@ def testSymetry(cm):
     print(cm.testSymetry())
 
 def testLoadData(fileName):
-    print(len(events(fileName)))
+    frame = events.EventsData(fileName)
+    print(frame.data.shape)
+
+
 
 
 

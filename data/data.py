@@ -12,10 +12,20 @@ class data():
         self.numEvents=None
 
     def loadEventLogFile(self, filePath):
+        self.eventLog=pd.read_csv(filePath)
+        self.eventLog.columns=['ts','user','contagion']
+        self.numUsers=len(self.eventLog['user'].unique()
+        self.numContagions=len(self.eventLog['contagion'].unique())
+        self.numEvents=self.eventLog.shape[0]
         # TODO Implement this method
         # TODO Column names
 
     def loadEventLogDataFrame(self, dataFrame):
+        self.eventLog=dataFrame
+        self.eventLog.columns=['ts','user','contagion']
+        self.numUsers=len(self.eventLog['user'].unique()
+        self.numContagions=len(self.eventLog['contagion'].unique())
+        self.numEvents=self.eventLog.shape[0]
         # TODO Implement this method
         # TODO Column names
 

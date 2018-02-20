@@ -97,16 +97,17 @@ class data():
 
 
     def loadDataMinOccurrence(self, minOccurs, directory=None, eventLogDF=None, edgesDF=None):
-        # TODO Implement this method
-        ''' Loads data to class data instance from the source that depends on given arguments
-        Only contagions appearing in minOccurs events are loaded'''
+        """ Loads data to class data instance from the source that depends on given arguments
+        Only contagions appearing in minOccurs events are loaded"""
         if self.loadData(directory,eventLogDF,edgesDF) == False:
             return False
+        self.restrictEventLogMinOccurences(minOccurs)
+        return True
+        # review
 
 
     def restrictEventLogMinOccurences(self, minOccurs):
-        ''' Restricts events in self to that, which contains contagions appearing in the data minOccurs times.'''
-        # TODO Column names
+        """ Restricts events in self to that, which contains contagions appearing in the data minOccurs times."""
         temp = self.eventLog.groupby(by='contagion').count().reset_index()[['contagion', 'ts']]
         series = temp[(temp['ts'] > minOccurs)]['contagion']
         self.eventLog = self.eventLog[self.eventLog['contagion'].isin(series)]

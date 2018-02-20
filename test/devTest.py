@@ -3,12 +3,12 @@ import data.Events as events
 import config.config as config
 
 
-eventsFile = config.local['eventsFile']
+directory = config.local['directory']
 
 def main():
     # testLoadData(eventsFile)
     # testEliminationOfEventsWithMinOccurTags(fileName=eventsFile, minOccur=10)
-    testEstimateCorrelationMatrixFromData(fileName=eventsFile, minOccur=40000)
+    testEstimateCorrelationMatrixFromData(fileName=directory+'eventLog', minOccur=40000)
 
 def testCreationOfRandomCorrelationMatrix(size=100):
     cm = model.CorrelationMatrix()

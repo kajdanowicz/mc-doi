@@ -18,8 +18,7 @@ class data():
     #     self.numUsers=len(self.eventLog['user'].unique()
     #     self.numContagions=len(self.eventLog['contagion'].unique())
     #     self.numEvents=self.eventLog.shape[0]
-    #     # TODO Implement this method
-    #     # TODO Column names
+
     #
     # def loadEventLogDataFrame(self, dataFrame):
     #     self.eventLog=dataFrame
@@ -27,25 +26,24 @@ class data():
     #     self.numUsers=len(self.eventLog['user'].unique()
     #     self.numContagions=len(self.eventLog['contagion'].unique())
     #     self.numEvents=self.eventLog.shape[0]
-    #     # TODO Implement this method
-    #     # TODO Column names
+
 
     # def loadEdgesFile(self, filePath):
     #     self.edges=pd.read_csv(filePath)
-    #     # TODO Implement this method
+
     #
     # def loadEdgesDataFrame(self, dataFrame):
-    #     # TODO Implement this method
+
 
     def loadDataFile(self,directory):
-        eventLog=pd.read_csv(directory+'eventLog')
-        eventLog.columns = ['ts', 'user', 'contagion']
-        edges=pd.read_csv(directory+'edges')
-        edges.columns = ['user1','user2']
-        if verifyUsersCorrect(eventLog,edges)==True:
-            self.eventLog=eventLog
-            self.edges=edges
-            self.numUsers=len(self.eventLog['user'].unique()) # fixme
+        eventLogDF=pd.read_csv(directory+'eventLog')
+        eventLogDF.columns = ['ts', 'user', 'contagion']
+        edgesDF=pd.read_csv(directory+'edges')
+        edgesDF.columns = ['user1','user2']
+        if data.verifyUsersCorrect(eventLogDF,edgesDF):
+            self.eventLog=eventLogDF
+            self.edges=edgesDF
+            self.numUsers=len(np.union1d(self.edges['user1'],self.edges['user2']))
             self.numContagions=len(self.eventLog['contagion'].unique())
             self.numEvents=self.eventLog.shape[0]
             return True
@@ -55,14 +53,12 @@ class data():
         # review
 
     def loadDataDataFrame(self, eventLogDF, edgesDF):
-        eventLog=eventLogDF
-        eventLog.columns = ['ts', 'user', 'contagion']
-        edges=edgesDF
-        edges.columns = ['user1','user2']
-        if verifyUsersCorrect(eventLog,edges)==True:
-            self.eventLog=eventLog
-            self.edges=edges
-            self.numUsers=len(self.eventLog['user'].unique()) # fixme
+        eventLogDF.columns = ['ts', 'user', 'contagion']
+        edgesDF.columns = ['user1','user2']
+        if verifyUsersCorrect(eventLogDF,edgesDF):
+            self.eventLog=eventLogDF
+            self.edges=edgesDF
+            self.numUsers=len(np.union1d(self.edges['user1'],self.edges['user2']))
             self.numContagions=len(self.eventLog['contagion'].unique())
             self.numEvents=self.eventLog.shape[0]
             return True
@@ -71,14 +67,26 @@ class data():
         # TODO Implement Exception
         # review
 
+    @staticmethod
     def verifyUsersCorrect(eventLogDF,edgesDF):
-        if np.setdiff1d(eventLogDF['user'],np.union1d([edgesDF['user1'],edgesDF['user2']])).shape[0]==0:
+        if np.setdiff1d(eventLogDF['user'],np.union1d(edgesDF['user1'],edgesDF['user2'])).shape[0]==0:
             return True
         else
             return False
 
-    # def verifyDataCorrect(self):
-    #     # TODO Implement this method
+    def verifyDataCorrect(self):
+        if not data.verifyUsersCorrect(self.eventLog,self.edges):
+            return False
+        elif not self.numEvents==self.eventLog.shape[0]:
+            return False
+        elif not self.numContagions==len(self.eventLog['contagions'].unique()):
+            return False
+        elif not self.numUsers==len(np.union1d(self.edges['user1'],self.edges['user2'])):
+            return False
+        else:
+            return True
+
+         # TODO Implement this method
 
     def loadData(self, directory=None, eventLogDF=None, edgesDF=None):
         ''' Loads data to class data instance from the source that depends on given arguments'''
@@ -126,6 +134,7 @@ class data():
 
     def dropEdge(self,edge):
         self.edges.drop(self.edges[((self.edges['user1']==edge[0]) & (self.edges['user2']==edge[1])) | ((self.edges['user1']==edge[1]) & (self.edges['user2']==edge[0]))].index,inplace=True)
+        # review
 
     def deleteEdges(self,edgesList):
         # question Should an unconnected user be deleted?

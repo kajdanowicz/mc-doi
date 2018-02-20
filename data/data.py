@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from collections import defaultdict
 
 
@@ -44,7 +45,7 @@ class data():
         if verifyUsersCorrect(eventLog,edges)==True:
             self.eventLog=eventLog
             self.edges=edges
-            self.numUsers=len(self.eventLog['user'].unique()
+            self.numUsers=len(self.eventLog['user'].unique()) # fixme
             self.numContagions=len(self.eventLog['contagion'].unique())
             self.numEvents=self.eventLog.shape[0]
             return True
@@ -61,7 +62,7 @@ class data():
         if verifyUsersCorrect(eventLog,edges)==True:
             self.eventLog=eventLog
             self.edges=edges
-            self.numUsers=len(self.eventLog['user'].unique()
+            self.numUsers=len(self.eventLog['user'].unique()) # fixme
             self.numContagions=len(self.eventLog['contagion'].unique())
             self.numEvents=self.eventLog.shape[0]
             return True
@@ -71,7 +72,7 @@ class data():
         # review
 
     def verifyUsersCorrect(eventLogDF,edgesDF):
-        if np.setdiff1d(eventLogDF['user'],,np.union1d([edgesDF['user1'],edgesDF['user2']])).shape[0]==0:
+        if np.setdiff1d(eventLogDF['user'],np.union1d([edgesDF['user1'],edgesDF['user2']])).shape[0]==0:
             return True
         else
             return False
@@ -82,19 +83,18 @@ class data():
     def loadData(self, directory=None, eventLogDF=None, edgesDF=None):
         ''' Loads data to class data instance from the source that depends on given arguments'''
         if directory is not None:
-            if self.loadDataFile(directory)==True:
+            if self.loadDataFile(directory):
                 return True
             else:
                 return False
         elif (eventLogDF is not None) and (edgesDF is not None):
-            if self.loadDataDataFrame(eventLogDF,edgesDF)==True:
+            if self.loadDataDataFrame(eventLogDF,edgesDF):
                 return True
             else:
                 return False
         else:
             return False
         # review
-
 
     def loadDataMinOccurrence(self, minOccurs, directory=None, eventLogDF=None, edgesDF=None):
         """ Loads data to class data instance from the source that depends on given arguments
@@ -104,7 +104,6 @@ class data():
         self.restrictEventLogMinOccurences(minOccurs)
         return True
         # review
-
 
     def restrictEventLogMinOccurences(self, minOccurs):
         """ Restricts events in self to that, which contains contagions appearing in the data minOccurs times."""
@@ -117,8 +116,25 @@ class data():
         # temp['tagID'] = temp.apply(lambda row: t[row['contagion']], axis=1)
         # review
 
-    def deleteUsers(self):
-        # TODO
+    def deleteUsers(self,userList):
+        self.edges.drop(self.edges[(self.edges['user1'].isin(userList)) | (self.edges['user2'].isin(userList))].index,inplace=True)
+        self.eventLog.drop(self.eventLog[self.eventLog['user'].isin(userList)].index,inplace=True)
+        self.numUsers=len(np.union1d(self.edges['user1'],self.edges['user2']))
+        self.numEvents=self.eventLog.shape[0]
+        self.numContagions=len(self.eventLog['contagion'].unique())
+        # review
 
-    def deleEdges(self):
-        # TODO
+    def dropEdge(self,edge):
+        self.edges.drop(self.edges[((self.edges['user1']==edge[0]) & (self.edges['user2']==edge[1])) | ((self.edges['user1']==edge[1]) & (self.edges['user2']==edge[0]))].index,inplace=True)
+
+    def deleteEdges(self,edgesList):
+        # question Should an unconnected user be deleted?
+        for edge in edgesList:
+            self.dropEdge(edge)
+        # review
+
+    def deleteContagions(self,contagionList):
+        self.eventLog.drop(self.eventLog[self.eventLog['contagion'].isin(contagionList)].index,inplace=True)
+        self.numEvents=self.eventLog.shape[0]
+        self.numContagions=len(self.eventLog['contagion'].unique())
+        # review

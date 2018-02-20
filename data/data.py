@@ -102,17 +102,22 @@ class data():
         Only contagions appearing in minOccurs events are loaded'''
         if self.loadData(directory,eventLogDF,edgesDF) == False:
             return False
-        
 
-    def restrictEventLogMinOccurences(self, minOccur):
-        ''' Return events that uses contagions appearing in the data minOccur times.'''
+
+    def restrictEventLogMinOccurences(self, minOccurs):
+        ''' Restricts events in self to that, which contains contagions appearing in the data minOccurs times.'''
         # TODO Column names
-        temp = self.eventLog.groupby(by='tag').count().reset_index()[['tag', 'ts']]
-        series = temp[(temp['ts'] > minOccur)]['tag']
-        temp = self.eventLog[self.eventLog['tag'].isin(series)]
-        t = defaultdict(lambda: len(t))
-        temp['tagID'] = temp.apply(lambda row: t[row['tag']], axis=1)
-        u = defaultdict(lambda: len(u))
-        temp.apply(lambda row: u[row['user']], axis=1)
-        temp['user'] = temp['user'].map(u)
+        temp = self.eventLog.groupby(by='contagion').count().reset_index()[['contagion', 'ts']]
+        series = temp[(temp['ts'] > minOccurs)]['contagion']
+        self.eventLog = self.eventLog[self.eventLog['contagion'].isin(series)]
+        self.numContagions=len(series)
+        self.numEvents=self.eventLog.shape[0]
+        # t = defaultdict(lambda: len(t))
+        # temp['tagID'] = temp.apply(lambda row: t[row['contagion']], axis=1)
         # review
+
+    def deleteUsers(self):
+        # TODO
+
+    def deleEdges(self):
+        # TODO

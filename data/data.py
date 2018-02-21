@@ -71,7 +71,7 @@ class data():
     def verifyUsersCorrect(eventLogDF,edgesDF):
         if np.setdiff1d(eventLogDF['user'],np.union1d(edgesDF['user1'],edgesDF['user2'])).shape[0]==0:
             return True
-        else
+        else:
             return False
     # review
 

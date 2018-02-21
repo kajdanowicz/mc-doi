@@ -136,8 +136,24 @@ class data():
         self.numUsers = len(np.union1d(self.edges['user1'], self.edges['user2']))
         self.numEvents = self.eventLog.shape[0]
         self.numContagions = len(self.eventLog['contagion'].unique())
-        return u
         # review
+
+    def deleteUsersAlterantive(self, userList):
+        for user in userList:
+            self.edges.drop(self.edges[(self.edges['user1']==userList) | (self.edges['user2']==userList)].index,
+                inplace=True)
+            self.eventLog.drop(self.eventLog[self.eventLog['user']==userList].index, inplace=True)
+            dict = {self.edges.values.max(): user}
+            self.edges['user1'].map(dict)
+            self.edges['user2'].map(dict)
+            self.eventLog['user'].map(dict)
+        self.numUsers = len(np.union1d(self.edges['user1'], self.edges['user2']))
+        self.numEvents = self.eventLog.shape[0]
+        self.numContagions = len(self.eventLog['contagion'].unique())
+        #review
+
+
+
 
     def dropEdge(self, edge):
         self.edges.drop(self.edges[((self.edges['user1'] == edge[0]) & (self.edges['user2'] == edge[1])) | (

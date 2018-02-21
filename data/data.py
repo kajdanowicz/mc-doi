@@ -143,6 +143,7 @@ class data():
     def dropEdge(self, edge):
         self.edges.drop(self.edges[((self.edges['user1'] == edge[0]) & (self.edges['user2'] == edge[1])) | (
                     (self.edges['user1'] == edge[1]) & (self.edges['user2'] == edge[0]))].index, inplace=True)
+        # question Should an unconnected user be deleted?
         # review
 
     def deleteEdges(self, edgesList):

@@ -55,7 +55,7 @@ class data():
     def loadDataDataFrame(self, eventLogDF, edgesDF):
         eventLogDF.columns = ['ts', 'user', 'contagion']
         edgesDF.columns = ['user1','user2']
-        if verifyUsersCorrect(eventLogDF,edgesDF):
+        if data.verifyUsersCorrect(eventLogDF,edgesDF):
             self.eventLog=eventLogDF
             self.edges=edgesDF
             self.numUsers=len(np.union1d(self.edges['user1'],self.edges['user2']))
@@ -73,6 +73,7 @@ class data():
             return True
         else
             return False
+    # review
 
     def verifyDataCorrect(self):
         if not data.verifyUsersCorrect(self.eventLog,self.edges):
@@ -85,8 +86,7 @@ class data():
             return False
         else:
             return True
-
-         # TODO Implement this method
+    # review
 
     def loadData(self, directory=None, eventLogDF=None, edgesDF=None):
         ''' Loads data to class data instance from the source that depends on given arguments'''
@@ -127,6 +127,8 @@ class data():
     def deleteUsers(self,userList):
         self.edges.drop(self.edges[(self.edges['user1'].isin(userList)) | (self.edges['user2'].isin(userList))].index,inplace=True)
         self.eventLog.drop(self.eventLog[self.eventLog['user'].isin(userList)].index,inplace=True)
+        u = defaultdict(lambda: len(u))
+        #self.
         self.numUsers=len(np.union1d(self.edges['user1'],self.edges['user2']))
         self.numEvents=self.eventLog.shape[0]
         self.numContagions=len(self.eventLog['contagion'].unique())

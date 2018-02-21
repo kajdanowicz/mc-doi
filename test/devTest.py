@@ -6,7 +6,7 @@ directory = config.local['directory']
 
 def main():
     test(testLoadDataFile(directory))
-    print('Halo')
+
 
 def test(t):
     if t:
@@ -15,8 +15,15 @@ def test(t):
         print('Failed')
 
 def testLoadDataFile(directory):
+    # passed
     d=data.data()
     return d.loadDataFile(directory)
+
+def testLoadDataDataFrame(eventLogDF,edgesDF):
+    d=data.data()
+    return d.loadDataDataFrame(eventLogDF,edgesDF)
+
+
 
 
 

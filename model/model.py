@@ -13,6 +13,7 @@ class model():
 
     def estimateParametersFromData(self,data):
         # TODO Implement this method
+        self.estimateAdajacencyMatrix(data)
 
     def estimateContagionCorrelationMatrix(self,data):
         if data.contagionIDDict is None:
@@ -39,7 +40,7 @@ class model():
                 self.contagionCorrelationMatrix[j][i] = wynik
          # review
 
-    def estimateAdajacencyMatrix(self,data):
+    def estimateAdjacencyMatrix(self,data):
     # TODO Implement
 
 

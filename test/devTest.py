@@ -1,14 +1,47 @@
 import model.parameters as model
-import data.Events as events
+import data.data as data
 import config.config as config
-
 
 directory = config.local['directory']
 
 def main():
-    # testLoadData(eventsFile)
-    # testEliminationOfEventsWithMinOccurTags(fileName=eventsFile, minOccur=10)
-    testEstimateCorrelationMatrixFromData(fileName=directory+'eventLog', minOccur=40000)
+    test(testLoadDataFile(directory))
+    print('Halo')
+
+def test(t):
+    if t:
+        print('Passed')
+    else:
+        print('Failed')
+
+def testLoadDataFile(directory):
+    d=data.data()
+    return d.loadDataFile(directory)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def testCreationOfRandomCorrelationMatrix(size=100):
     cm = model.CorrelationMatrix()

@@ -5,7 +5,8 @@ import config.config as config
 directory = config.local['directory']
 
 def main():
-    test(testLoadDataFile(directory))
+    #testDeleteUsers([0,1,2,3])
+    pass
 
 
 def test(t):
@@ -13,6 +14,13 @@ def test(t):
         print('Passed')
     else:
         print('Failed')
+
+def testDeleteUsers(userList):
+    d=data.data()
+    d.loadData(directory=directory)
+    u=d.deleteUsers(userList)
+    print(u.values())
+
 
 def testLoadDataFile(directory):
     # passed

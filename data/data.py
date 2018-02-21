@@ -128,12 +128,10 @@ class data():
         self.edges.drop(self.edges[(self.edges['user1'].isin(userList)) | (self.edges['user2'].isin(userList))].index,
                         inplace=True)
         self.eventLog.drop(self.eventLog[self.eventLog['user'].isin(userList)].index, inplace=True)
-        u = defaultdict(lambda: len(u))
         # pd.concat([self.edges['user1'],self.edges['user2']],copy=False).apply(lambda row: u[row.loc[:,0]])
-        self.edges.apply(lambda row: u[row['user1']], axis=1)
-        self.edges.apply(lambda row: u[row['user2']], axis=1)
-        self.edges['user1'] = self.edges['user1'].map(u)
-        self.edges['user2'] = self.edges['user2'].map(u)
+        u = defaultdict(lambda: len(u))
+        self.edges['user1'] = self.edges.apply(lambda row: u[row['user1']], axis=1)
+        self.edges['user2'] = self.edges.apply(lambda row: u[row['user2']], axis=1)
         self.eventLog['user'] = self.eventLog['user'].map(u)
         self.numUsers = len(np.union1d(self.edges['user1'], self.edges['user2']))
         self.numEvents = self.eventLog.shape[0]

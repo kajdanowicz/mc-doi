@@ -1,3 +1,5 @@
+import numpy as np
+import math
 
 
 class model():
@@ -14,6 +16,7 @@ class model():
 
     @staticmethod
     def estimateContagionCorrelationMatrix(data):
+        # TODO Implement
         # self.size = eventsLog['tagID'].max()+1
         # self.correlationMatrix = np.eye(N=self.size)
         numUsers=data.numUsers

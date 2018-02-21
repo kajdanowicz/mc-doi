@@ -14,15 +14,36 @@ class model():
     def estimateParametersFromData(self,data):
         # TODO Implement this method
 
+    def estimateContagionCorrelationMatrix(self,data):
+        if data.contagionIDDict is None:
+            data.addContagionID()
+        self.contagionCorrelationMatrix= np.eye(N=data.numContagions)
+        numUsers = data.numUsers
+        tmp = data.eventLog[['user', 'contagion']].drop_duplicates(subset=None, keep='first', inplace=False)
+        allUsersIDs = np.linspace(0, numUsers, num=numUsers + 1).astype(int)
+        for i in range(data.numContagions):
+            for j in range(i + 1, data.numContagions):
+                i_users = tmp[tmp['contagionID'] == i]['user'].as_matrix()
+                j_users = tmp[tmp['contagionID'] == j]['user'].as_matrix()
+                ni_users = np.setdiff1d(allUsersIDs, i_users)
+                nj_users = np.setdiff1d(allUsersIDs, j_users)
+                pij = len(np.intersect1d(i_users, j_users)) / numUsers
+                pinj = len(np.intersect1d(i_users, nj_users)) / numUsers
+                pnij = len(np.intersect1d(ni_users, j_users)) / numUsers
+                pi = len(i_users) / numUsers
+                pj = len(j_users) / numUsers
+                pni = len(ni_users) / numUsers
+                pnj = len(nj_users) / numUsers
+                wynik = pij / math.sqrt(pi * pj) - (pnij / math.sqrt(pni * pj) + pinj / math.sqrt(pi * pnj)) / 2
+                self.contagionCorrelationMatrix[i][j] = wynik
+                self.contagionCorrelationMatrix[j][i] = wynik
+         # review
 
-
-    @staticmethod
-    def estimateAdajacencyMatrix(data):
+    def estimateAdajacencyMatrix(self,data):
     # TODO Implement
 
 
-    @staticmethod
-    def estimateThresholdsVector(data):
+    def estimateThresholdsVector(self,data):
     #TODO Implement
 
     def assignContagionsCorrelationMatrix(self, contagionsCorrelationMatrix):

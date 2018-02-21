@@ -164,28 +164,4 @@ class data():
         self.contagionIDDict=t
         # review
 
-    def estimateContagionCorrelationMatrix(self):
-        if self.contagionIDDict is None:
-            self.addContagionID()
-        correlationMatrix = np.eye(N=self.numContagions)
-        numUsers=self.numUsers
-        tmp = self.eventLog[['user', 'contagion']].drop_duplicates(subset=None, keep='first', inplace=False)
-        allUsersIDs = np.linspace(0, numUsers, num=numUsers + 1).astype(int)
-        for i in range(self.numContagions):
-            for j in range(i + 1, self.numContagions):
-                i_users = tmp[tmp['contagionID'] == i]['user'].as_matrix()
-                j_users = tmp[tmp['contagionID'] == j]['user'].as_matrix()
-                ni_users = np.setdiff1d(allUsersIDs, i_users)
-                nj_users = np.setdiff1d(allUsersIDs, j_users)
-                pij = len(np.intersect1d(i_users, j_users)) / numUsers
-                pinj = len(np.intersect1d(i_users, nj_users)) / numUsers
-                pnij = len(np.intersect1d(ni_users, j_users)) / numUsers
-                pi = len(i_users) / numUsers
-                pj = len(j_users) / numUsers
-                pni = len(ni_users) / numUsers
-                pnj = len(nj_users) / numUsers
-                wynik = pij / math.sqrt(pi * pj) - (pnij / math.sqrt(pni * pj) + pinj / math.sqrt(pi * pnj)) / 2
-                correlationMatrix[i][j] = wynik
-                correlationMatrix[j][i] = wynik
-        return correlationMatrix
-        #review
+

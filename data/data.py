@@ -11,7 +11,6 @@ class data():
         self.numUsers = None
         self.numContagions = None
         self.numEvents = None
-        self.contagionID = False
         self.contagionIDDict=None
 
     # def loadEventLogFile(self, filePath):

@@ -129,9 +129,9 @@ class data():
         self.eventLog.drop(self.eventLog[self.eventLog['user'].isin(userList)].index,inplace=True)
         u = defaultdict(lambda: len(u))
         pd.concat([self.edges['user1'],self.edges['user2']],copy=False).apply(lambda row: u[row.loc[:,0]])
-        self.edges['user1'].map(u)
-        self.edges['user2'].map(u)
-        self.eventLog['user'].map(u)
+        self.edges['user1'].replace(u)
+        self.edges['user2'].replace(u)
+        self.eventLog['user'].replace(u)
         self.numUsers=len(np.union1d(self.edges['user1'],self.edges['user2']))
         self.numEvents=self.eventLog.shape[0]
         self.numContagions=len(self.eventLog['contagion'].unique())

@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import copy
 
 
 class model():
@@ -10,11 +11,10 @@ class model():
         self.thresholdsMatrix = None
         self.stateMatrix = None
         self.activityIndexVector = None
-        self.numContagions = None
 
     def estimateParametersFromData(self,data):
         # TODO Implement this method
-        self.estimateAdajacencyMatrix(data)
+        self.estimateContagionCorrelationMatrix(data)
 
     def estimateContagionCorrelationMatrix(self,data):
         if data.contagionIDDict is None:
@@ -39,12 +39,12 @@ class model():
                 wynik = pij / math.sqrt(pi * pj) - (pnij / math.sqrt(pni * pj) + pinj / math.sqrt(pi * pnj)) / 2
                 self.contagionCorrelationMatrix[i][j] = wynik
                 self.contagionCorrelationMatrix[j][i] = wynik
-        self.numContagions=data.numContagions
         # review
 
     def verifyContagionCorrelationMatrixSymetry(self):
-        for i in range(self.numContagions):
-            for j in range(i+1,self.numContagions):
+        # TODO Implement "contagionCorrelationMatrix is None" exception
+        for i in range(self.contagionCorrelationMatrix.shape[0]):
+            for j in range(i+1,self.contagionCorrelationMatrix.shape[0]):
                 if self.contagionCorrelationMatrix[i][j]!=self.contagionCorrelationMatrix[j][i]:
                     return False
         return True
@@ -55,6 +55,13 @@ class model():
 
     def estimateThresholdsVector(self,data):
         #TODO Implement
+        indykatory_est = []
+        I = np.full((data.numUsers, data.numContagions), False, dtype=bool)
+        for i in range(history):
+            for index, row in event_log[event_log['ts'] == i].iterrows():
+                I[row['userNEW'], row['tagID']] = True
+            indykatory_est.append(I)
+            I = copy.deepcopy(I)
         pass
 
     def assignContagionsCorrelationMatrix(self, contagionsCorrelationMatrix):

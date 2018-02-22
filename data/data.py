@@ -160,7 +160,7 @@ class data():
 
     def addContagionID(self):
         t = defaultdict(lambda: len(t))
-        self.eventLog['contagionID']=self.eventLog['contagion'].apply(lambda row: t[row['contagion']], axis=1)
+        self.eventLog['contagionID']=self.eventLog.apply(lambda row: t[row['contagion']], axis=1)
         self.contagionIDDict=t
         # review
 

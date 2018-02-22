@@ -1,11 +1,11 @@
-import model.parameters as model
+import model.model as model
 import data.data as data
 import config.config as config
 
 directory = config.local['directory']
 
 def main():
-    testRestrictEventLogMinOccurences(directory,minOccurs=50000)
+    testEstimateContagionCorrelationMatrix(directory,minOccurs=50000)
 
 
 def test(t):
@@ -20,7 +20,6 @@ def testDeleteUsers(userList):
     u=d.deleteUsers(userList)
     print(u.values())
 
-
 def testLoadDataFile(directory):
     # passed
     d=data.data()
@@ -34,9 +33,20 @@ def testRestrictEventLogMinOccurences(directory, minOccurs = 40000):
     # TODO Design this test
     d=data.data()
     d.loadData(directory=directory)
-    print('Before restriction:',d.eventLog.shape,'numContagions:',d.numContagions)
+    print('Before restriction:',d.numEvents,'numContagions:',d.numContagions)
     d.restrictEventLogMinOccurences(minOccurs)
-    print('After restriction:', d.eventLog.shape,'numContagions:',d.numContagions)
+    print('After restriction:', d.numEvents,'numContagions:',d.numContagions)
+
+def testEstimateContagionCorrelationMatrix(directory,minOccurs=40000):
+    # TODO Design this test
+    m=model.model()
+    d=data.data()
+    d.loadData(directory)
+    d.restrictEventLogMinOccurences(minOccurs)
+    m.estimateContagionCorrelationMatrix(d)
+    print(m.contagionCorrelationMatrix)
+    test(m.verifyContagionCorrelationMatrixSymetry())
+
 
 
 

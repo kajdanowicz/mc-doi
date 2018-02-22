@@ -5,8 +5,7 @@ import config.config as config
 directory = config.local['directory']
 
 def main():
-    #testDeleteUsers([0,1,2,3])
-    pass
+    testRestrictEventLogMinOccurences(directory,minOccurs=50000)
 
 
 def test(t):
@@ -31,12 +30,13 @@ def testLoadDataDataFrame(eventLogDF,edgesDF):
     d=data.data()
     return d.loadDataDataFrame(eventLogDF,edgesDF)
 
-def testEliminationOfEventsWithMinOccurTags(directory, minOccurs = 40000):
+def testRestrictEventLogMinOccurences(directory, minOccurs = 40000):
     # TODO Design this test
     d=data.data()
     d.loadData(directory=directory)
+    print('Before restriction:',d.eventLog.shape,'numContagions:',d.numContagions)
     d.restrictEventLogMinOccurences(minOccurs)
-    print(d.eventLog.shape)
+    print('After restriction:', d.eventLog.shape,'numContagions:',d.numContagions)
 
 
 

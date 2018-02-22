@@ -10,6 +10,7 @@ class model():
         self.thresholdsMatrix = None
         self.stateMatrix = None
         self.activityIndexVector = None
+        self.numContagions = None
 
     def estimateParametersFromData(self,data):
         # TODO Implement this method
@@ -20,7 +21,7 @@ class model():
             data.addContagionID()
         self.contagionCorrelationMatrix= np.eye(N=data.numContagions)
         numUsers = data.numUsers
-        tmp = data.eventLog[['user', 'contagion']].drop_duplicates(subset=None, keep='first', inplace=False)
+        tmp = data.eventLog[['user', 'contagionID']].drop_duplicates(subset=None, keep='first', inplace=False)
         allUsersIDs = np.linspace(0, numUsers, num=numUsers + 1).astype(int)
         for i in range(data.numContagions):
             for j in range(i + 1, data.numContagions):
@@ -38,26 +39,40 @@ class model():
                 wynik = pij / math.sqrt(pi * pj) - (pnij / math.sqrt(pni * pj) + pinj / math.sqrt(pi * pnj)) / 2
                 self.contagionCorrelationMatrix[i][j] = wynik
                 self.contagionCorrelationMatrix[j][i] = wynik
-         # review
+        self.numContagions=data.numContagions
+        # review
+
+    def verifyContagionCorrelationMatrixSymetry(self):
+        for i in range(self.numContagions):
+            for j in range(i+1,self.numContagions):
+                if self.contagionCorrelationMatrix[i][j]!=self.contagionCorrelationMatrix[j][i]:
+                    return False
+        return True
 
     def estimateAdjacencyMatrix(self,data):
         # TODO Implement
-
+        pass
 
     def estimateThresholdsVector(self,data):
         #TODO Implement
+        pass
 
     def assignContagionsCorrelationMatrix(self, contagionsCorrelationMatrix):
         # TODO Implement this method
+        pass
 
     def assignAdjacencyMatrix(self, adjacencyMatrix):
         # TODO Implement this method
+        pass
 
     def assignThresholdsMatrix(self, thresholdsVector):
         # TODO Implement this method
+        pass
 
     def assignStateMatrix(self, stateMatrix):
         # TODO Implement this method
+        pass
 
     def assignActivityIndexVector(self, activityIndexVector):
         # TODO Implement this method
+        pass

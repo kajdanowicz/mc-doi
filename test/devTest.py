@@ -31,7 +31,12 @@ def testLoadDataDataFrame(eventLogDF,edgesDF):
     d=data.data()
     return d.loadDataDataFrame(eventLogDF,edgesDF)
 
-
+def testEliminationOfEventsWithMinOccurTags(directory, minOccurs = 40000):
+    # TODO Design this test
+    d=data.data()
+    d.loadData(directory=directory)
+    d.restrictEventLogMinOccurences(minOccurs)
+    print(d.eventLog.shape)
 
 
 
@@ -70,9 +75,7 @@ def testLoadData(fileName):
     print(frame.data.shape)
 
 
-def testEliminationOfEventsWithMinOccurTags(fileName, minOccur = 10):
-    frame = events.EventsData(fileName=fileName)
-    print(frame.getEventsMinOccurences(minOccur).shape)
+
 
 def testEstimateCorrelationMatrixFromData(fileName, minOccur = 10):
     frame = events.EventsData(fileName=fileName)

@@ -41,11 +41,11 @@ class model():
          # review
 
     def estimateAdjacencyMatrix(self,data):
-    # TODO Implement
+        # TODO Implement
 
 
     def estimateThresholdsVector(self,data):
-    #TODO Implement
+        #TODO Implement
 
     def assignContagionsCorrelationMatrix(self, contagionsCorrelationMatrix):
         # TODO Implement this method

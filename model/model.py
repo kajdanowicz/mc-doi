@@ -9,8 +9,8 @@ class model():
         self.contagionCorrelationMatrix = None
         self.adjacencyMatrix = None
         self.thresholdsMatrix = None
-        self.stateMatrix = None
-        self.activityIndexVector = None
+        self.stateMatrix = None # macierz indykatorow
+        self.activityIndexVector = None # wykladnik
 
     def estimateParametersFromData(self,data):
         # TODO Implement this method
@@ -66,7 +66,12 @@ class model():
 
     def assignContagionsCorrelationMatrix(self, contagionsCorrelationMatrix):
         # TODO Implement this method
-        pass
+        if self.stateMatrix is None:
+            self.contagionCorrelationMatrix=contagionsCorrelationMatrix
+        else:
+            if self.stateMatrix.shape[1] == contagionsCorrelationMatrix.shape[1]:
+                self.contagionCorrelationMatrix = contagionsCorrelationMatrix
+        # review
 
     def assignAdjacencyMatrix(self, adjacencyMatrix):
         # TODO Implement this method
@@ -81,5 +86,9 @@ class model():
         pass
 
     def assignActivityIndexVector(self, activityIndexVector):
+        # TODO Implement this method
+        pass
+
+    def modelIteration(self):
         # TODO Implement this method
         pass

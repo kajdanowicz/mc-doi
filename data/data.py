@@ -116,6 +116,7 @@ class data():
 
     def restrictEventLogMinOccurences(self, minOccurs):
         """ Restricts events in self to that, which contains contagions appearing in the data minOccurs times."""
+        # TODO Use deleteContagions to obtain this
         temp = self.eventLog.groupby(by='contagion').count().reset_index()[['contagion', 'ts']]
         series = temp[(temp['ts'] > minOccurs)]['contagion']
         self.eventLog = self.eventLog[self.eventLog['contagion'].isin(series)]

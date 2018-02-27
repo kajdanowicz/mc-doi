@@ -1,10 +1,10 @@
-class tVector():
+class tMatrix():
 
     def __init__(self):
         self.vector=None
         self.numUsers=None
 
-    def estimate(self,data):
+    def estimateVector(self,data):
         #TODO Implement
         indykatory_est = []
         I = np.full((data.numUsers, data.numContagions), False, dtype=bool)
@@ -13,3 +13,7 @@ class tVector():
                 I[row['userNEW'], row['tagID']] = True
             indykatory_est.append(I)
             I = copy.deepcopy(I)
+
+    def estimate(self,data):
+        #TODO Implement
+        # Construct matrix from vector

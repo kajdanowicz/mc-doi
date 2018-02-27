@@ -17,14 +17,6 @@ class model():
         pass
 
 
-    def verifyContagionCorrelationMatrixSymetry(self):
-        # TODO Implement "contagionCorrelationMatrix is None" exception
-        for i in range(self.contagionCorrelationMatrix.shape[0]):
-            for j in range(i+1,self.contagionCorrelationMatrix.shape[0]):
-                if self.contagionCorrelationMatrix[i][j]!=self.contagionCorrelationMatrix[j][i]:
-                    return False
-        return True
-
     def estimateAdjacencyMatrix(self,data):
         # TODO Implement
         pass

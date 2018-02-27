@@ -33,3 +33,10 @@ class ccMatrix():
                 self.matrix[i][j] = wynik
                 self.matrix[j][i] = wynik
         # review
+
+    def verifyMatrixSymetry(self):
+        for i in range(self.numContagions):
+            for j in range(i+1,self.numContagions):
+                if self.matrix[i][j]!=self.matrix[j][i]:
+                    return False
+        return True

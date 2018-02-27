@@ -165,4 +165,8 @@ class data():
         self.contagionIDDict=t
         # review
 
+    def constructGroupedEventLog(self):
+        #TODO Implement this method
+        pass
+
 

@@ -1,6 +1,9 @@
 import numpy as np
 import math
 import copy
+import model.ccMatrix as ccMatrix
+import model.aMatrix as aMatrix
+import model.tMatrix as tMatrix
 
 
 class model():
@@ -14,6 +17,14 @@ class model():
 
     def fit(self,data):
         #TODO Implement this method
+        self.contagionCorrelationMatrix=ccMatrix.ccMatrix()
+        self.adjacencyMatrix=aMatrix.aMatrix()
+        self.thresholdsMatrix=tMatrix.tMatrix()
+        self.contagionCorrelationMatrix.estimate(data)
+        self.adjacencyMatrix.estimate(data)
+        self.thresholdsMatrix.estimate(data)
+        # TODO stateMatrix and activityIndexVector
+
         pass
 
     def predict(self):

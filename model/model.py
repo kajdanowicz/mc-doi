@@ -16,30 +16,17 @@ class model():
         #TODO Implement this method
         pass
 
-
-    def estimateAdjacencyMatrix(self,data):
-        # TODO Implement
+    def predict(self):
+        #TODO Implement this method
         pass
 
-    def estimateThresholdsVector(self,data):
-        #TODO Implement
-        indykatory_est = []
-        I = np.full((data.numUsers, data.numContagions), False, dtype=bool)
-        for i in range(history):
-            for index, row in event_log[event_log['ts'] == i].iterrows():
-                I[row['userNEW'], row['tagID']] = True
-            indykatory_est.append(I)
-            I = copy.deepcopy(I)
-        pass
-
-    def assignContagionsCorrelationMatrix(self, contagionsCorrelationMatrix):
+    def assignContagionsCorrelationMatrix(self, matrix):
         # TODO Implement this method
         if self.stateMatrix is None:
-            self.contagionCorrelationMatrix=contagionsCorrelationMatrix
+            self.contagionCorrelationMatrix=matrix
         else:
-            if self.stateMatrix.shape[1] == contagionsCorrelationMatrix.shape[1]:
-                self.contagionCorrelationMatrix = contagionsCorrelationMatrix
-        # review
+            if self.stateMatrix.shape[1] == matrix.shape[1]:
+                self.contagionCorrelationMatrix = matrix
 
     def assignAdjacencyMatrix(self, adjacencyMatrix):
         # TODO Implement this method

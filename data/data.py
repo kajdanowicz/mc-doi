@@ -99,6 +99,7 @@ class data():
                 self.edges['user1'] = self.edges.apply(lambda row: u[row['user1']], axis=1)
                 self.edges['user2'] = self.edges.apply(lambda row: u[row['user2']], axis=1)
                 self.eventLog['user'] = self.eventLog['user'].map(u)
+                #TODO Verify
                 return True
             else:
                 return False

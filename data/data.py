@@ -165,8 +165,11 @@ class data():
         self.contagionIDDict=t
         # review
 
-    def constructGroupedEventLog(self):
-        #TODO Implement this method
-        pass
+    def constructEventLogGrouped(self):
+        t = defaultdict(lambda: len(t))
+        self.eventLog['eventID']=self.eventLog.apply(lambda row: t[(row['user'],row['ts'])], axis=1)
+        # review
 
-
+    def toCSV(self,directory=''):
+        self.eventLog.to_csv(directory + 'eventLog',header=False,index=False)
+        self.edges.to_csv(directory + 'edges', header=False, index=False)

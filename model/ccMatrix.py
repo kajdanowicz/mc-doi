@@ -52,3 +52,11 @@ class ccMatrix():
     def assignMatrix(self,matrix):
         #TODO Implement this method
         pass
+
+    def randomMatrix(self,size):
+        self.numContagions = size
+        C = np.random.random((self.numContagions, self.numContagions))
+        C = C * 2 - 1
+        C *= np.tri(*C.shape, k=-1)
+        self.matrix = C + np.transpose(C) + np.eye(N=self.size)
+        # review

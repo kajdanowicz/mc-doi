@@ -37,6 +37,7 @@ class data():
     def loadDataFile(self, directory):
         eventLogDF = pd.read_csv(directory + 'eventLog')
         eventLogDF.columns = ['ts', 'user', 'contagion']
+        eventLogDF.sort_values(by='ts',inplace=True)
         edgesDF = pd.read_csv(directory + 'edges')
         edgesDF.columns = ['user1', 'user2']
         if data.verifyUsersCorrect(eventLogDF, edgesDF):
@@ -53,6 +54,7 @@ class data():
 
     def loadDataDataFrame(self, eventLogDF, edgesDF):
         eventLogDF.columns = ['ts', 'user', 'contagion']
+        eventLogDF.sort_values(by='ts',inplace=True)
         edgesDF.columns = ['user1', 'user2']
         if data.verifyUsersCorrect(eventLogDF, edgesDF):
             self.eventLog = eventLogDF
@@ -93,11 +95,19 @@ class data():
         ''' Loads data to class data instance from the source that depends on given arguments'''
         if directory is not None:
             if self.loadDataFile(directory):
+                u = defaultdict(lambda: len(u))
+                self.edges['user1'] = self.edges.apply(lambda row: u[row['user1']], axis=1)
+                self.edges['user2'] = self.edges.apply(lambda row: u[row['user2']], axis=1)
+                self.eventLog['user'] = self.eventLog['user'].map(u)
                 return True
             else:
                 return False
         elif (eventLogDF is not None) and (edgesDF is not None):
             if self.loadDataDataFrame(eventLogDF, edgesDF):
+                u = defaultdict(lambda: len(u))
+                self.edges['user1'] = self.edges.apply(lambda row: u[row['user1']], axis=1)
+                self.edges['user2'] = self.edges.apply(lambda row: u[row['user2']], axis=1)
+                self.eventLog['user'] = self.eventLog['user'].map(u)
                 return True
             else:
                 return False
@@ -160,9 +170,10 @@ class data():
         # review
 
     def addContagionID(self):
-        t = defaultdict(lambda: len(t))
-        self.eventLog['contagionID']=self.eventLog.apply(lambda row: t[row['contagion']], axis=1)
-        self.contagionIDDict=t
+        if 'contagionID' not in self.eventLog.columns:
+            t = defaultdict(lambda: len(t))
+            self.eventLog['contagionID']=self.eventLog.apply(lambda row: t[row['contagion']], axis=1)
+            self.contagionIDDict=t
         # review
 
     def constructEventLogGrouped(self):

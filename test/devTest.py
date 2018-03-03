@@ -5,13 +5,15 @@ import data.data as data
 import config.config as config
 
 import model.tMatrix as tMatrix
+import model.aMatrix as aMatrix
 
 directory = config.local['directory']
 
 def main():
     d=data.data()
     d.loadData(directory)
-
+    aM=aMatrix.aMatrix()
+    aM.estimate(d)
 
 
 

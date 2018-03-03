@@ -163,11 +163,20 @@ class data():
         self.numContagions = len(self.eventLog['contagion'].unique())
         # review
 
+    def deleteContagionsByID(self, contagionIDList):
+        if 'contagionID' in self.eventLog.columns:
+            self.eventLog.drop(self.eventLog[self.eventLog['contagionID'].isin(contagionIDList)].index, inplace=True)
+            self.numEvents = self.eventLog.shape[0]
+            self.numContagions = len(self.eventLog['contagionID'].unique())
+            #review
+
+
     def addContagionID(self):
         if 'contagionID' not in self.eventLog.columns:
             t = defaultdict(lambda: len(t))
             self.eventLog['contagionID']=self.eventLog.apply(lambda row: t[row['contagion']], axis=1)
             self.contagionIDDict=t
+        # TODO Does it work globally?
         # review
 
     def constructEventLogGrouped(self):

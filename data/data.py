@@ -16,7 +16,6 @@ class data():
     def loadDataFile(self, directory):
         eventLogDF = pd.read_csv(directory + 'eventLog')
         eventLogDF.columns = ['ts', 'user', 'contagion']
-        eventLogDF.sort_values(by='ts',inplace=True)
         edgesDF = pd.read_csv(directory + 'edges')
         edgesDF.columns = ['user1', 'user2']
         if data.verifyUsersCorrect(eventLogDF, edgesDF):
@@ -33,7 +32,6 @@ class data():
 
     def loadDataDataFrame(self, eventLogDF, edgesDF):
         eventLogDF.columns = ['ts', 'user', 'contagion']
-        eventLogDF.sort_values(by='ts',inplace=True)
         edgesDF.columns = ['user1', 'user2']
         if data.verifyUsersCorrect(eventLogDF, edgesDF):
             self.eventLog = eventLogDF
@@ -69,6 +67,9 @@ class data():
             return True
 
     # review
+    def sortData(self):
+        self.eventLog.sort_values(by=['contagion', 'ts'], inplace=True)
+
 
     def loadData(self, directory=None, eventLogDF=None, edgesDF=None):
         ''' Loads data to class data instance from the source that depends on given arguments'''
@@ -78,6 +79,7 @@ class data():
                 self.edges['user1'] = self.edges.apply(lambda row: u[row['user1']], axis=1)
                 self.edges['user2'] = self.edges.apply(lambda row: u[row['user2']], axis=1)
                 self.eventLog['user'] = self.eventLog['user'].map(u)
+                self.sortData()
                 return True
             else:
                 return False
@@ -87,6 +89,7 @@ class data():
                 self.edges['user1'] = self.edges.apply(lambda row: u[row['user1']], axis=1)
                 self.edges['user2'] = self.edges.apply(lambda row: u[row['user2']], axis=1)
                 self.eventLog['user'] = self.eventLog['user'].map(u)
+                self.sortData()
                 return True
             else:
                 return False

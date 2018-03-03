@@ -97,6 +97,13 @@ class data():
             return False
         # review
 
+    def edgeExists(self,user1,user2):
+        if self.edges[(self.edges['user1'].isin([user1,user2])) & (self.edges['user2'].isin([user1,user2]))].empty:
+            return False
+        else:
+            return True
+
+
     def loadDataMinOccurrence(self, minOccurs, directory=None, eventLogDF=None, edgesDF=None):
         """ Loads data to class data instance from the source that depends on given arguments
         Only contagions appearing in minOccurs events are loaded"""
@@ -133,9 +140,14 @@ class data():
         # review
 
 
-    def dropEdge(self, edge):
-        self.edges.drop(self.edges[((self.edges['user1'] == edge[0]) & (self.edges['user2'] == edge[1])) | (
+    def dropEdge(self, edge=None, user1=None,user2=None):
+        if (user1 is None) & (user2 is None):
+            self.edges.drop(self.edges[((self.edges['user1'] == edge[0]) & (self.edges['user2'] == edge[1])) | (
                     (self.edges['user1'] == edge[1]) & (self.edges['user2'] == edge[0]))].index, inplace=True)
+        elif (edge is None) & (user1 is not None) & (user2 is not None):
+            self.edges.drop(self.edges[(self.edges['user1'].isin([user1,user2])) & (self.edges['user2'].isin([user1,user2]))].index,inplace=True)
+        else:
+            return False
         # question Should an unconnected user be deleted?
         # review
 

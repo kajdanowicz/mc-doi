@@ -13,27 +13,6 @@ class data():
         self.numEvents = None
         self.contagionIDDict=None
 
-    # def loadEventLogFile(self, filePath):
-    #     self.eventLog=pd.read_csv(filePath)
-    #     self.eventLog.columns=['ts','user','contagion']
-    #     self.numUsers=len(self.eventLog['user'].unique()
-    #     self.numContagions=len(self.eventLog['contagion'].unique())
-    #     self.numEvents=self.eventLog.shape[0]
-
-    #
-    # def loadEventLogDataFrame(self, dataFrame):
-    #     self.eventLog=dataFrame
-    #     self.eventLog.columns=['ts','user','contagion']
-    #     self.numUsers=len(self.eventLog['user'].unique()
-    #     self.numContagions=len(self.eventLog['contagion'].unique())
-    #     self.numEvents=self.eventLog.shape[0]
-
-    # def loadEdgesFile(self, filePath):
-    #     self.edges=pd.read_csv(filePath)
-
-    #
-    # def loadEdgesDataFrame(self, dataFrame):
-
     def loadDataFile(self, directory):
         eventLogDF = pd.read_csv(directory + 'eventLog')
         eventLogDF.columns = ['ts', 'user', 'contagion']
@@ -99,7 +78,6 @@ class data():
                 self.edges['user1'] = self.edges.apply(lambda row: u[row['user1']], axis=1)
                 self.edges['user2'] = self.edges.apply(lambda row: u[row['user2']], axis=1)
                 self.eventLog['user'] = self.eventLog['user'].map(u)
-                #TODO Verify
                 return True
             else:
                 return False

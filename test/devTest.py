@@ -4,13 +4,16 @@ import model.model as model
 import data.data as data
 import config.config as config
 
+import model.tMatrix as tMatrix
+
 directory = config.local['directory']
 
 def main():
     d=data.data()
     d.loadData(directory)
-    d.constructEventLogGrouped()
-    print(d.eventLog.head(20))
+
+
+
 
 def test(t):
     if t:

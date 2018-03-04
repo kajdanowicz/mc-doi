@@ -16,6 +16,7 @@ class aMatrix():
         self.numUsers=data.numUsers
         data.addContagionID()
         d=data.eventLog.drop_duplicates(subset=['contagionID','user'],keep='first')
+        G = nx.from_pandas_edgelist(data.edges, 'user1', 'user2')
         currentTable = []
         for index, row in tqdm(d.iterrows()):
             if row['contagionID'] != currentContagion:
@@ -24,7 +25,7 @@ class aMatrix():
             a_u[row['user']]+=1
             #parents=[]
             for tuple in currentTable:
-                if data.edgeExists(tuple[0],row['user']) & row['ts']>tuple[1]:
+                if (tuple[0] in G.neighbors(row['user'])) & row['ts']>tuple[1]:
                     a_v2u[(tuple[0],row['user'])]+=1
                     tau_vu[(tuple[0],row['user'])]+=(row['ts']-tuple[1])
                     #parents.append(tuple(0))
@@ -35,7 +36,7 @@ class aMatrix():
             currentTable.append((row['user'],row['ts']))
         print(a_u)
         print(a_v2u)
-        G=nx.from_pandas_edgelist(data.edges,'user1','user2').to_directed()
+        G=G.to_directed()
         for u,v in G.edges():
             if a_u[u]>0:
                 G[u][v]['weight']=round(float(a_v2u[(u,v)]) / a_u[u],6)

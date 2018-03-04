@@ -1,5 +1,6 @@
 from collections import defaultdict
 import networkx as nx
+from tqdm import tqdm
 
 class aMatrix():
     def __init__(self):
@@ -7,16 +8,16 @@ class aMatrix():
         self.numUsers=None
 
     def estimate(self,data):
-        # TODO Implement
-        # TODO Analyse uniqueness of (user, action)
         currentContagion=None
         a_u=defaultdict(lambda: 0)
         a_v2u = defaultdict(lambda: 0)
         a_vandu = defaultdict(lambda: 0)
         tau_vu = defaultdict(lambda: 0)
+        self.numUsers=data.numUsers
         data.addContagionID()
+        d=data.eventLog.drop_duplicates(subset=['contagionID','user'],keep='first')
         currentTable = []
-        for index, row in data.eventLog.iterrows():
+        for index, row in tqdm(d.iterrows()):
             if row['contagionID'] != currentContagion:
                 currentTable = []
                 currentContagion = row['contagionID']
@@ -46,10 +47,3 @@ class aMatrix():
                 for u, v in G.in_edges(u):
                     G[u][v]['weight'] /= in_degree
         self.matrix=nx.adjacency_matrix(G,weight='weight')
-
-
-
-
-
-
-        pass

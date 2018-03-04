@@ -1,4 +1,5 @@
 from collections import defaultdict
+import networkx as nx
 
 class aMatrix():
     def __init__(self):
@@ -33,6 +34,19 @@ class aMatrix():
             currentTable.append((row['user'],row['ts']))
         print(a_u)
         print(a_v2u)
+        G=nx.from_pandas_edgelist(data.edges,'user1','user2').to_directed()
+        for u,v in G.edges():
+            if a_u[u]>0:
+                G[u][v]['weight']=round(float(a_v2u[(u,v)]) / a_u[u],6)
+            else:
+                G[u][v]['weight']=0
+        for u in G.nodes():
+            in_degree = G.in_degree(u, weight='weight')
+            if (in_degree != 0):
+                for u, v in G.in_edges(u):
+                    G[u][v]['weight'] /= in_degree
+        self.matrix=nx.adjacency_matrix(G,weight='weight')
+
 
 
 

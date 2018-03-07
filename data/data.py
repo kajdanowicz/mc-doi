@@ -21,6 +21,7 @@ class data():
         if data.verifyUsersCorrect(eventLogDF, edgesDF):
             self.eventLog = eventLogDF
             self.edges = edgesDF
+            self.sortData()
             self.numUsers = len(np.union1d(self.edges['user1'], self.edges['user2']))
             self.numContagions = len(self.eventLog['contagion'].unique())
             self.numEvents = self.eventLog.shape[0]
@@ -36,6 +37,7 @@ class data():
         if data.verifyUsersCorrect(eventLogDF, edgesDF):
             self.eventLog = eventLogDF
             self.edges = edgesDF
+            self.sortData()
             self.numUsers = len(np.union1d(self.edges['user1'], self.edges['user2']))
             self.numContagions = len(self.eventLog['contagion'].unique())
             self.numEvents = self.eventLog.shape[0]
@@ -79,7 +81,6 @@ class data():
                 self.edges['user1'] = self.edges.apply(lambda row: u[row['user1']], axis=1)
                 self.edges['user2'] = self.edges.apply(lambda row: u[row['user2']], axis=1)
                 self.eventLog['user'] = self.eventLog['user'].map(u)
-                self.sortData()
                 return True
             else:
                 return False
@@ -89,7 +90,6 @@ class data():
                 self.edges['user1'] = self.edges.apply(lambda row: u[row['user1']], axis=1)
                 self.edges['user2'] = self.edges.apply(lambda row: u[row['user2']], axis=1)
                 self.eventLog['user'] = self.eventLog['user'].map(u)
-                self.sortData()
                 return True
             else:
                 return False

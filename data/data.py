@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from collections import defaultdict
-
+import networkx as nx
 
 class data():
 
@@ -12,6 +12,11 @@ class data():
         self.numContagions = None
         self.numEvents = None
         self.contagionIDDict=None
+        self.graph = None
+
+    def addGraph(self):
+        if self.graph is None:
+            self.graph=nx.from_pandas_edgelist(data.edges, 'user1', 'user2')
 
     def loadDataFile(self, directory):
         eventLogDF = pd.read_csv(directory + 'eventLog')

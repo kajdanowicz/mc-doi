@@ -16,7 +16,7 @@ class data():
 
     def addGraph(self):
         if self.graph is None:
-            self.graph=nx.from_pandas_edgelist(data.edges, 'user1', 'user2')
+            self.graph=nx.from_pandas_edgelist(self.edges, 'user1', 'user2')
 
     def loadDataFile(self, directory):
         eventLogDF = pd.read_csv(directory + 'eventLog')

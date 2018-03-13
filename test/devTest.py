@@ -19,7 +19,7 @@ from model.tMatrix import tMatrix
 from model.aMatrix import aMatrix
 from model.ccMatrix import ccMatrix
 
-mode = ''
+mode = 'Testing'
 
 if get_mac() == 2485377892363:
     directory=config.remote['directory'+mode]
@@ -47,13 +47,13 @@ def sendEmail():
 
 def main():
     try:
-        d = data()
-        d.loadData(directory)
-        d.addGraph()
-        d.toPickle(directory)
-        print('Pickle dumped')
-        # d=data.fromPickle(directory)
-        d.sample(0.01)
+        # d = data()
+        # d.loadData(directory)
+        # d.addGraph()
+        # d.toPickle(directory)
+        # print('Pickle dumped')
+        d=data.fromPickle(directory)
+        # d.sample(0.01)
         print(d.numContagions)
         cm=ccMatrix()
         cm.estimate(d)

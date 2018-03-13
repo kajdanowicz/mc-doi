@@ -11,18 +11,20 @@ import pickle
 
 import pandas as pd
 
-import model.model as model
-import data.data as data
+from model.model import model
+from data.data import data
 import config.config as config
 
-import model.tMatrix as tMatrix
-import model.aMatrix as aMatrix
-import model.ccMatrix as ccMatrix
+from model.tMatrix import tMatrix
+from model.aMatrix import aMatrix
+from model.ccMatrix import ccMatrix
 
 mode = ''
 
 if get_mac() == 2485377892363:
     directory=config.remote['directory'+mode]
+elif get_mac() == 215977245577188:
+    directory = config.localPC['directory' + mode]
 else:
     directory=config.local['directory'+mode]
 
@@ -45,14 +47,15 @@ def sendEmail():
 
 def main():
     try:
-        # d = data.data()
-        # d.loadData(directory)
-        # d.addGraph()
-        # d.toPickle(directory)
-        # print('Pickle dumped')
-        d=pickle.load(open(directory+'data.p','rb'))
+        d = data()
+        d.loadData(directory)
+        d.addGraph()
+        d.toPickle(directory)
+        print('Pickle dumped')
+        # d=data.fromPickle(directory)
         d.sample(0.01)
-        cm=ccMatrix.ccMatrix()
+        print(d.numContagions)
+        cm=ccMatrix()
         cm.estimate(d)
         # am=aMatrix.aMatrix()
         # am.estimate(d)

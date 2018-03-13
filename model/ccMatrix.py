@@ -1,35 +1,34 @@
 import numpy as np
 import math
-
+import pandas as pd
+from data.data import data
 
 class ccMatrix():
 
     def __init__(self):
         self.matrix=None
         self.numContagions=None
+        self.numUsersPerformingEvents = None
 
     def estimate(self,data):
-        # if data.contagionIDDict is None:
-        #     data.addContagionID()
+        """
+        @:type data: data
+        """
+        data.addContagionID()
         self.numContagions=data.numContagions
         self.matrix= np.eye(N=self.numContagions)
-        numUsers = data.numUsers
-        tmp = data.eventLog[['user', 'contagion']].drop_duplicates(subset=None, keep='first', inplace=False)
-        allUsersIDs = np.linspace(0, numUsers, num=numUsers + 1).astype(int)
+        self.numUsersPerformingEvents=len(data.eventLog.user.unique())
+        tmp = data.eventLog[['user', 'contagionID']].drop_duplicates(subset=None, keep='first', inplace=False)
+        tmp = pd.merge(tmp['user', 'contagionID'], tmp['user', 'contagionID'], on='user',suffixes=('_1','_2')).groupby(['contagionID_1','contagionID_2']).count()
         for i in range(self.numContagions):
+            count_i = float(tmp.loc[(i, i)].values[0])
             for j in range(i + 1, self.numContagions):
-                i_users = tmp[tmp['contagion'] == i]['user'].as_matrix()
-                j_users = tmp[tmp['contagion'] == j]['user'].as_matrix()
-                ni_users = np.setdiff1d(allUsersIDs, i_users)
-                nj_users = np.setdiff1d(allUsersIDs, j_users)
-                pij = len(np.intersect1d(i_users, j_users)) / numUsers
-                pinj = len(np.intersect1d(i_users, nj_users)) / numUsers
-                pnij = len(np.intersect1d(ni_users, j_users)) / numUsers
-                pi = len(i_users) / numUsers
-                pj = len(j_users) / numUsers
-                pni = len(ni_users) / numUsers
-                pnj = len(nj_users) / numUsers
-                wynik = pij / math.sqrt(pi * pj) - (pnij / math.sqrt(pni * pj) + pinj / math.sqrt(pi * pnj)) / 2
+                count_j = float(tmp.loc[(j, j)].values[0])
+                if (i,j) in tmp.index:
+                    count_ij = float(tmp.loc[(i, j)].values[0])
+                else:
+                    count_ij = 0.
+                wynik = count_ij / math.sqrt(count_i * count_j) - ((count_j-count_ij) / math.sqrt((self.numUsersPerformingEvents-count_i) * count_j) + (count_i-count_ij) / math.sqrt(count_i * (self.numUsersPerformingEvents-count_j))) / 2
                 self.matrix[i][j] = wynik
                 self.matrix[j][i] = wynik
         # review

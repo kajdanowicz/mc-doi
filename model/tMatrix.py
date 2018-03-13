@@ -3,29 +3,31 @@ import numpy as np
 import pandas as pd
 import math
 
+
 class tMatrix():
 
     def __init__(self):
-        self.matrix=None
-        self.numUsers=None
+        self.matrix = None
+        self.numUsers = None
 
-    def estimateVectorVolumeBatch(self,data,aMatrix,ccMAtrix,volume):
-        #TODO Implement
+    def estimateVolumeBatch(self, data, aMatrix, ccMAtrix, volume):
+        # TODO Implement
         data.addContagionID()
         data.constructEventLogGrouped()
-        indicators=[]
-        I=np.full((data.numUsers,data.numContagions),False,dtype=bool)
-        eventID=0
-        while eventID<data.eventLog['eventID'].max():
-            for index, row in data.eventLog[(data.eventLog['eventID'] >eventID) & (data.eventLog['eventID'] <= eventID+volume)].iterrows():
+        indicators = []
+        I = np.full((data.numUsers, data.numContagions), False, dtype=bool)
+        eventID = 0
+        while eventID < data.eventLog['eventID'].max():
+            for index, row in data.eventLog[(data.eventLog['eventID'] > eventID) & (data.eventLog['eventID'] <= eventID + volume)].iterrows():
                 I[row['user']][row['contagionID']] = True
             indicators.append(I)
             I = copy.deepcopy(I)
             eventID += volume
         Y = np.sum(indicators[0], axis=1)
         df_thresholds = []
+        aMatrix.transpose()
         for l in range(len(indicators) - 1):
-            U = aMatrix.matrix.transpose().dot(indicators[l])
+            U = aMatrix.matrixTransposed.dot(indicators[l])
             F = U.dot(ccMAtrix.matrix) / data.numContagions
             temp = np.logical_xor(indicators[l], indicators[l + 1])
             temp1 = np.logical_or(temp, indicators[l])
@@ -44,11 +46,11 @@ class tMatrix():
                 Y[i] += 1
         df_thresholds = pd.DataFrame(df_thresholds)
         df_thresholds.columns = ['user', 'x', 'y', 'w']
-        results=[]
+        results = []
         for user in np.arange(data.numUsers):
             res_max_neg = []
             res_min_pos = []
-            X = df_thresholds[df_thresholds['user']==user]
+            X = df_thresholds[df_thresholds['user'] == user]
             X = X[['x', 'y', 'w']]
             for i in X['w'].unique():
                 if (i != X['w'].max()):
@@ -65,17 +67,16 @@ class tMatrix():
                 res_max_neg.append(0)
                 result = [max(res_max_neg), max(res_max_neg), 1]
             results.append(result)
-        self.matrix=np.repeat(np.asarray(results)[:, 0][np.newaxis].T, data.numContagions, axis=1)
+        self.matrix = np.repeat(np.asarray(results)[:, 0][np.newaxis].T, data.numContagions, axis=1)
         # review
 
-    def estimateVectorTimeBatch(self,data):
-        #TODO Implement
+    def estimateTimeBatch(self, data):
+        # TODO Implement
         pass
 
-    def estimateVectorHybrideBatch(self,data):
-        #TODO Implement
+    def estimateHybrideBatch(self, data):
+        # TODO Implement
         pass
-
 
     # def estimateVector(self,data):
     #     #TODO Implement

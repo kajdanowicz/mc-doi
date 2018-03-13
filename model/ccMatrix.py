@@ -2,6 +2,8 @@ import numpy as np
 import math
 import pandas as pd
 from data.data import data
+from tqdm import trange
+
 
 class ccMatrix():
 
@@ -20,7 +22,7 @@ class ccMatrix():
         self.numUsersPerformingEvents=len(data.eventLog.user.unique())
         tmp = data.eventLog[['user', 'contagionID']].drop_duplicates(subset=None, keep='first', inplace=False)
         tmp = pd.merge(tmp['user', 'contagionID'], tmp['user', 'contagionID'], on='user',suffixes=('_1','_2')).groupby(['contagionID_1','contagionID_2']).count()
-        for i in range(self.numContagions):
+        for i in trange(self.numContagions):
             count_i = float(tmp.loc[(i, i)].values[0])
             for j in range(i + 1, self.numContagions):
                 count_j = float(tmp.loc[(j, j)].values[0])

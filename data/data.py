@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 from collections import defaultdict
 import networkx as nx
+import pickle
+
 
 class data():
 
@@ -11,12 +13,12 @@ class data():
         self.numUsers = None
         self.numContagions = None
         self.numEvents = None
-        self.contagionIDDict=None
+        self.contagionIDDict = None
         self.graph = None
 
     def addGraph(self):
         if self.graph is None:
-            self.graph=nx.from_pandas_edgelist(self.edges, 'user1', 'user2')
+            self.graph = nx.from_pandas_edgelist(self.edges, 'user1', 'user2')
 
     def loadDataFile(self, directory):
         eventLogDF = pd.read_csv(directory + 'eventLog')
@@ -77,7 +79,6 @@ class data():
     def sortData(self):
         self.eventLog.sort_values(by=['contagion', 'ts'], inplace=True)
 
-
     def loadData(self, directory=None, eventLogDF=None, edgesDF=None):
         ''' Loads data to class data instance from the source that depends on given arguments'''
         if directory is not None:
@@ -102,12 +103,11 @@ class data():
             return False
         # review
 
-    def edgeExists(self,user1,user2):
-        if self.edges[(self.edges['user1'].isin([user1,user2])) & (self.edges['user2'].isin([user1,user2]))].empty:
+    def edgeExists(self, user1, user2):
+        if self.edges[(self.edges['user1'].isin([user1, user2])) & (self.edges['user2'].isin([user1, user2]))].empty:
             return False
         else:
             return True
-
 
     def loadDataMinOccurrence(self, minOccurs, directory=None, eventLogDF=None, edgesDF=None):
         """ Loads data to class data instance from the source that depends on given arguments
@@ -144,13 +144,13 @@ class data():
         self.numContagions = len(self.eventLog['contagion'].unique())
         # review
 
-
-    def dropEdge(self, edge=None, user1=None,user2=None):
+    def dropEdge(self, edge=None, user1=None, user2=None):
         if (user1 is None) & (user2 is None):
             self.edges.drop(self.edges[((self.edges['user1'] == edge[0]) & (self.edges['user2'] == edge[1])) | (
                     (self.edges['user1'] == edge[1]) & (self.edges['user2'] == edge[0]))].index, inplace=True)
         elif (edge is None) & (user1 is not None) & (user2 is not None):
-            self.edges.drop(self.edges[(self.edges['user1'].isin([user1,user2])) & (self.edges['user2'].isin([user1,user2]))].index,inplace=True)
+            self.edges.drop(self.edges[(self.edges['user1'].isin([user1, user2])) & (
+                self.edges['user2'].isin([user1, user2]))].index, inplace=True)
         else:
             return False
         # question Should an unconnected user be deleted?
@@ -173,22 +173,33 @@ class data():
             self.eventLog.drop(self.eventLog[self.eventLog['contagionID'].isin(contagionIDList)].index, inplace=True)
             self.numEvents = self.eventLog.shape[0]
             self.numContagions = len(self.eventLog['contagionID'].unique())
-            #review
-
+            # review
 
     def addContagionID(self):
         if 'contagionID' not in self.eventLog.columns:
             t = defaultdict(lambda: len(t))
-            self.eventLog['contagionID']=self.eventLog.apply(lambda row: t[row['contagion']], axis=1)
-            self.contagionIDDict=t
+            self.eventLog['contagionID'] = self.eventLog.apply(lambda row: t[row['contagion']], axis=1)
+            self.contagionIDDict = t
         # TODO Does it work globally?
         # review
 
     def constructEventLogGrouped(self):
         t = defaultdict(lambda: len(t))
-        self.eventLog['eventID']=self.eventLog.apply(lambda row: t[(row['user'],row['ts'])], axis=1)
+        self.eventLog['eventID'] = self.eventLog.apply(lambda row: t[(row['user'], row['ts'])], axis=1)
         # review
 
-    def toCSV(self,directory=''):
-        self.eventLog.to_csv(directory + 'eventLog',header=False,index=False)
+    def toCSV(self, directory=''):
+        self.eventLog.to_csv(directory + 'eventLog', header=False, index=False)
         self.edges.to_csv(directory + 'edges', header=False, index=False)
+
+    def sample(self,fraction):
+        self.eventLog=self.eventLog.sample(frac=fraction)
+        self.numContagions = len(self.eventLog['contagion'].unique())
+        self.numEvents = self.eventLog.shape[0]
+
+    def toPickle(self,directory):
+        pickle.dump(self, open(directory + 'data.p', 'wb'))
+
+    @staticmethod
+    def fromPickle(directory):
+        return pickle.load(open(directory+'data.p','rb'))

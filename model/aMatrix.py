@@ -7,11 +7,16 @@ import copy
 class aMatrix():
     def __init__(self):
         self.matrix = None
+        self.matrixTransposed = None
         self.numUsers = None
         self.eventQueue = dict()
         self.v2u = None
         self.vANDu = None
         self.u = None
+
+    def transpose(self):
+        if self.matrixTransposed is None:
+            self.matrixTransposed = self.matrix.transpose()
 
     def cleanCounters(self):
         self.v2u = None

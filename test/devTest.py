@@ -1,11 +1,13 @@
 import sys
-sys.path.append('/home/maciek/pyCharmProjects/mc-doi')
+from uuid import getnode as get_mac
+if get_mac() == 2485377892363:
+    sys.path.append('/home/maciek/pyCharmProjects/mc-doi')
 
 import numpy as np
 import scipy
 import logging
 from datetime import datetime
-from uuid import getnode as get_mac
+import pickle
 
 import pandas as pd
 
@@ -15,6 +17,7 @@ import config.config as config
 
 import model.tMatrix as tMatrix
 import model.aMatrix as aMatrix
+import model.ccMatrix as ccMatrix
 
 mode = ''
 
@@ -24,7 +27,7 @@ else:
     directory=config.local['directory'+mode]
 
 def writeToLogger(args):
-    logging.basicConfig(filename='./' + datetime.now().strftime("%Y-%m-%d_%H_%M_%S") + '.txt', level=logging.DEBUG,
+    logging.basicConfig(filename='./' + datetime.now().strftime("%Y-%m-%d_%H_%M_%S") + '.log', level=logging.DEBUG,
                         format='%(asctime)s %(levelname)s %(name)s %(message)s')
     logger = logging.getLogger(__name__)
     logger.error(args, exc_info=True)
@@ -42,13 +45,22 @@ def sendEmail():
 
 def main():
     try:
-        d = data.data()
-        d.loadDataDataFrame(pd.read_csv(directory+'restrictedEventLog'),pd.read_csv(directory+'restrictedEdges'))
-        aM = aMatrix.aMatrix()
-        aM.estimate(d)
-        scipy.sparse.save_npz('../aMatrix_'+ datetime.now().strftime("%Y-%m-%d_%H_%M_%S") + '.npz', aM.matrix)
+        # d = data.data()
+        # d.loadData(directory)
+        # d.addGraph()
+        # d.toPickle(directory)
+        # print('Pickle dumped')
+        d=pickle.load(open(directory+'data.p','rb'))
+        d.sample(0.01)
+        cm=ccMatrix.ccMatrix()
+        cm.estimate(d)
+        # am=aMatrix.aMatrix()
+        # am.estimate(d)
+        # m=model.model()
+        # m.fit(d,'volume',100)
     except Exception as err:
         writeToLogger(err.args)
+        exit(1)
     finally:
         sendEmail()
 

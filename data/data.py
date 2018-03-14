@@ -122,13 +122,63 @@ class data():
         """ Restricts events in self to that, which contains contagions appearing in the data minOccurs times."""
         # TODO Use deleteContagions to obtain this
         temp = self.eventLog.groupby(by='contagion').count().reset_index()[['contagion', 'ts']]
-        series = temp[(temp['ts'] > minOccurs)]['contagion']
+        series = temp[(temp['ts'] >= minOccurs)]['contagion']
         self.eventLog = self.eventLog[self.eventLog['contagion'].isin(series)]
         self.numContagions = len(series)
         self.numEvents = self.eventLog.shape[0]
-        # t = defaultdict(lambda: len(t))
-        # temp['tagID'] = temp.apply(lambda row: t[row['contagion']], axis=1)
+        if 'contagionID' in self.eventLog.columns:
+            t = defaultdict(lambda: len(t))
+            self.eventLog['contagionID'] = self.eventLog.apply(lambda row: t[row['contagion']], axis=1)
+            self.contagionIDDict = t
         # review
+
+    def restrictEventLogMaxOccurences(self, maxOccurs):
+        """ Restricts events in self to that, which contains contagions appearing in the data minOccurs times."""
+        # TODO Use deleteContagions to obtain this
+        temp = self.eventLog.groupby(by='contagion').count().reset_index()[['contagion', 'ts']]
+        series = temp[(temp['ts'] <= maxOccurs)]['contagion']
+        self.eventLog = self.eventLog[self.eventLog['contagion'].isin(series)]
+        self.numContagions = len(series)
+        self.numEvents = self.eventLog.shape[0]
+        if 'contagionID' in self.eventLog.columns:
+            t = defaultdict(lambda: len(t))
+            self.eventLog['contagionID'] = self.eventLog.apply(lambda row: t[row['contagion']], axis=1)
+            self.contagionIDDict = t
+        # review
+
+    def restrictEventLog(self, maxOccurs = None, minOccurs = None, maxNumContagions = None):
+        """ """
+        # TODO Use deleteContagions to obtain this
+        temp = self.eventLog.groupby(by='contagion').count().reset_index()[['contagion', 'ts']]
+        if (maxOccurs is not None) and (minOccurs is None):
+            if maxNumContagions is None:
+                self.restrictEventLogMaxOccurences(maxOccurs)
+                return
+            else:
+                series = temp[(temp['ts'] <= maxOccurs)].sort_values(by='ts',ascending = False).iloc[:maxNumContagions]['contagion']
+                self.eventLog = self.eventLog[self.eventLog['contagion'].isin(series)]
+                self.numContagions = len(series)
+                self.numEvents = self.eventLog.shape[0]
+        elif (maxOccurs is not None) and (minOccurs is not None) and (minOccurs<=maxOccurs):
+            series = temp.query('minOccurs <= ts <= maxOccurs')['contagion']
+            self.eventLog = self.eventLog[self.eventLog['contagion'].isin(series)]
+            self.numContagions = len(series)
+            self.numEvents = self.eventLog.shape[0]
+        elif (maxOccurs is None) and (minOccurs is not None):
+            if maxNumContagions is None:
+                self.restrictEventLogMinOccurences(minOccurs)
+                return
+            else:
+                series = temp[(minOccurs <= temp['ts'])].sort_values(by='ts').iloc[:maxNumContagions]['contagion']
+                self.eventLog = self.eventLog[self.eventLog['contagion'].isin(series)]
+                self.numContagions = len(series)
+                self.numEvents = self.eventLog.shape[0]
+        if 'contagionID' in self.eventLog.columns:
+            t = defaultdict(lambda: len(t))
+            self.eventLog['contagionID'] = self.eventLog.apply(lambda row: t[row['contagion']], axis=1)
+            self.contagionIDDict = t
+        # review
+
 
     def deleteUsers(self, userList):
         self.edges.drop(self.edges[(self.edges['user1'].isin(userList)) | (self.edges['user2'].isin(userList))].index,

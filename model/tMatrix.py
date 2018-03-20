@@ -2,6 +2,8 @@ import copy
 import numpy as np
 import pandas as pd
 import math
+from tqdm import trange
+import sys
 
 
 class tMatrix():
@@ -23,10 +25,11 @@ class tMatrix():
             indicators.append(I)
             I = copy.deepcopy(I)
             eventID += volume
+            print("Event ID processed: "+str(eventID), end='\r', flush=True)
         Y = np.sum(indicators[0], axis=1)
         df_thresholds = []
         aMatrix.transpose()
-        for l in range(len(indicators) - 1):
+        for l in trange(len(indicators) - 1):
             U = aMatrix.matrixTransposed.dot(indicators[l])
             F = U.dot(ccMAtrix.matrix) / data.numContagions
             temp = np.logical_xor(indicators[l], indicators[l + 1])

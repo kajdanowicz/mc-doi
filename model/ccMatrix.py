@@ -14,6 +14,8 @@ class ccMatrix():
 
     def estimate(self,data):
         """
+        2000 contagions ~ 30min
+        300 contagions ~ 30s
         @:type data: data
         """
         data.addContagionID()

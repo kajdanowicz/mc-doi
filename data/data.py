@@ -3,6 +3,8 @@ import numpy as np
 from collections import defaultdict
 import networkx as nx
 import pickle
+import itertools
+import functools
 
 
 class data():
@@ -20,10 +22,10 @@ class data():
         if self.graph is None:
             self.graph = nx.from_pandas_edgelist(self.edges, 'user1', 'user2')
 
-    def loadDataFile(self, directory):
-        eventLogDF = pd.read_csv(directory + 'eventLog')
+    def loadDataFile(self, directory, fileNames = ('eventLog','edges')):
+        eventLogDF = pd.read_csv(directory + fileNames[0])
         eventLogDF.columns = ['ts', 'user', 'contagion']
-        edgesDF = pd.read_csv(directory + 'edges')
+        edgesDF = pd.read_csv(directory + fileNames[1])
         edgesDF.columns = ['user1', 'user2']
         if data.verifyUsersCorrect(eventLogDF, edgesDF):
             self.eventLog = eventLogDF
@@ -79,11 +81,11 @@ class data():
     def sortData(self):
         self.eventLog.sort_values(by=['contagion', 'ts'], inplace=True)
 
-    def loadData(self, directory=None, eventLogDF=None, edgesDF=None):
+    def loadData(self, directory=None, eventLogDF=None, edgesDF=None, fileNames = ('eventLog','edges')):
         ''' Loads data to class data instance from the source that depends on given arguments'''
         if directory is not None:
-            if self.loadDataFile(directory):
-                u = defaultdict(lambda: len(u))
+            if self.loadDataFile(directory, fileNames):
+                u = defaultdict(functools.partial(next, itertools.count()))
                 self.edges['user1'] = self.edges.apply(lambda row: u[row['user1']], axis=1)
                 self.edges['user2'] = self.edges.apply(lambda row: u[row['user2']], axis=1)
                 self.eventLog['user'] = self.eventLog['user'].map(u)
@@ -92,7 +94,7 @@ class data():
                 return False
         elif (eventLogDF is not None) and (edgesDF is not None):
             if self.loadDataDataFrame(eventLogDF, edgesDF):
-                u = defaultdict(lambda: len(u))
+                u = defaultdict(functools.partial(next, itertools.count()))
                 self.edges['user1'] = self.edges.apply(lambda row: u[row['user1']], axis=1)
                 self.edges['user2'] = self.edges.apply(lambda row: u[row['user2']], axis=1)
                 self.eventLog['user'] = self.eventLog['user'].map(u)
@@ -112,7 +114,7 @@ class data():
     def loadDataMinOccurrence(self, minOccurs, directory=None, eventLogDF=None, edgesDF=None):
         """ Loads data to class data instance from the source that depends on given arguments
         Only contagions appearing in minOccurs events are loaded"""
-        if self.loadData(directory, eventLogDF, edgesDF) == False:
+        if not self.loadData(directory, eventLogDF, edgesDF):
             return False
         self.restrictEventLogMinOccurences(minOccurs)
         return True
@@ -126,10 +128,7 @@ class data():
         self.eventLog = self.eventLog[self.eventLog['contagion'].isin(series)]
         self.numContagions = len(series)
         self.numEvents = self.eventLog.shape[0]
-        if 'contagionID' in self.eventLog.columns:
-            t = defaultdict(lambda: len(t))
-            self.eventLog['contagionID'] = self.eventLog.apply(lambda row: t[row['contagion']], axis=1)
-            self.contagionIDDict = t
+        self.reassignContagionID()
         # review
 
     def restrictEventLogMaxOccurences(self, maxOccurs):
@@ -140,10 +139,7 @@ class data():
         self.eventLog = self.eventLog[self.eventLog['contagion'].isin(series)]
         self.numContagions = len(series)
         self.numEvents = self.eventLog.shape[0]
-        if 'contagionID' in self.eventLog.columns:
-            t = defaultdict(lambda: len(t))
-            self.eventLog['contagionID'] = self.eventLog.apply(lambda row: t[row['contagion']], axis=1)
-            self.contagionIDDict = t
+        self.reassignContagionID()
         # review
 
     def restrictEventLog(self, maxOccurs = None, minOccurs = None, maxNumContagions = None):
@@ -160,7 +156,7 @@ class data():
                 self.numContagions = len(series)
                 self.numEvents = self.eventLog.shape[0]
         elif (maxOccurs is not None) and (minOccurs is not None) and (minOccurs<=maxOccurs):
-            series = temp.query('minOccurs <= ts <= maxOccurs')['contagion']
+            series = temp[(minOccurs <= temp.ts) & (temp.ts <= maxOccurs)]['contagion']
             self.eventLog = self.eventLog[self.eventLog['contagion'].isin(series)]
             self.numContagions = len(series)
             self.numEvents = self.eventLog.shape[0]
@@ -173,10 +169,12 @@ class data():
                 self.eventLog = self.eventLog[self.eventLog['contagion'].isin(series)]
                 self.numContagions = len(series)
                 self.numEvents = self.eventLog.shape[0]
-        if 'contagionID' in self.eventLog.columns:
-            t = defaultdict(lambda: len(t))
-            self.eventLog['contagionID'] = self.eventLog.apply(lambda row: t[row['contagion']], axis=1)
-            self.contagionIDDict = t
+        elif (maxOccurs is None) and (minOccurs is None) and (maxNumContagions is not None):
+            series = temp[(minOccurs <= temp['ts'])].sort_values(by='ts').iloc[:maxNumContagions]['contagion']
+            self.eventLog = self.eventLog[self.eventLog['contagion'].isin(series)]
+            self.numContagions = len(series)
+            self.numEvents = self.eventLog.shape[0]
+        self.reassignContagionID()
         # review
 
 
@@ -185,7 +183,7 @@ class data():
                         inplace=True)
         self.eventLog.drop(self.eventLog[self.eventLog['user'].isin(userList)].index, inplace=True)
         # pd.concat([self.edges['user1'],self.edges['user2']],copy=False).apply(lambda row: u[row.loc[:,0]])
-        u = defaultdict(lambda: len(u))
+        u = defaultdict(functools.partial(next, itertools.count()))
         self.edges['user1'] = self.edges.apply(lambda row: u[row['user1']], axis=1)
         self.edges['user2'] = self.edges.apply(lambda row: u[row['user2']], axis=1)
         self.eventLog['user'] = self.eventLog['user'].map(u)
@@ -227,15 +225,24 @@ class data():
 
     def addContagionID(self):
         if 'contagionID' not in self.eventLog.columns:
-            t = defaultdict(lambda: len(t))
+            t = defaultdict(functools.partial(next, itertools.count()))
+            self.eventLog = self.eventLog.assign(contagionID=self.eventLog['contagion'].map(t))
+            self.contagionIDDict = t
+        else:
+            pass
+        # review
+
+    def reassignContagionID(self):
+        if 'contagionID' in self.eventLog.columns:
+            t = defaultdict(functools.partial(next, itertools.count()))
             self.eventLog['contagionID'] = self.eventLog.apply(lambda row: t[row['contagion']], axis=1)
             self.contagionIDDict = t
-        # TODO Does it work globally?
         # review
 
     def constructEventLogGrouped(self):
-        t = defaultdict(lambda: len(t))
-        self.eventLog['eventID'] = self.eventLog.apply(lambda row: t[(row['user'], row['ts'])], axis=1)
+        if 'eventID' not in self.eventLog.columns:
+            t = defaultdict(functools.partial(next, itertools.count()))
+            self.eventLog = self.eventLog.assign(eventID=self.eventLog.apply(lambda row: t[(row['user'], row['ts'])], axis=1))
         # review
 
     def toCSV(self, directory=''):
@@ -247,7 +254,7 @@ class data():
         self.numContagions = len(self.eventLog['contagion'].unique())
         self.numEvents = self.eventLog.shape[0]
 
-    def toPickle(self,directory):
+    def toPickle(self,directory=''):
         pickle.dump(self, open(directory + 'data.p', 'wb'))
 
     @staticmethod

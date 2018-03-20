@@ -76,8 +76,8 @@ class data():
             return False
         else:
             return True
-
     # review
+
     def sortData(self):
         self.eventLog.sort_values(by=['contagion', 'ts'], inplace=True)
 
@@ -192,6 +192,19 @@ class data():
         self.numContagions = len(self.eventLog['contagion'].unique())
         # review
 
+    def keepUsers(self, userList):
+        self.edges = self.edges[(self.edges['user1'].isin(userList)) | (self.edges['user2'].isin(userList))]
+        self.eventLog = self.eventLog[self.eventLog['user'].isin(userList)]
+        # pd.concat([self.edges['user1'],self.edges['user2']],copy=False).apply(lambda row: u[row.loc[:,0]])
+        u = defaultdict(functools.partial(next, itertools.count()))
+        self.edges['user1'] = self.edges.apply(lambda row: u[row['user1']], axis=1)
+        self.edges['user2'] = self.edges.apply(lambda row: u[row['user2']], axis=1)
+        self.eventLog['user'] = self.eventLog['user'].map(u)
+        self.numUsers = len(np.union1d(self.edges['user1'], self.edges['user2']))
+        self.numEvents = self.eventLog.shape[0]
+        self.numContagions = len(self.eventLog['contagion'].unique())
+        # review
+
     def dropEdge(self, edge=None, user1=None, user2=None):
         if (user1 is None) & (user2 is None):
             self.edges.drop(self.edges[((self.edges['user1'] == edge[0]) & (self.edges['user2'] == edge[1])) | (
@@ -256,6 +269,10 @@ class data():
 
     def toPickle(self,directory=''):
         pickle.dump(self, open(directory + 'data.p', 'wb'))
+
+    def restrictUsersToActive(self):
+        activeUsers = self.eventLog.user.unique()
+        self.keepUsers(activeUsers)
 
     @staticmethod
     def fromPickle(directory):

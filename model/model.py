@@ -18,8 +18,10 @@ class model():
 
     def fit(self, data, batchType, batchSize):
         # TODO Implement this method
-        self.contagionCorrelationMatrix.estimate(data)
-        self.adjacencyMatrix.estimate(data)
+        if self.contagionCorrelationMatrix.matrix is None:
+            self.estimateContagionCorrelationMatrix(data)
+        if self.adjacencyMatrix.matrix is None:
+            self.estimateAdjacencyMatrix(data)
         if batchType == 'time':
             self.thresholdsMatrix.estimateTimeBatch(data)
         elif batchType == 'volume':
@@ -29,12 +31,18 @@ class model():
             self.thresholdsMatrix.estimateHybrideBatch(data)
         # TODO stateMatrix and activityIndexVector
 
-    def toPickle(self, directory):
-        pickle.dump(self, open(directory + '/model.p', 'wb'))
+    def estimateContagionCorrelationMatrix(self,data):
+        self.contagionCorrelationMatrix.estimate(data)
 
-    def fromPickle(self, directory):
-        #TODO Implement
-        pass
+    def estimateAdjacencyMatrix(self,data):
+        self.adjacencyMatrix.estimate(data)
+
+    def toPickle(self, directory):
+        pickle.dump(self, open(directory + 'model.p', 'wb'))
+
+    @staticmethod
+    def fromPickle(directory):
+        return pickle.load(open(directory+'model.p','rb'))
 
     def predict(self):
         # TODO Implement this method

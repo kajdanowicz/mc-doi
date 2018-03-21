@@ -19,7 +19,7 @@ from model.tMatrix import tMatrix
 from model.aMatrix import aMatrix
 from model.ccMatrix import ccMatrix
 
-mode = 'Testing'
+mode = ''
 
 if get_mac() == 2485377892363:
     directory=config.remote['directory'+mode]
@@ -48,35 +48,15 @@ def sendEmail():
 def main():
     try:
         d = data()
-        d = d.fromPickle(directory)
-        # print(d.eventLog)
-        # d.loadData(directory)
-        # print("loaded")
-        # d.addGraph()
-        # print("graph added")
-        # d.toPickle('./')
-        # d.restrictEventLog(maxOccurs=40000, maxNumContagions = 25)
-        # print("event log restricted")
-        # d.toPickle('./')
-        # d.toPickle(directory)
-        # print('Pickle dumped')
-        # d=data.fromPickle(directory)
-        # d.addContagionID()
-        # print('contagion ID added')
-        # d.toPickle('./')
-        # d.constructEventLogGrouped()
-        # print('event log grouped constructed')
-        # print(d.eventLog)
-        # d.toPickle('./')
-        # d.sample(0.01)
-        # print(d.numContagions)
-        # cm=ccMatrix()
-        # cm.estimate(d)
-        # print(np.average(cm.matrix, axis=1))
-        # # am=aMatrix.aMatrix()
-        # am.estimate(d)
-        m=model()
-        m.fit(d,'volume',50000)
+        d.loadData(directory)
+        d.restrictEventLog(maxOccurs=40000, maxNumContagions=25)
+        d.restrictUsersToActive()
+        d.addGraph()
+        d.constructEventLogGrouped()
+        print(d.numUsers, d.numContagions, d.numEvents)
+
+
+
     except Exception as err:
         writeToLogger(err.args)
         print(err.args)

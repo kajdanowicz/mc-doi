@@ -40,7 +40,9 @@ class aMatrix():
                 prevContagion=row[2]
             self.propagate(row[0],row[1],data.graph)
         self.resetEventQueue()
+        print('Goyal counted')
         self.calculateWeights(data.graph)
+        print('Adjacency matrix computed')
         self.cleanCounters()
 
     def calculateWeights(self,graph):

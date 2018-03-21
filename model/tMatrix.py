@@ -15,6 +15,7 @@ class tMatrix():
     def estimateVolumeBatch(self, data, aMatrix, ccMAtrix, volume):
         # TODO Implement
         data.addContagionID()
+        print('contagion ID added')
         data.constructEventLogGrouped()
         indicators = []
         I = np.full((data.numUsers, data.numContagions), False, dtype=bool)
@@ -29,6 +30,8 @@ class tMatrix():
         Y = np.sum(indicators[0], axis=1)
         df_thresholds = []
         aMatrix.transpose()
+        print('aMatrix.matrixTransposed.shape', aMatrix.matrixTransposed.shape)
+        print('indicators[0].shape', indicators[0].shape)
         for l in trange(len(indicators) - 1):
             U = aMatrix.matrixTransposed.dot(indicators[l])
             F = U.dot(ccMAtrix.matrix) / data.numContagions

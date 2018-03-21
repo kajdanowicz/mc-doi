@@ -30,14 +30,14 @@ class data():
         if data.verifyUsersCorrect(eventLogDF, edgesDF):
             self.eventLog = eventLogDF
             self.edges = edgesDF
-            self.sortData()
-            self.numUsers = len(np.union1d(self.edges['user1'], self.edges['user2']))
-            self.numContagions = len(self.eventLog['contagion'].unique())
+            self.reindexUsers()
+            self.addContagionID()
+            self.numContagions = max(self.contagionIDDict.values()) + 1
             self.numEvents = self.eventLog.shape[0]
+            self.sortData()
             return True
         else:
             return False
-        # TODO Implement Exception
         # review
 
     def loadDataDataFrame(self, eventLogDF, edgesDF):
@@ -46,23 +46,23 @@ class data():
         if data.verifyUsersCorrect(eventLogDF, edgesDF):
             self.eventLog = eventLogDF
             self.edges = edgesDF
-            self.sortData()
-            self.numUsers = len(np.union1d(self.edges['user1'], self.edges['user2']))
-            self.numContagions = len(self.eventLog['contagion'].unique())
+            self.reindexUsers()
+            self.addContagionID()
+            self.numContagions = max(self.contagionIDDict.values()) + 1
             self.numEvents = self.eventLog.shape[0]
+            self.sortData()
             return True
         else:
             return False
-        # TODO Implement Exception
         # review
 
     @staticmethod
     def verifyUsersCorrect(eventLogDF, edgesDF):
-        if np.setdiff1d(eventLogDF['user'], np.union1d(edgesDF['user1'], edgesDF['user2'])).shape[0] == 0:
+        if set(eventLogDF['user']).issubset(edgesDF['user1'].append(edgesDF['user2'])):
             return True
         else:
             return False
-
+    # TODO find faster way
     # review
 
     def verifyDataCorrect(self):
@@ -79,30 +79,22 @@ class data():
     # review
 
     def sortData(self):
-        self.eventLog.sort_values(by=['contagion', 'ts'], inplace=True)
+        if 'contagionID' in self.eventLog.columns:
+            self.eventLog.sort_values(by=['contagionID', 'ts'], inplace=True)
+        else:
+            self.eventLog.sort_values(by=['contagion', 'ts'], inplace=True)
 
     def loadData(self, directory=None, eventLogDF=None, edgesDF=None, fileNames = ('eventLog','edges')):
         ''' Loads data to class data instance from the source that depends on given arguments'''
         if directory is not None:
-            if self.loadDataFile(directory, fileNames):
-                u = defaultdict(functools.partial(next, itertools.count()))
-                self.edges['user1'] = self.edges.apply(lambda row: u[row['user1']], axis=1)
-                self.edges['user2'] = self.edges.apply(lambda row: u[row['user2']], axis=1)
-                self.eventLog['user'] = self.eventLog['user'].map(u)
-                return True
-            else:
+            if not self.loadDataFile(directory, fileNames):
                 return False
         elif (eventLogDF is not None) and (edgesDF is not None):
-            if self.loadDataDataFrame(eventLogDF, edgesDF):
-                u = defaultdict(functools.partial(next, itertools.count()))
-                self.edges['user1'] = self.edges.apply(lambda row: u[row['user1']], axis=1)
-                self.edges['user2'] = self.edges.apply(lambda row: u[row['user2']], axis=1)
-                self.eventLog['user'] = self.eventLog['user'].map(u)
-                return True
-            else:
+            if not self.loadDataDataFrame(eventLogDF, edgesDF):
                 return False
         else:
             return False
+        return True
         # review
 
     def edgeExists(self, user1, user2):
@@ -120,61 +112,57 @@ class data():
         return True
         # review
 
-    def restrictEventLogMinOccurences(self, minOccurs):
+    def restrictEventLogMinOccurences(self, minOccurs, maxNumContagions = None):
         """ Restricts events in self to that, which contains contagions appearing in the data minOccurs times."""
         # TODO Use deleteContagions to obtain this
         temp = self.eventLog.groupby(by='contagion').count().reset_index()[['contagion', 'ts']]
-        series = temp[(temp['ts'] >= minOccurs)]['contagion']
-        self.eventLog = self.eventLog[self.eventLog['contagion'].isin(series)]
-        self.numContagions = len(series)
-        self.numEvents = self.eventLog.shape[0]
-        self.reassignContagionID()
+        if maxNumContagions is None:
+            series = temp[(temp['ts'] >= minOccurs)]['contagion']
+            self.eventLog = self.eventLog[self.eventLog['contagion'].isin(series)]
+            self.updateEventLog()
+        else:
+            series = temp[(minOccurs <= temp['ts'])].sort_values(by='ts').iloc[:maxNumContagions]['contagion']
+            self.eventLog = self.eventLog[self.eventLog['contagion'].isin(series)]
+            self.updateEventLog()
         # review
 
-    def restrictEventLogMaxOccurences(self, maxOccurs):
+    def restrictEventLogMaxOccurences(self, maxOccurs, maxNumContagions = None):
         """ Restricts events in self to that, which contains contagions appearing in the data minOccurs times."""
         # TODO Use deleteContagions to obtain this
         temp = self.eventLog.groupby(by='contagion').count().reset_index()[['contagion', 'ts']]
-        series = temp[(temp['ts'] <= maxOccurs)]['contagion']
-        self.eventLog = self.eventLog[self.eventLog['contagion'].isin(series)]
-        self.numContagions = len(series)
-        self.numEvents = self.eventLog.shape[0]
-        self.reassignContagionID()
+        if maxNumContagions is None:
+            series = temp[(temp['ts'] <= maxOccurs)]['contagion']
+            self.eventLog = self.eventLog[self.eventLog['contagion'].isin(series)]
+            self.updateEventLog()
+        else:
+            series = temp[(temp['ts'] <= maxOccurs)].sort_values(by='ts', ascending=False).iloc[:maxNumContagions]['contagion']
+            self.eventLog = self.eventLog[self.eventLog['contagion'].isin(series)]
+            self.updateEventLog()
         # review
+
+    def restrictEventLogMinMaxOccurences(self,minOccurs,maxOccurs):
+        temp = self.eventLog.groupby(by='contagion').count().reset_index()[['contagion', 'ts']]
+        series = temp[(minOccurs <= temp['ts']) & (temp['ts'] <= maxOccurs)]['contagion']
+        self.eventLog = self.eventLog[self.eventLog['contagion'].isin(series)]
+        self.updateEventLog()
+
+    def restrictEventLogMaxNumContagions(self, maxNumContagions):
+        temp = self.eventLog.groupby(by='contagion').count().reset_index()[['contagion', 'ts']]
+        series = temp.sort_values(by='ts', ascending=False).iloc[:maxNumContagions]['contagion']
+        self.eventLog = self.eventLog[self.eventLog['contagion'].isin(series)]
+        self.updateEventLog()
 
     def restrictEventLog(self, maxOccurs = None, minOccurs = None, maxNumContagions = None):
         """ """
         # TODO Use deleteContagions to obtain this
-        temp = self.eventLog.groupby(by='contagion').count().reset_index()[['contagion', 'ts']]
         if (maxOccurs is not None) and (minOccurs is None):
-            if maxNumContagions is None:
-                self.restrictEventLogMaxOccurences(maxOccurs)
-                return
-            else:
-                series = temp[(temp['ts'] <= maxOccurs)].sort_values(by='ts',ascending = False).iloc[:maxNumContagions]['contagion']
-                self.eventLog = self.eventLog[self.eventLog['contagion'].isin(series)]
-                self.numContagions = len(series)
-                self.numEvents = self.eventLog.shape[0]
+            self.restrictEventLogMaxOccurences(maxOccurs,maxNumContagions)
         elif (maxOccurs is not None) and (minOccurs is not None) and (minOccurs<=maxOccurs):
-            series = temp[(minOccurs <= temp.ts) & (temp.ts <= maxOccurs)]['contagion']
-            self.eventLog = self.eventLog[self.eventLog['contagion'].isin(series)]
-            self.numContagions = len(series)
-            self.numEvents = self.eventLog.shape[0]
+            self.restrictEventLogMinMaxOccurences(minOccurs,maxOccurs)
         elif (maxOccurs is None) and (minOccurs is not None):
-            if maxNumContagions is None:
-                self.restrictEventLogMinOccurences(minOccurs)
-                return
-            else:
-                series = temp[(minOccurs <= temp['ts'])].sort_values(by='ts').iloc[:maxNumContagions]['contagion']
-                self.eventLog = self.eventLog[self.eventLog['contagion'].isin(series)]
-                self.numContagions = len(series)
-                self.numEvents = self.eventLog.shape[0]
+            self.restrictEventLogMinOccurences(minOccurs,maxNumContagions)
         elif (maxOccurs is None) and (minOccurs is None) and (maxNumContagions is not None):
-            series = temp[(minOccurs <= temp['ts'])].sort_values(by='ts').iloc[:maxNumContagions]['contagion']
-            self.eventLog = self.eventLog[self.eventLog['contagion'].isin(series)]
-            self.numContagions = len(series)
-            self.numEvents = self.eventLog.shape[0]
-        self.reassignContagionID()
+            self.restrictEventLogMaxNumContagions(maxNumContagions)
         # review
 
 
@@ -182,28 +170,19 @@ class data():
         self.edges.drop(self.edges[(self.edges['user1'].isin(userList)) | (self.edges['user2'].isin(userList))].index,
                         inplace=True)
         self.eventLog.drop(self.eventLog[self.eventLog['user'].isin(userList)].index, inplace=True)
-        # pd.concat([self.edges['user1'],self.edges['user2']],copy=False).apply(lambda row: u[row.loc[:,0]])
-        u = defaultdict(functools.partial(next, itertools.count()))
-        self.edges['user1'] = self.edges.apply(lambda row: u[row['user1']], axis=1)
-        self.edges['user2'] = self.edges.apply(lambda row: u[row['user2']], axis=1)
-        self.eventLog['user'] = self.eventLog['user'].map(u)
-        self.numUsers = len(np.union1d(self.edges['user1'], self.edges['user2']))
-        self.numEvents = self.eventLog.shape[0]
-        self.numContagions = len(self.eventLog['contagion'].unique())
+        self.updateEventLog()
+        self.removeFromGraph(userList)
+        self.reindexUsers()
         # review
 
     def keepUsers(self, userList):
-        self.edges = self.edges[(self.edges['user1'].isin(userList)) | (self.edges['user2'].isin(userList))]
+        '''
+        "private" method
+        Does not check if contagions have at least one event
+        '''
+        self.edges = self.edges[(self.edges['user1'].isin(userList)) & (self.edges['user2'].isin(userList))]
         self.eventLog = self.eventLog[self.eventLog['user'].isin(userList)]
-        # pd.concat([self.edges['user1'],self.edges['user2']],copy=False).apply(lambda row: u[row.loc[:,0]])
-        u = defaultdict(functools.partial(next, itertools.count()))
-        self.edges['user1'] = self.edges.apply(lambda row: u[row['user1']], axis=1)
-        self.edges['user2'] = self.edges.apply(lambda row: u[row['user2']], axis=1)
-        self.eventLog['user'] = self.eventLog['user'].map(u)
-        self.numUsers = len(np.union1d(self.edges['user1'], self.edges['user2']))
         self.numEvents = self.eventLog.shape[0]
-        self.numContagions = len(self.eventLog['contagion'].unique())
-        # review
 
     def dropEdge(self, edge=None, user1=None, user2=None):
         if (user1 is None) & (user2 is None):
@@ -245,17 +224,10 @@ class data():
             pass
         # review
 
-    def reassignContagionID(self):
-        if 'contagionID' in self.eventLog.columns:
-            t = defaultdict(functools.partial(next, itertools.count()))
-            self.eventLog['contagionID'] = self.eventLog.apply(lambda row: t[row['contagion']], axis=1)
-            self.contagionIDDict = t
-        # review
-
     def constructEventLogGrouped(self):
         if 'eventID' not in self.eventLog.columns:
             t = defaultdict(functools.partial(next, itertools.count()))
-            self.eventLog = self.eventLog.assign(eventID=self.eventLog.apply(lambda row: t[(row['user'], row['ts'])], axis=1))
+            self.eventLog = self.eventLog.assign(eventID=self.eventLog.apply(lambda row: t[(row['user'], row['ts'])], axis=1, reduce = True))
         # review
 
     def toCSV(self, directory=''):
@@ -264,7 +236,7 @@ class data():
 
     def sample(self,fraction):
         self.eventLog=self.eventLog.sample(frac=fraction)
-        self.numContagions = len(self.eventLog['contagion'].unique())
+        self.updateEventLog()
         self.numEvents = self.eventLog.shape[0]
 
     def toPickle(self,directory=''):
@@ -273,6 +245,43 @@ class data():
     def restrictUsersToActive(self):
         activeUsers = self.eventLog.user.unique()
         self.keepUsers(activeUsers)
+        if self.graph is not None:
+            self.restrictGraph(activeUsers)
+        self.reindexUsers()
+
+    def restrictGraph(self,userList):
+        self.graph.remove_nodes_from(np.setdiff1d(self.graph.nodes(),userList))
+
+    def removeFromGraph(self,userList):
+        self.graph.remove_nodes_from(userList)
+
+    def reindexUsersInEventLog(self,dictionary):
+        self.eventLog.user.map(dictionary)
+
+    def reindexContagionID(self,dictionary):
+        self.eventLog = self.eventLog.assign(contagionID=self.eventLog['contagion'].map(dictionary))
+
+    def updateEventLog(self):
+        if 'contagionID' in self.eventLog.columns:
+            t = defaultdict(functools.partial(next, itertools.count()))
+            self.reindexContagionID(t)
+            self.numContagions = max(t.values()) + 1
+            self.contagionIDDict = t
+        else:
+            self.numContagions = len(self.eventLog.contagion.unique())
+        self.numEvents = self.eventLog.shape[0]
+
+    def reindexUsersInGraph(self,dictionary):
+        self.graph = nx.relabel_nodes(self.graph,dictionary,copy=True)
+
+    def reindexUsers(self):
+        t = defaultdict(functools.partial(next, itertools.count()))
+        self.edges.user1.map(t)
+        self.edges.user2.map(t)
+        self.reindexUsersInEventLog(t)
+        if self.graph is not None:
+            self.reindexUsersInGraph(t)
+        self.numUsers = max(t.values())+1
 
     @staticmethod
     def fromPickle(directory):

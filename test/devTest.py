@@ -51,10 +51,16 @@ def main():
         d.loadData(directory)
         d.restrictEventLog(maxOccurs=40000, maxNumContagions=25)
         d.restrictUsersToActive()
+        print('verifyUsersCorrect-main', d.verifyUsersCorrect(d.eventLog, d.edges))
         d.addGraph()
         d.constructEventLogGrouped()
         print(d.numUsers, d.numContagions, d.numEvents)
-
+        # d.toPickle('./')
+        # m=model()
+        # m.estimateContagionCorrelationMatrix(d)
+        # m.estimateAdjacencyMatrix(d)
+        # m.toPickle('./')
+        # m.fit(d,'volume',50000)
 
 
     except Exception as err:

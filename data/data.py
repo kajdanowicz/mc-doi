@@ -30,7 +30,9 @@ class data():
         if data.verifyUsersCorrect(eventLogDF, edgesDF):
             self.eventLog = eventLogDF
             self.edges = edgesDF
-            self.reindexUsers()
+            # print('loadDataFile', len(set(self.edges.user1).union(self.edges.user2)),min(set(self.edges.user1).union(self.edges.user2)),max(set(self.edges.user1).union(self.edges.user2)))
+            print('verifyUsersCorrect-loadDataFile', self.verifyUsersCorrect(self.eventLog, self.edges))
+            # self.reindexUsers()
             self.addContagionID()
             self.numContagions = max(self.contagionIDDict.values()) + 1
             self.numEvents = self.eventLog.shape[0]
@@ -61,6 +63,7 @@ class data():
         if set(eventLogDF['user']).issubset(edgesDF['user1'].append(edgesDF['user2'])):
             return True
         else:
+            print(set(eventLogDF['user']).difference(edgesDF['user1'].append(edgesDF['user2'])))
             return False
     # TODO find faster way
     # review
@@ -180,9 +183,10 @@ class data():
         "private" method
         Does not check if contagions have at least one event
         '''
-        self.edges = self.edges[(self.edges['user1'].isin(userList)) & (self.edges['user2'].isin(userList))]
-        self.eventLog = self.eventLog[self.eventLog['user'].isin(userList)]
-        self.numEvents = self.eventLog.shape[0]
+        row_mask = self.edges.isin(userList).all(1)
+        self.edges = self.edges[row_mask]
+        # self.eventLog = self.eventLog[self.eventLog['user'].isin(userList)]
+        # self.numEvents = self.eventLog.shape[0]
 
     def dropEdge(self, edge=None, user1=None, user2=None):
         if (user1 is None) & (user2 is None):
@@ -244,9 +248,13 @@ class data():
 
     def restrictUsersToActive(self):
         activeUsers = self.eventLog.user.unique()
+        print('verifyUsersCorrect-restrictUsersToActive-1', self.verifyUsersCorrect(self.eventLog, self.edges))
+        print('Num edges before reduction', self.edges.shape[0])
         self.keepUsers(activeUsers)
+        print('Num edges after reduction', self.edges.shape[0])
         if self.graph is not None:
             self.restrictGraph(activeUsers)
+        print('verifyUsersCorrect-restrictUsersToActive-2', self.verifyUsersCorrect(self.eventLog,self.edges))
         self.reindexUsers()
 
     def restrictGraph(self,userList):
@@ -256,7 +264,8 @@ class data():
         self.graph.remove_nodes_from(userList)
 
     def reindexUsersInEventLog(self,dictionary):
-        self.eventLog.user.map(dictionary)
+        self.eventLog.user = self.eventLog.user.map(dictionary)
+        print('reindexUsersInEventLog', self.eventLog.user.max()+1)
 
     def reindexContagionID(self,dictionary):
         self.eventLog = self.eventLog.assign(contagionID=self.eventLog['contagion'].map(dictionary))
@@ -273,11 +282,13 @@ class data():
 
     def reindexUsersInGraph(self,dictionary):
         self.graph = nx.relabel_nodes(self.graph,dictionary,copy=True)
+        print('reindexUsersInGraph', max(self.graph.nodes()))
 
     def reindexUsers(self):
         t = defaultdict(functools.partial(next, itertools.count()))
-        self.edges.user1.map(t)
-        self.edges.user2.map(t)
+        self.edges.user1 = self.edges.user1.map(t)
+        self.edges.user2 = self.edges.user2.map(t)
+        print('reindexUsers', max(t.values())+1)
         self.reindexUsersInEventLog(t)
         if self.graph is not None:
             self.reindexUsersInGraph(t)

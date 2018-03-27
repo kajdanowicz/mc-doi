@@ -3,6 +3,9 @@ import numpy as np
 import pandas as pd
 import math
 from tqdm import trange, tqdm
+tqdm.pandas(desc="Progress apply")
+from collections import defaultdict
+
 import sys
 
 
@@ -50,27 +53,26 @@ class tMatrix():
                 Y[i] += 1
         df_thresholds = pd.DataFrame(df_thresholds)
         df_thresholds.columns = ['user', 'x', 'y', 'w']
-        results = []
-        for user in tqdm(np.arange(data.numUsers)):
-            res_max_neg = []
-            res_min_pos = []
-            X = df_thresholds[df_thresholds['user'] == user]
-            X = X[['x', 'y', 'w']]
-            for i in X['w'].unique():
-                if (i != X['w'].max()):
-                    max_neg = X[(X['w'] == i) & (X['y'] == 0)]['x'].max()
-                    min_pos = X[(X['w'] == i) & (X['y'] == 1)]['x'].min()
-                    res_max_neg.append(1 - math.pow(1 - max_neg, 1 / float(i + 1)))
-                    res_min_pos.append(1 - math.pow(1 - min_pos, 1 / float(i + 1)))
-                else:
-                    max_neg = X[(X['w'] == i) & (X['y'] == 0)]['x'].max()
-                    res_max_neg.append(1 - math.pow(1 - max_neg, 1 / float(i + 1)))
-            if (len(res_min_pos) != 0):
-                result = (max(res_max_neg) + min(res_min_pos)) / 2
+        max_neg = defaultdict(lambda : -2)
+        min_pos = defaultdict(lambda : 2)
+        def test(row):
+            user = row.values[0]
+            x = row.values[1]
+            y = row.values[2]
+            w = row.values[3]
+            if y == 0:
+                max_neg[user] = max(max_neg[user], 1 - math.pow(1 - x, 1 / float(w + 1)))
             else:
-                res_max_neg.append(0)
-                result = max(res_max_neg)
-            results.append(result)
+                min_pos[user] = min(min_pos[user], 1 - math.pow(1 - x, 1 / float(w + 1)))
+        df_thresholds.progress_apply(test,axis=1)
+        results = []
+        for user in trange(data.numUsers):
+            if min_pos[user] > 1:
+                results.append(max(max_neg[user],0))
+            else:
+                results.append(max((max_neg[user] + min_pos[user]) / 2, 0))
+        # print(results)
+        # print([(i,e) for i, e in enumerate(results) if e != 0])
         self.matrix = np.repeat(np.asarray(results)[np.newaxis].T, data.numContagions, axis=1)
         # review
 

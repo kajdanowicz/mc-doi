@@ -35,7 +35,7 @@ class tMatrix():
         # print('indicators[0].shape', indicators[0].shape)
         max_neg = defaultdict(lambda : -2)
         min_pos = defaultdict(lambda : 2)
-        for l in trange(len(indicators) - 1):
+        for l in range(len(indicators) - 1):
             U = aMatrix.matrixTransposed.dot(indicators[l])
             F = U.dot(ccMAtrix.matrix) / data.numContagions
             temp = np.logical_xor(indicators[l], indicators[l + 1]) #aktywowane z l na l+1
@@ -54,7 +54,7 @@ class tMatrix():
             for i in activated:
                 Y[i] += 1
         results = []
-        for user in trange(data.numUsers):
+        for user in range(data.numUsers):
             if min_pos[user] > 1:
                 results.append(max(max_neg[user],0))
             else:

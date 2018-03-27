@@ -31,7 +31,7 @@ class aMatrix():
         prevContagion=None
         data.addGraph()
         d = data.eventLog.drop_duplicates(subset=['contagion', 'user'], keep='first')
-        for row in tqdm(d.itertuples(index=False,name=None)):
+        for row in d.itertuples(index=False,name=None):
             self.u[row[1]]+=1
             if(row[2] is prevContagion):
                 prevContagion=row[2]
@@ -40,9 +40,7 @@ class aMatrix():
                 prevContagion=row[2]
             self.propagate(row[0],row[1],data.graph)
         self.resetEventQueue()
-        print('Goyal counted')
         self.calculateWeights(data.graph)
-        print('Adjacency matrix computed')
         self.cleanCounters()
 
     def calculateWeights(self,graph):

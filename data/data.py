@@ -306,6 +306,14 @@ class data():
             self.reindexUsersInGraph(t)
         self.numUsers = max(t.values())+1
 
+    def prepareTestData(self,fraction):
+        minTime = self.eventLog.ts.min()
+        maxTime = self.eventLog.ts.max()
+        stoppingTime = float(maxTime-minTime)*fraction
+        tmp = self.eventLog[self.eventLog.ts > stoppingTime]
+        self.eventLog = self.eventLog[self.eventLog.ts <= stoppingTime]
+        return tmp
+
     @staticmethod
     def fromPickle(directory):
         return pickle.load(open(directory+'data.p','rb'))

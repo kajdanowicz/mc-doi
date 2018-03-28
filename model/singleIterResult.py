@@ -1,3 +1,8 @@
 class singleIterResult():
+
     def __init__(self):
-        pass
+        self.matrix = None
+        self.numUsers = None
+        self.numContagions = None
+
+

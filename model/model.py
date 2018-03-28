@@ -5,6 +5,8 @@ import pickle
 import model.ccMatrix as ccMatrix
 import model.aMatrix as aMatrix
 import model.tMatrix as tMatrix
+from model.singleIterResult import singleIterResult
+from model.results import results
 
 
 class model():
@@ -29,7 +31,16 @@ class model():
                                                       batchSize)
         elif batchType == 'hybrid':
             self.thresholdsMatrix.estimateHybrideBatch(data)
-        # TODO stateMatrix and activityIndexVector
+        self.fillStateMatrix(data)
+
+    def fillStateMatrix(self,data):
+        self.stateMatrix = singleIterResult()
+        self.stateMatrix.numContagions = data.numContagions
+        self.stateMatrix.numUsers = data.numUsers
+        self.stateMatrix.matrix = np.full((self.stateMatrix.numUsers, self.stateMatrix.numContagions), False, dtype=bool)
+        for index, row in data.eventLog.iterrows():
+            self.stateMatrix.matrix[row['user']][row['contagionID']] = True
+        self.activityIndexVector = np.sum(self.stateMatrix.matrix, axis=1)
 
     def estimateContagionCorrelationMatrix(self,data):
         self.contagionCorrelationMatrix.estimate(data)
@@ -44,9 +55,29 @@ class model():
     def fromPickle(directory):
         return pickle.load(open(directory+'model.p','rb'))
 
-    def predict(self):
-        # TODO Implement this method
-        pass
+    def predict(self, numIterations):
+        numActivations = 0
+        r = results()
+        self.adjacencyMatrix.transpose()
+        for l in range(numIterations):
+            U = self.adjacencyMatrix.matrixTransposed.dot(self.stateMatrix.matrix)
+            F = U.dot(self.contagionCorrelationMatrix.matrix) / self.contagionCorrelationMatrix.numContagions
+            temp = np.greater_equal(F, self.thresholdsMatrix.matrix)  # porównanie funkcji aktywacji z progiem
+            ### dodawanie rekordów bez przekroczenia progu
+            for i in np.unique(np.where(temp[:, :] == True)[0]):  # iteracja po użytkownikach, którzy mają przekroczony próg
+                temp1 = np.where(temp[i, :] == True)[0]  # tagi, w których dla użytkownika i przekroczony był próg
+                temp2 = np.where(self.stateMatrix.matrix[i][:] == True)[0]  # tagi juz aktywne
+                temp1 = np.setdiff1d(temp1, temp2)  # usuniecie juz aktywnych tagow
+                if (not np.any(self.contagionCorrelationMatrix.matrix[temp1[:, None], temp1] < 0)) and (not temp1.size == 0):  # sprawdzenie, czy kandydaci do aktywacji nie są negatywnie skorelowani
+                    # print('YES! ',l)
+                    self.stateMatrix.matrix[i][temp1] = True  # aktywacja uzytkownika i w tagach z listy temp1
+                    self.activityIndexVector[i] += 1  # Y[i]+=1 #zwiekszenie licznika aktywacji uzytkownika i
+                    numActivations += 1
+                    for contagion in range(self.stateMatrix.numContagions): #temporary solution
+                        self.thresholdsMatrix.matrix[i][contagion] = 1 - math.pow(1 - self.thresholdsMatrix.initialMatrix[i][contagion], self.activityIndexVector[i] + 1)  # aktualizacja thety
+            r.addResult(self.stateMatrix)
+        print(numActivations)
+        return r
 
     def assignContagionsCorrelationMatrix(self, matrix):
         # TODO Implement this method

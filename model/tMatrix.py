@@ -5,6 +5,7 @@ import math
 from tqdm import trange, tqdm
 tqdm.pandas(desc="Progress apply")
 from collections import defaultdict
+import copy
 
 import sys
 
@@ -13,6 +14,7 @@ class tMatrix():
 
     def __init__(self):
         self.matrix = None
+        self.initialMatrix = None
         self.numUsers = None
 
     def estimateVolumeBatch(self, data, aMatrix, ccMAtrix, volume):
@@ -62,6 +64,7 @@ class tMatrix():
         # print(results)
         # print([(i,e) for i, e in enumerate(results) if e != 0])
         self.matrix = np.repeat(np.asarray(results)[np.newaxis].T, data.numContagions, axis=1)
+        self.initialMatrix = copy.copy(self.matrix)
         # review
 
     def estimateTimeBatch(self, data):

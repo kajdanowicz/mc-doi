@@ -309,9 +309,10 @@ class data():
     def prepareTestData(self,fraction):
         minTime = self.eventLog.ts.min()
         maxTime = self.eventLog.ts.max()
-        stoppingTime = float(maxTime-minTime)*fraction
+        stoppingTime = float(maxTime-minTime)*fraction + minTime
         tmp = self.eventLog[self.eventLog.ts > stoppingTime]
         self.eventLog = self.eventLog[self.eventLog.ts <= stoppingTime]
+        self.numEvents = self.eventLog.shape[0]
         return tmp
 
     @staticmethod

@@ -48,9 +48,18 @@ def sendEmail():
 def main():
     try:
         d = data.fromPickle('./')
+        # d = data()
+        # d.loadData(directory)
+        # d.sampleEdges(fraction=0.001)
+        # d.restrictEventLog(maxNumContagions=25)
+        # print(d.numUsers, d.numContagions, d.numEvents)
+        # d.addGraph()
+        # d.constructEventLogGrouped()
+        validationData = d.prepareTestData(fraction = 0.8)
+        # m = model()
+        # m.fit(d, 'volume', 10000)
         m = model.fromPickle('./')
-
-
+        m.predict(3)
     except Exception as err:
         writeToLogger(err.args)
         print(err.args)
@@ -62,15 +71,17 @@ def main1():
     try:
         d = data()
         d.loadData(directory)
-        d.restrictEventLogMinOccurences(40000)
-        d.eventLog.to_csv('restrictedEventLog',header=False,index=False)
-        d.edges.to_csv('restrictedEdges', header=False, index=False)
+        d.sampleEdges(fraction=0.001)
+        d.restrictEventLog(maxNumContagions=25)
+        print(d.verifyUsersCorrect(d.eventLog, d.edges))
+        d.addGraph()
+        d.constructEventLogGrouped()
+        d.toPickle('./')
     except Exception as err:
         writeToLogger(err.args)
 
 if __name__ == "__main__":
     main()
-
 
 def test(t):
     if t:

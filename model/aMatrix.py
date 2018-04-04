@@ -4,6 +4,7 @@ import networkx as nx
 from tqdm import tqdm
 import copy
 
+
 class aMatrix():
     def __init__(self):
         self.matrix = None
@@ -23,27 +24,27 @@ class aMatrix():
         self.vANDu = None
         self.u = None
 
-    def estimate(self,data):
-        self.numUsers=data.numUsers
-        self.v2u=defaultdict(lambda: 0)
-        self.vANDu=defaultdict(lambda: 0)
-        self.u=defaultdict(lambda: 0)
-        prevContagion=None
+    def estimate(self, data):
+        self.numUsers = data.numUsers
+        self.v2u = defaultdict(lambda: 0)
+        self.vANDu = defaultdict(lambda: 0)
+        self.u = defaultdict(lambda: 0)
+        prevContagion = None
         data.addGraph()
         d = data.eventLog.drop_duplicates(subset=['contagion', 'user'], keep='first')
-        for row in d.itertuples(index=False,name=None):
-            self.u[row[1]]+=1
-            if(row[2] is prevContagion):
-                prevContagion=row[2]
+        for row in d.itertuples(index=False, name=None):
+            self.u[row[1]] += 1
+            if (row[2] is prevContagion):
+                prevContagion = row[2]
             else:
                 self.resetEventQueue()
-                prevContagion=row[2]
-            self.propagate(row[0],row[1],data.graph)
+                prevContagion = row[2]
+            self.propagate(row[0], row[1], data.graph)
         self.resetEventQueue()
         self.calculateWeights(data.graph)
         self.cleanCounters()
 
-    def calculateWeights(self,graph):
+    def calculateWeights(self, graph):
         G = graph.to_directed()
         nx.set_edge_attributes(G, 0, 'weight')
         for v in self.u:
@@ -61,20 +62,18 @@ class aMatrix():
                     G[v][u]['weight'] /= in_degree
         self.matrix = nx.adjacency_matrix(G, weight='weight')
 
-
-
     def resetEventQueue(self):
         self.eventQueue = dict()
 
-    def addToQueue(self,user,ts):
-        self.eventQueue[user]=ts
+    def addToQueue(self, user, ts):
+        self.eventQueue[user] = ts
 
     def propagate(self, ts, user, graph):
         for v in graph.neighbors(user):
-            #if self.eventQueue.get(v):
+            # if self.eventQueue.get(v):
             if v in self.eventQueue:
-                self.vANDu[(user,v)] += 1
-                #self.vANDu[(v, user)] += 1
-                if ts-self.eventQueue[v] != 0:
-                    self.v2u[(v,user)] += 1
-        self.addToQueue(user,ts)
+                self.vANDu[(user, v)] += 1
+                # self.vANDu[(v, user)] += 1
+                if ts - self.eventQueue[v] != 0:
+                    self.v2u[(v, user)] += 1
+        self.addToQueue(user, ts)

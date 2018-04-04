@@ -25,7 +25,8 @@ class model():
         if self.adjacencyMatrix.matrix is None:
             self.estimateAdjacencyMatrix(data)
         if batchType == 'time':
-            self.thresholdsMatrix.estimateTimeBatch(data)
+            self.thresholdsMatrix.estimateTimeBatch(data, self.adjacencyMatrix, self.contagionCorrelationMatrix,
+                                                      batchSize)
         elif batchType == 'volume':
             self.thresholdsMatrix.estimateVolumeBatch(data, self.adjacencyMatrix, self.contagionCorrelationMatrix,
                                                       batchSize)

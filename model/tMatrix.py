@@ -18,7 +18,6 @@ class tMatrix():
         self.numUsers = None
 
     def estimateVolumeBatch(self, data, aMatrix, ccMAtrix, volume):
-        # TODO Implement
         data.addContagionID()
         data.constructEventLogGrouped()
         indicators = []
@@ -31,7 +30,9 @@ class tMatrix():
             I = copy.deepcopy(I)
             eventID += volume
         Y = np.sum(indicators[0], axis=1)
-        df_thresholds = []
+        self.estimate(Y, aMatrix, ccMAtrix, data, indicators)
+
+    def estimate(self, Y, aMatrix, ccMatrix, data, indicators):
         aMatrix.transpose()
         # print('aMatrix.matrixTransposed.shape', aMatrix.matrixTransposed.shape)
         # print('indicators[0].shape', indicators[0].shape)
@@ -39,9 +40,9 @@ class tMatrix():
         min_pos = defaultdict(lambda : 2)
         for l in range(len(indicators) - 1):
             U = aMatrix.matrixTransposed.dot(indicators[l])
-            F = U.dot(ccMAtrix.matrix) / data.numContagions
-            temp = np.logical_xor(indicators[l], indicators[l + 1]) #aktywowane z l na l+1
-            temp1 = np.logical_or(temp, indicators[l]) #nieaktywowane z l na l+1 z wylaczeniem wczesniej aktywnych (po nalozeniu nagacji)
+            F = U.dot(ccMatrix.matrix) / data.numContagions
+            temp = np.logical_xor(indicators[l], indicators[l + 1])  # aktywowane z l na l+1
+            temp1 = np.logical_or(temp, indicators[l])  # nieaktywowane z l na l+1 z wylaczeniem wczesniej aktywnych (po nalozeniu nagacji)
             activated = set()
             for i in range(data.numUsers):
                 for j in range(data.numContagions):
@@ -49,7 +50,7 @@ class tMatrix():
                         if F[i][j] > 0:
                             min_pos[i] = min(min_pos[i], 1 - math.pow(1 - F[i][j], 1 / float(Y[i] + 1)))
                         else:
-                            min_pos[i] = min(min_pos[i], 0) #czy chcemy wyeliminować aktywacje, przy ujemnym wpływie?
+                            min_pos[i] = min(min_pos[i], 0)  # czy chcemy wyeliminować aktywacje, przy ujemnym wpływie?
                         activated.add(i)
                     if not temp1[i][j]:
                         max_neg[i] = max(max_neg[i], 1 - math.pow(1 - F[i][j], 1 / float(Y[i] + 1)))
@@ -58,7 +59,7 @@ class tMatrix():
         results = []
         for user in range(data.numUsers):
             if min_pos[user] > 1:
-                results.append(max(max_neg[user],0))
+                results.append(max(max_neg[user], 0))
             else:
                 results.append(max((max_neg[user] + min_pos[user]) / 2, 0))
         # print(results)
@@ -67,9 +68,20 @@ class tMatrix():
         self.initialMatrix = copy.copy(self.matrix)
         # review
 
-    def estimateTimeBatch(self, data):
-        # TODO Implement
-        pass
+    def estimateTimeBatch(self, data, aMatrix, ccMatrix, volume):
+        data.addContagionID()
+        data.constructEventLogGrouped()
+        indicators = []
+        I = np.full((data.numUsers, data.numContagions), False, dtype=bool)
+        ts = 0
+        while ts < data.eventLog['ts'].max():
+            for index, row in data.eventLog[(data.eventLog['ts'] > ts) & (data.eventLog['ts'] <= ts + volume)].iterrows():
+                I[row['user']][row['contagionID']] = True
+            indicators.append(I)
+            I = copy.deepcopy(I)
+            ts += volume
+        Y = np.sum(indicators[0], axis=1)
+        self.estimate(Y, aMatrix, ccMatrix, data, indicators)
 
     def estimateHybrideBatch(self, data):
         # TODO Implement

@@ -4,7 +4,6 @@ if get_mac() == 2485377892363:
     sys.path.append('/home/maciek/pyCharmProjects/mc-doi')
 
 import numpy as np
-import scipy
 import logging
 from datetime import datetime
 import pickle
@@ -56,9 +55,9 @@ def main():
         # d.addGraph()
         # d.constructEventLogGrouped()
         validationData = d.prepareTestData(fraction = 0.8)
-        # m = model()
-        # m.fit(d, 'volume', 10000)
-        m = model.fromPickle('./')
+        m = model()
+        m.fit(d, 'volume', 10000)
+        # m = model.fromPickle('./')
         m.predict(3)
     except Exception as err:
         writeToLogger(err.args)

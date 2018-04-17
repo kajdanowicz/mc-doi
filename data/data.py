@@ -19,10 +19,20 @@ class data():
         self.graph = None
 
     def addGraph(self):
+        '''
+        Method adds Networkx graph to data object
+        :return:
+        '''
         if self.graph is None:
             self.graph = nx.from_pandas_edgelist(self.edges, 'user1', 'user2')
 
     def loadDataFile(self, directory, fileNames = ('eventLog','edges')):
+        '''
+
+        :param directory:
+        :param fileNames:
+        :return:
+        '''
         eventLogDF = pd.read_csv(directory + fileNames[0])
         eventLogDF.columns = ['ts', 'user', 'contagion']
         edgesDF = pd.read_csv(directory + fileNames[1])
@@ -41,6 +51,13 @@ class data():
         # review
 
     def loadDataDataFrame(self, eventLogDF, edgesDF):
+        """
+
+        :param pd.DataFrame eventLogDF: Data frame containing event log
+        :param pd.DataFrame edgesDF: Data frame containing
+        :return: If data have been loaded successfully
+        :rtype: bool
+        """
         eventLogDF.columns = ['ts', 'user', 'contagion']
         edgesDF.columns = ['user1', 'user2']
         if data.verifyUsersCorrect(eventLogDF, edgesDF):

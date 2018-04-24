@@ -4,14 +4,14 @@ class results():
 
     def __init__(self):
         self.list = []
-        self.numResults = 0
+        self.num_results = 0
 
     def add_result(self, result):
         self.list.append(copy.copy(result))
-        self.numResults += 1
+        self.num_results += 1
 
-    def getResult(self,resultNum):
-        if resultNum >= self.numResults:
+    def get_result(self, result_num):
+        if result_num >= self.num_results:
             return False
         else:
-            return self.list[resultNum]
+            return self.list[result_num]

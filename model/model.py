@@ -5,7 +5,7 @@ import pickle
 import model.cc_matrix as cc_matrix
 import model.a_matrix as a_matrix
 import model.t_matrix as t_matrix
-from model.single_iter_result import singleIterResult
+from model.single_iter_result import single_iter_result
 from model.results import results
 
 
@@ -36,10 +36,10 @@ class model():
         self.fill_state_matrix(data)
 
     def fill_state_matrix(self, data):
-        self.state_matrix = singleIterResult()
+        self.state_matrix = single_iter_result()
         self.state_matrix.num_contagions = data.num_contagions
-        self.state_matrix.numUsers = data.numUsers
-        self.state_matrix.matrix = np.full((self.state_matrix.numUsers, self.state_matrix.num_contagions), False, dtype=bool)
+        self.state_matrix.num_users = data.numUsers
+        self.state_matrix.matrix = np.full((self.state_matrix.num_users, self.state_matrix.num_contagions), False, dtype=bool)
         for index, row in data.event_log.iterrows():
             self.state_matrix.matrix[row['user']][row['contagionID']] = True
         self.activity_index_vector = np.sum(self.state_matrix.matrix, axis=1)

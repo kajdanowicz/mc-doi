@@ -6,7 +6,7 @@ class results():
         self.list = []
         self.numResults = 0
 
-    def addResult(self,result):
+    def add_result(self, result):
         self.list.append(copy.copy(result))
         self.numResults += 1
 

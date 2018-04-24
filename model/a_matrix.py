@@ -8,7 +8,7 @@ import copy
 class aMatrix():
     def __init__(self):
         self.matrix = None
-        self.matrixTransposed = None
+        self.matrix_transposed = None
         self.numUsers = None
         self.eventQueue = dict()
         self.v2u = None
@@ -16,8 +16,8 @@ class aMatrix():
         self.u = None
 
     def transpose(self):
-        if self.matrixTransposed is None:
-            self.matrixTransposed = self.matrix.transpose()
+        if self.matrix_transposed is None:
+            self.matrix_transposed = self.matrix.transpose()
 
     def cleanCounters(self):
         self.v2u = None

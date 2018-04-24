@@ -9,7 +9,7 @@ class ccMatrix():
 
     def __init__(self):
         self.matrix=None
-        self.numContagions=None
+        self.num_contagions=None
         self.numUsersPerformingEvents = None
 
     def estimate(self,data):
@@ -19,14 +19,14 @@ class ccMatrix():
         @:type data: data
         """
         data.add_contagion_id()
-        self.numContagions=data.numContagions
-        self.matrix= np.eye(N=self.numContagions)
+        self.num_contagions=data.numContagions
+        self.matrix= np.eye(N=self.num_contagions)
         self.numUsersPerformingEvents=len(data.eventLog.user.unique())
         tmp = data.eventLog[['user', 'contagionID']].drop_duplicates(subset=None, keep='first', inplace=False)
         tmp = pd.merge(tmp[['user', 'contagionID']], tmp[['user', 'contagionID']], on='user',suffixes=('_1','_2')).groupby(['contagionID_1','contagionID_2']).count()
-        for i in range(self.numContagions):
+        for i in range(self.num_contagions):
             count_i = float(tmp.loc[(i, i)].values[0])
-            for j in range(i + 1, self.numContagions):
+            for j in range(i + 1, self.num_contagions):
                 count_j = float(tmp.loc[(j, j)].values[0])
                 if (i,j) in tmp.index:
                     count_ij = float(tmp.loc[(i, j)].values[0])
@@ -39,8 +39,8 @@ class ccMatrix():
 
     def verifyMatrixSymetry(self,matrix=None):
         if matrix is None:
-            for i in range(self.numContagions):
-                for j in range(i+1,self.numContagions):
+            for i in range(self.num_contagions):
+                for j in range(i+1, self.num_contagions):
                     if self.matrix[i][j]!=self.matrix[j][i]:
                         return False
             return True
@@ -57,8 +57,8 @@ class ccMatrix():
         pass
 
     def randomMatrix(self,size):
-        self.numContagions = size
-        C = np.random.random((self.numContagions, self.numContagions))
+        self.num_contagions = size
+        C = np.random.random((self.num_contagions, self.num_contagions))
         C = C * 2 - 1
         C *= np.tri(*C.shape, k=-1)
         self.matrix = C + np.transpose(C) + np.eye(N=self.size)

@@ -16,12 +16,12 @@ if missing_dependencies:
 del hard_dependencies, dependency, missing_dependencies
 
 from data.data import *
-from model.aMatrix import *
-from model.ccMatrix import *
+from model.a_matrix import *
+from model.cc_matrix import *
 from model.model import *
 from model.results import *
-from model.singleIterResult import *
-from model.tMatrix import *
+from model.single_iter_result import *
+from model.t_matrix import *
 
 # module level doc-string
 __doc__ = '''

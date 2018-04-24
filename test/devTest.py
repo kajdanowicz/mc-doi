@@ -14,9 +14,9 @@ from model.model import model
 from data.data import Data
 import config.config as config
 
-from model.tMatrix import tMatrix
-from model.aMatrix import aMatrix
-from model.ccMatrix import ccMatrix
+from model.t_matrix import tMatrix
+from model.a_matrix import aMatrix
+from model.cc_matrix import ccMatrix
 
 mode = ''
 
@@ -51,7 +51,7 @@ def main():
         # d.load_data(directory)
         # d.sample_edges(fraction=0.001)
         # d.restrict_event_log(maxNumContagions=25)
-        # print(d.numUsers, d.numContagions, d.numEvents)
+        # print(d.numUsers, d.num_contagions, d.numEvents)
         # d.addGraph()
         # d.construct_event_log_grouped()
         validationData = d.prepare_test_data(fraction = 0.8)
@@ -107,9 +107,9 @@ def testRestrictEventLogMinOccurences(directory, minOccurs = 40000):
     # TODO Design this test
     d=Data.data()
     d.load_data(directory=directory)
-    print('Before restriction:',d.numEvents,'numContagions:',d.numContagions)
+    print('Before restriction:',d.numEvents,'num_contagions:',d.numContagions)
     d.restrict_event_log_min_occurences(minOccurs)
-    print('After restriction:', d.numEvents,'numContagions:',d.numContagions)
+    print('After restriction:', d.numEvents,'num_contagions:',d.numContagions)
 
 def testEstimateContagionCorrelationMatrix(directory,minOccurs=40000):
     # TODO Design this test
@@ -117,7 +117,7 @@ def testEstimateContagionCorrelationMatrix(directory,minOccurs=40000):
     d=Data.data()
     d.load_data(directory)
     d.restrict_event_log_min_occurences(minOccurs)
-    m.estimateContagionCorrelationMatrix(d)
+    m.estimate_contagion_correlation_matrix(d)
     print(m.contagionCorrelationMatrix)
     test(m.verifyContagionCorrelationMatrixSymetry())
 

@@ -17,7 +17,7 @@ class tMatrix():
         self.initialMatrix = None
         self.numUsers = None
 
-    def estimateVolumeBatch(self, data, aMatrix, ccMAtrix, volume):
+    def estimate_volume_batch(self, data, aMatrix, ccMAtrix, volume):
         data.add_contagion_id()
         data.construct_event_log_grouped()
         indicators = []
@@ -34,7 +34,7 @@ class tMatrix():
 
     def estimate(self, Y, aMatrix, ccMatrix, data, indicators):
         aMatrix.transpose()
-        # print('aMatrix.matrixTransposed.shape', aMatrix.matrixTransposed.shape)
+        # print('a_matrix.matrix_transposed.shape', a_matrix.matrix_transposed.shape)
         # print('indicators[0].shape', indicators[0].shape)
         max_neg = defaultdict(lambda : -2)
         min_pos = defaultdict(lambda : 2)
@@ -68,7 +68,7 @@ class tMatrix():
         self.initialMatrix = copy.copy(self.matrix)
         # review
 
-    def estimateTimeBatch(self, data, aMatrix, ccMatrix, volume):
+    def estimate_time_batch(self, data, aMatrix, ccMatrix, volume):
         data.add_contagion_id()
         data.construct_event_log_grouped()
         indicators = []
@@ -83,14 +83,14 @@ class tMatrix():
         Y = np.sum(indicators[0], axis=1)
         self.estimate(Y, aMatrix, ccMatrix, data, indicators)
 
-    def estimateHybrideBatch(self, data):
+    def estimate_hybride_batch(self, data):
         # TODO Implement
         pass
 
     # def estimateVector(self,data):
     #     #TODO Implement
     #     indykatory_est = []
-    #     I = np.full((data.numUsers, data.numContagions), False, dtype=bool)
+    #     I = np.full((data.numUsers, data.num_contagions), False, dtype=bool)
     #     for i in range(history):
     #         for index, row in event_log[event_log['ts'] == i].iterrows():
     #             I[row['userNEW'], row['tagID']] = True

@@ -18,7 +18,7 @@ class ccMatrix():
         300 contagions ~ 30s
         @:type data: data
         """
-        data.addContagionID()
+        data.add_contagion_id()
         self.numContagions=data.numContagions
         self.matrix= np.eye(N=self.numContagions)
         self.numUsersPerformingEvents=len(data.eventLog.user.unique())

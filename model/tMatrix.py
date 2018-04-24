@@ -18,8 +18,8 @@ class tMatrix():
         self.numUsers = None
 
     def estimateVolumeBatch(self, data, aMatrix, ccMAtrix, volume):
-        data.addContagionID()
-        data.constructEventLogGrouped()
+        data.add_contagion_id()
+        data.construct_event_log_grouped()
         indicators = []
         I = np.full((data.numUsers, data.numContagions), False, dtype=bool)
         eventID = 0
@@ -69,8 +69,8 @@ class tMatrix():
         # review
 
     def estimateTimeBatch(self, data, aMatrix, ccMatrix, volume):
-        data.addContagionID()
-        data.constructEventLogGrouped()
+        data.add_contagion_id()
+        data.construct_event_log_grouped()
         indicators = []
         I = np.full((data.numUsers, data.numContagions), False, dtype=bool)
         ts = 0

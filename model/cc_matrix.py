@@ -22,8 +22,8 @@ class ccMatrix():
         self.num_contagions=data.num_contagions
         self.matrix= np.eye(N=self.num_contagions)
         self.num_users_performing_events=len(data.event_log.user.unique())
-        tmp = data.event_log[['user', 'contagionID']].drop_duplicates(subset=None, keep='first', inplace=False)
-        tmp = pd.merge(tmp[['user', 'contagionID']], tmp[['user', 'contagionID']], on='user',suffixes=('_1','_2')).groupby(['contagionID_1','contagionID_2']).count()
+        tmp = data.event_log[['user', 'contagion_id']].drop_duplicates(subset=None, keep='first', inplace=False)
+        tmp = pd.merge(tmp[['user', 'contagion_id']], tmp[['user', 'contagion_id']], on='user',suffixes=('_1','_2')).groupby(['contagion_id_1','contagion_id_2']).count()
         for i in range(self.num_contagions):
             count_i = float(tmp.loc[(i, i)].values[0])
             for j in range(i + 1, self.num_contagions):

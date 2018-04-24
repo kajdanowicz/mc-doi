@@ -99,8 +99,8 @@ class Data:
     # review
 
     def sort_data(self):
-        if 'contagionID' in self.event_log.columns:
-            self.event_log.sort_values(by=['contagionID', 'ts'], inplace=True)
+        if 'contagion_id' in self.event_log.columns:
+            self.event_log.sort_values(by=['contagion_id', 'ts'], inplace=True)
         else:
             self.event_log.sort_values(by=['contagion', 'ts'], inplace=True)
 
@@ -230,26 +230,26 @@ class Data:
         # review
 
     def delete_contagions_by_id(self, contagion_id_list):
-        if 'contagionID' in self.event_log.columns:
-            self.event_log.drop(self.event_log[self.event_log['contagionID'].isin(contagion_id_list)].index, inplace=True)
+        if 'contagion_id' in self.event_log.columns:
+            self.event_log.drop(self.event_log[self.event_log['contagion_id'].isin(contagion_id_list)].index, inplace=True)
             self.num_events = self.event_log.shape[0]
-            self.num_contagions = len(self.event_log['contagionID'].unique())
+            self.num_contagions = len(self.event_log['contagion_id'].unique())
             # review
 
     def add_contagion_id(self):
-        if 'contagionID' not in self.event_log.columns:
+        if 'contagion_id' not in self.event_log.columns:
             t = defaultdict(functools.partial(next, itertools.count()))
-            self.event_log = self.event_log.assign(contagionID=self.event_log['contagion'].map(t))
+            self.event_log = self.event_log.assign(contagion_id=self.event_log['contagion'].map(t))
             self.contagion_id_dict = t
         else:
             pass
             # review
 
     def construct_event_log_grouped(self):
-        if 'eventID' not in self.event_log.columns:
+        if 'event_id' not in self.event_log.columns:
             t = defaultdict(functools.partial(next, itertools.count()))
             self.event_log = self.event_log.assign(
-                eventID=self.event_log.apply(lambda row: t[(row['user'], row['ts'])], axis=1, reduce=True))
+                event_id=self.event_log.apply(lambda row: t[(row['user'], row['ts'])], axis=1, reduce=True))
             # review
 
     def to_csv(self, directory=''):
@@ -303,10 +303,10 @@ class Data:
         self.event_log.user = self.event_log.user.map(dictionary)
 
     def reindex_contagion_id(self, dictionary):
-        self.event_log = self.event_log.assign(contagionID=self.event_log['contagion'].map(dictionary))
+        self.event_log = self.event_log.assign(contagion_id=self.event_log['contagion'].map(dictionary))
 
     def update_event_log(self):
-        if 'contagionID' in self.event_log.columns:
+        if 'contagion_id' in self.event_log.columns:
             t = defaultdict(functools.partial(next, itertools.count()))
             self.reindex_contagion_id(t)
             self.num_contagions = max(t.values()) + 1

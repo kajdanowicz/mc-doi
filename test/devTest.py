@@ -11,7 +11,7 @@ import pickle
 import pandas as pd
 
 from model.model import model
-from data.data import data
+from data.data import Data
 import config.config as config
 
 from model.tMatrix import tMatrix
@@ -46,7 +46,7 @@ def sendEmail():
 
 def main():
     try:
-        d = data.fromPickle('./')
+        d = Data.fromPickle('./')
         # d = data()
         # d.loadData(directory)
         # d.sampleEdges(fraction=0.001)
@@ -68,12 +68,12 @@ def main():
 
 def main1():
     try:
-        d = data()
+        d = Data()
         d.loadData(directory)
         d.sampleEdges(fraction=0.001)
         d.restrictEventLog(maxNumContagions=25)
-        print(d.verifyUsersCorrect(d.eventLog, d.edges))
-        d.addGraph()
+        print(d.verify_users_correct(d.event_log, d.edges))
+        d.add_graph()
         d.constructEventLogGrouped()
         d.toPickle('./')
     except Exception as err:
@@ -89,23 +89,23 @@ def test(t):
         print('Failed')
 
 def testDeleteUsers(userList):
-    d=data.data()
+    d=Data.data()
     d.loadData(directory=directory)
     u=d.deleteUsers(userList)
     print(u.values())
 
 def testLoadDataFile(directory):
     # passed
-    d=data.data()
-    return d.loadDataFile(directory)
+    d=Data.data()
+    return d.load_data_file(directory)
 
 def testLoadDataDataFrame(eventLogDF,edgesDF):
-    d=data.data()
-    return d.loadDataDataFrame(eventLogDF,edgesDF)
+    d=Data.data()
+    return d.load_data_data_frame(eventLogDF, edgesDF)
 
 def testRestrictEventLogMinOccurences(directory, minOccurs = 40000):
     # TODO Design this test
-    d=data.data()
+    d=Data.data()
     d.loadData(directory=directory)
     print('Before restriction:',d.numEvents,'numContagions:',d.numContagions)
     d.restrictEventLogMinOccurences(minOccurs)
@@ -114,7 +114,7 @@ def testRestrictEventLogMinOccurences(directory, minOccurs = 40000):
 def testEstimateContagionCorrelationMatrix(directory,minOccurs=40000):
     # TODO Design this test
     m=model.model()
-    d=data.data()
+    d=Data.data()
     d.loadData(directory)
     d.restrictEventLogMinOccurences(minOccurs)
     m.estimateContagionCorrelationMatrix(d)

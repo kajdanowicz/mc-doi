@@ -30,7 +30,7 @@ class aMatrix():
         self.vANDu = defaultdict(lambda: 0)
         self.u = defaultdict(lambda: 0)
         prevContagion = None
-        data.addGraph()
+        data.add_graph()
         d = data.eventLog.drop_duplicates(subset=['contagion', 'user'], keep='first')
         for row in d.itertuples(index=False, name=None):
             self.u[row[1]] += 1

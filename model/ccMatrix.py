@@ -1,7 +1,7 @@
 import numpy as np
 import math
 import pandas as pd
-from data.data import data
+from data.data import Data
 from tqdm import trange
 
 

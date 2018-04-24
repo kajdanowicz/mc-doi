@@ -12,6 +12,7 @@ from model.results import results
 class model():
 
     def __init__(self):
+
         self.contagionCorrelationMatrix = ccMatrix.ccMatrix()
         self.adjacencyMatrix = aMatrix.aMatrix()
         self.thresholdsMatrix = tMatrix.tMatrix()

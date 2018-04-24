@@ -90,7 +90,7 @@ class tMatrix():
     # def estimateVector(self,data):
     #     #TODO Implement
     #     indykatory_est = []
-    #     I = np.full((data.numUsers, data.num_contagions), False, dtype=bool)
+    #     I = np.full((data.num_users, data.num_contagions), False, dtype=bool)
     #     for i in range(history):
     #         for index, row in event_log[event_log['ts'] == i].iterrows():
     #             I[row['userNEW'], row['tagID']] = True

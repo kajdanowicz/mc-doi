@@ -51,7 +51,7 @@ def main():
         # d.load_data(directory)
         # d.sample_edges(fraction=0.001)
         # d.restrict_event_log(maxNumContagions=25)
-        # print(d.numUsers, d.num_contagions, d.numEvents)
+        # print(d.num_users, d.num_contagions, d.numEvents)
         # d.addGraph()
         # d.construct_event_log_grouped()
         validationData = d.prepare_test_data(fraction = 0.8)

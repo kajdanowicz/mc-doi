@@ -12,9 +12,9 @@ class Model():
 
     def __init__(self):
         '''
-
+        :param model.contagion_correlation.ContagionCorrelation contagion_correlation:
         '''
-        self.contagion_correlation_matrix = ContagionCorrelation()
+        self.contagion_correlation = ContagionCorrelation()
         self.adjacency_matrix = Adjacency()
         self.thresholds_matrix = Threshold()
         self.state_matrix = None  # macierz indykatorow
@@ -22,15 +22,15 @@ class Model():
 
     def fit(self, data, batch_type, batch_size):
         # TODO Implement this method
-        if self.contagion_correlation_matrix.matrix is None:
+        if self.contagion_correlation.matrix is None:
             self.estimate_contagion_correlation_matrix(data)
         if self.adjacency_matrix.matrix is None:
             self.estimate_adjacency_matrix(data)
         if batch_type == 'time':
-            self.thresholds_matrix.estimate_time_batch(data, self.adjacency_matrix, self.contagion_correlation_matrix,
+            self.thresholds_matrix.estimate_time_batch(data, self.adjacency_matrix, self.contagion_correlation,
                                                        batch_size)
         elif batch_type == 'volume':
-            self.thresholds_matrix.estimate_volume_batch(data, self.adjacency_matrix, self.contagion_correlation_matrix,
+            self.thresholds_matrix.estimate_volume_batch(data, self.adjacency_matrix, self.contagion_correlation,
                                                          batch_size)
         elif batch_type == 'hybrid':
             self.thresholds_matrix.estimate_hybride_batch(data)
@@ -46,7 +46,7 @@ class Model():
         self.activity_index_vector = np.sum(self.state_matrix.matrix, axis=1)
 
     def estimate_contagion_correlation_matrix(self, data):
-        self.contagion_correlation_matrix.estimate(data)
+        self.contagion_correlation.estimate(data)
 
     def estimate_adjacency_matrix(self, data):
         self.adjacency_matrix.estimate(data)
@@ -64,14 +64,14 @@ class Model():
         self.adjacency_matrix.transpose()
         for l in range(num_iterations):
             U = self.adjacency_matrix.matrix_transposed.dot(self.state_matrix.matrix)
-            F = U.dot(self.contagion_correlation_matrix.matrix) / self.contagion_correlation_matrix.num_contagions
+            F = U.dot(self.contagion_correlation.matrix) / self.contagion_correlation.num_contagions
             temp = np.greater_equal(F, self.thresholds_matrix.matrix)  # porównanie funkcji aktywacji z progiem
             ### dodawanie rekordów bez przekroczenia progu
             for i in np.unique(np.where(temp[:, :] == True)[0]):  # iteracja po użytkownikach, którzy mają przekroczony próg
                 temp1 = np.where(temp[i, :] == True)[0]  # tagi, w których dla użytkownika i przekroczony był próg
                 temp2 = np.where(self.state_matrix.matrix[i][:] == True)[0]  # tagi juz aktywne
                 temp1 = np.setdiff1d(temp1, temp2)  # usuniecie juz aktywnych tagow
-                if (not np.any(self.contagion_correlation_matrix.matrix[temp1[:, None], temp1] < 0)) and (not temp1.size == 0):  # sprawdzenie, czy kandydaci do aktywacji nie są negatywnie skorelowani
+                if (not np.any(self.contagion_correlation.matrix[temp1[:, None], temp1] < 0)) and (not temp1.size == 0):  # sprawdzenie, czy kandydaci do aktywacji nie są negatywnie skorelowani
                     # print('YES! ',l)
                     self.state_matrix.matrix[i][temp1] = True  # aktywacja uzytkownika i w tagach z listy temp1
                     self.activity_index_vector[i] += 1  # Y[i]+=1 #zwiekszenie licznika aktywacji uzytkownika i
@@ -85,10 +85,10 @@ class Model():
     def assign_contagions_correlation_matrix(self, matrix):
         # TODO Implement this method
         if self.state_matrix is None:
-            self.contagion_correlation_matrix = matrix
+            self.contagion_correlation = matrix
         else:
             if self.state_matrix.shape[1] == matrix.shape[1]:
-                self.contagion_correlation_matrix = matrix
+                self.contagion_correlation = matrix
 
     def assign_adjacency_matrix(self, adjacency_matrix):
         # TODO Implement this method

@@ -8,17 +8,42 @@ from model.results import SingleIterResult
 from model.results import Results
 
 
-class Model():
+class Model:
+    """
+    The base class for Mutli-Contagion Diffusion of Information Model.
 
-    def __init__(self):
-        '''
-        :param model.contagion_correlation.ContagionCorrelation contagion_correlation:
-        '''
-        self.contagion_correlation = ContagionCorrelation()
-        self.adjacency_matrix = Adjacency()
-        self.thresholds_matrix = Threshold()
-        self.state_matrix = None  # macierz indykatorow
-        self.activity_index_vector = None  # wykladnik
+    A Model stores all the model parameters required to perform predition of multi-contagious diffusion precess.
+
+    Parameters
+    ----------
+    contagion_correlation : ContagionCorrelation
+        Data to initialize the
+
+
+    """
+
+    def __init__(self,
+                 contagion_correlation=None,
+                 adjacency_matrix=None,
+                 thresholds_matrix=None,
+                 state_matrix=None,
+                 activity_index_vector=None):
+        """
+
+
+        Parameters
+        ----------
+        contagion_correlation
+        adjacency_matrix
+        thresholds_matrix
+        state_matrix
+        activity_index_vector
+        """
+        self.contagion_correlation = contagion_correlation
+        self.adjacency_matrix = adjacency_matrix
+        self.thresholds_matrix = thresholds_matrix
+        self.state_matrix = state_matrix # macierz indykatorow
+        self.activity_index_vector = activity_index_vector  # wykladnik
 
     def fit(self, data, batch_type, batch_size):
         # TODO Implement this method

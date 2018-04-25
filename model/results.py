@@ -1,6 +1,6 @@
 import copy
 
-class results():
+class Results():
 
     def __init__(self):
         self.list = []
@@ -15,3 +15,10 @@ class results():
             return False
         else:
             return self.list[result_num]
+
+class SingleIterResult():
+
+    def __init__(self):
+        self.matrix = None
+        self.num_users = None
+        self.num_contagions = None

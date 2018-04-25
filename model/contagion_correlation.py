@@ -5,7 +5,7 @@ from data.data import data
 from tqdm import trange
 
 
-class cc_matrix():
+class ContagionCorrelation():
 
     def __init__(self):
         self.matrix=None

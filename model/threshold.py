@@ -10,7 +10,7 @@ import copy
 import sys
 
 
-class t_matrix():
+class Threshold():
 
     def __init__(self):
         self.matrix = None
@@ -34,7 +34,7 @@ class t_matrix():
 
     def estimate(self, Y, a_matrix, cc_matrix, data, indicators):
         a_matrix.transpose()
-        # print('a_matrix.matrix_transposed.shape', a_matrix.matrix_transposed.shape)
+        # print('Adjacency.matrix_transposed.shape', Adjacency.matrix_transposed.shape)
         # print('indicators[0].shape', indicators[0].shape)
         max_neg = defaultdict(lambda : -2)
         min_pos = defaultdict(lambda : 2)
@@ -62,8 +62,8 @@ class t_matrix():
                 results.append(max(max_neg[user], 0))
             else:
                 results.append(max((max_neg[user] + min_pos[user]) / 2, 0))
-        # print(results)
-        # print([(i,e) for i, e in enumerate(results) if e != 0])
+        # print(Results)
+        # print([(i,e) for i, e in enumerate(Results) if e != 0])
         self.matrix = np.repeat(np.asarray(results)[np.newaxis].T, data.num_contagions, axis=1)
         self.initial_matrix = copy.copy(self.matrix)
         # review

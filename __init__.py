@@ -16,12 +16,12 @@ if missing_dependencies:
 del hard_dependencies, dependency, missing_dependencies
 
 from data.data import *
-from model.a_matrix import *
-from model.cc_matrix import *
+from model.adjacency import *
+from model.contagion_correlation import *
 from model.model import *
 from model.results import *
 from model.single_iter_result import *
-from model.t_matrix import *
+from model.threshold import *
 
 # module level doc-string
 __doc__ = """

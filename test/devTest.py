@@ -10,13 +10,13 @@ import pickle
 
 import pandas as pd
 
-from model.model import model
+from model.model import Model
 from data.data import data
 import config.config as config
 
-from model.t_matrix import t_matrix
-from model.a_matrix import a_matrix
-from model.cc_matrix import cc_matrix
+from model.threshold import Threshold
+from model.adjacency import Adjacency
+from model.contagion_correlation import ContagionCorrelation
 
 mode = 'Testing'
 
@@ -55,9 +55,9 @@ def main():
         # d.addGraph()
         # d.construct_event_log_grouped()
         validationData = d.prepare_test_data(fraction = 0.8)
-        m = model()
+        m = Model()
         m.fit(d, 'volume', 10000)
-        # m = model.from_pickle('./')
+        # m = Model.from_pickle('./')
         m.predict(3)
     except Exception as err:
         writeToLogger(err.args)
@@ -113,7 +113,7 @@ def testRestrictEventLogMinOccurences(directory, minOccurs = 40000):
 
 def testEstimateContagionCorrelationMatrix(directory,minOccurs=40000):
     # TODO Design this test
-    m=model.model()
+    m=Model.model()
     d=data.data()
     d.load_data(directory)
     d.restrict_event_log_min_occurences(minOccurs)
@@ -122,7 +122,7 @@ def testEstimateContagionCorrelationMatrix(directory,minOccurs=40000):
     test(m.verifyContagionCorrelationMatrixSymetry())
 
 def testCreationOfRandomCorrelationMatrix(size=100):
-    cm = model.CorrelationMatrix()
+    cm = Model.CorrelationMatrix()
     print(cm.generateRandomCorrelationMatrix(size))
 
 def testSymetry(cm):
@@ -134,7 +134,7 @@ def testLoadData(fileName):
 
 def testEstimateCorrelationMatrixFromData(fileName, minOccur = 10):
     frame = events.EventsData(fileName=fileName)
-    cm = model.CorrelationMatrix()
+    cm = Model.CorrelationMatrix()
     cm.estimateCorrelationMatrixFromData(frame.getEventsMinOccurences(minOccur))
     print(cm.correlationMatrix)
     testSymetry(cm)

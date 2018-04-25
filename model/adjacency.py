@@ -5,7 +5,7 @@ from tqdm import tqdm
 import copy
 
 
-class a_matrix():
+class Adjacency():
     def __init__(self):
         self.matrix = None
         self.matrix_transposed = None

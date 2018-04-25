@@ -1,22 +1,22 @@
 import numpy as np
 import math
 import pickle
-from model.cc_matrix import cc_matrix
-from model.a_matrix import a_matrix
-from model.t_matrix import t_matrix
-from model.single_iter_result import single_iter_result
-from model.results import results
+from model.contagion_correlation import ContagionCorrelation
+from model.adjacency import Adjacency
+from model.threshold import Threshold
+from model.results import SingleIterResult
+from model.results import Results
 
 
-class model():
+class Model():
 
     def __init__(self):
         '''
 
         '''
-        self.contagion_correlation_matrix = cc_matrix()
-        self.adjacency_matrix = a_matrix()
-        self.thresholds_matrix = t_matrix()
+        self.contagion_correlation_matrix = ContagionCorrelation()
+        self.adjacency_matrix = Adjacency()
+        self.thresholds_matrix = Threshold()
         self.state_matrix = None  # macierz indykatorow
         self.activity_index_vector = None  # wykladnik
 
@@ -37,7 +37,7 @@ class model():
         self.fill_state_matrix(data)
 
     def fill_state_matrix(self, data):
-        self.state_matrix = single_iter_result()
+        self.state_matrix = SingleIterResult()
         self.state_matrix.num_contagions = data.num_contagions
         self.state_matrix.num_users = data.num_users
         self.state_matrix.matrix = np.full((self.state_matrix.num_users, self.state_matrix.num_contagions), False, dtype=bool)
@@ -52,15 +52,15 @@ class model():
         self.adjacency_matrix.estimate(data)
 
     def toPickle(self, directory):
-        pickle.dump(self, open(directory + 'model.p', 'wb'))
+        pickle.dump(self, open(directory + 'Model.p', 'wb'))
 
     @staticmethod
     def from_pickle(directory):
-        return pickle.load(open(directory+'model.p','rb'))
+        return pickle.load(open(directory+'Model.p','rb'))
 
     def predict(self, num_iterations):
         num_activations = 0
-        r = results()
+        r = Results()
         self.adjacency_matrix.transpose()
         for l in range(num_iterations):
             U = self.adjacency_matrix.matrix_transposed.dot(self.state_matrix.matrix)

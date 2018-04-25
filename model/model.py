@@ -1,10 +1,9 @@
 import numpy as np
 import math
-import copy
 import pickle
-import model.cc_matrix as cc_matrix
-import model.a_matrix as a_matrix
-import model.t_matrix as t_matrix
+from model.cc_matrix import cc_matrix
+from model.a_matrix import a_matrix
+from model.t_matrix import t_matrix
 from model.single_iter_result import single_iter_result
 from model.results import results
 
@@ -12,10 +11,12 @@ from model.results import results
 class model():
 
     def __init__(self):
+        '''
 
-        self.contagion_correlation_matrix = cc_matrix.cc_matrix()
-        self.adjacency_matrix = a_matrix.a_matrix()
-        self.thresholds_matrix = t_matrix.t_matrix()
+        '''
+        self.contagion_correlation_matrix = cc_matrix()
+        self.adjacency_matrix = a_matrix()
+        self.thresholds_matrix = t_matrix()
         self.state_matrix = None  # macierz indykatorow
         self.activity_index_vector = None  # wykladnik
 

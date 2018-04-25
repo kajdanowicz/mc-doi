@@ -24,11 +24,11 @@ from model.single_iter_result import *
 from model.t_matrix import *
 
 # module level doc-string
-__doc__ = '''
+__doc__ = """
 mcdoi - a powerfull Multi-Contagion Diffusion Of Information library for Python
 =====================================================================
 
 Main Features
 -------------
 - None
-'''
+"""

@@ -10,21 +10,21 @@ import copy
 import sys
 
 
-class tMatrix():
+class t_matrix():
 
     def __init__(self):
         self.matrix = None
         self.initial_matrix = None
-        self.numUsers = None
+        self.num_users = None
 
     def estimate_volume_batch(self, data, a_matrix, cc_matrix, volume):
         data.add_contagion_id()
         data.construct_event_log_grouped()
         indicators = []
-        I = np.full((data.num_users, data.num_nontagions), False, dtype=bool)
+        I = np.full((data.num_users, data.num_contagions), False, dtype=bool)
         event_id = 0
         while event_id < data.event_log['event_id'].max():
-            for index, row in data.event_log[(data.eventLog['event_id'] > event_id) & (data.event_log['event_id'] <= event_id + volume)].iterrows():
+            for index, row in data.event_log[(data.event_log['event_id'] > event_id) & (data.event_log['event_id'] <= event_id + volume)].iterrows():
                 I[row['user']][row['contagion_id']] = True
             indicators.append(I)
             I = copy.deepcopy(I)

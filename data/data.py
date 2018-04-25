@@ -8,8 +8,8 @@ import numpy as np
 import pandas as pd
 
 
-class Data:
-    def __init__(self, event_log, ):
+class data:
+    def __init__(self):
 
         self.event_log = None
         self.edges = None
@@ -20,10 +20,6 @@ class Data:
         self.graph = None
 
     def add_graph(self):
-        """
-        Method adds Networkx graph to data object
-        :return:
-        """
         if self.graph is None:
             self.graph = nx.from_pandas_edgelist(self.edges, 'user1', 'user2')
 
@@ -38,7 +34,7 @@ class Data:
         event_log_df.columns = ['ts', 'user', 'contagion']
         edges_df = pd.read_csv(directory + file_names[1])
         edges_df.columns = ['user1', 'user2']
-        if Data.verify_users_correct(event_log_df, edges_df):
+        if data.verify_users_correct(event_log_df, edges_df):
             self.event_log = event_log_df
             self.edges = edges_df
             self.reindex_users()
@@ -54,14 +50,14 @@ class Data:
     def load_data_data_frame(self, event_log_df, edges_df):
         """
 
-        :param pd.DataFrame event_log_df: Data frame containing event log
-        :param pd.DataFrame edges_df: Data frame containing
+        :param pd.DataFrame event_log_df: data frame containing event log
+        :param pd.DataFrame edges_df: data frame containing
         :return: If data have been loaded successfully
         :rtype: bool
         """
         event_log_df.columns = ['ts', 'user', 'contagion']
         edges_df.columns = ['user1', 'user2']
-        if Data.verify_users_correct(event_log_df, edges_df):
+        if data.verify_users_correct(event_log_df, edges_df):
             self.event_log = event_log_df
             self.edges = edges_df
             self.reindex_users()
@@ -85,7 +81,7 @@ class Data:
     # review
 
     def verify_data_correct(self):
-        if not Data.verify_users_correct(self.event_log, self.edges):
+        if not data.verify_users_correct(self.event_log, self.edges):
             return False
         elif not self.num_events == self.event_log.shape[0]:
             return False

@@ -1,11 +1,11 @@
 import numpy as np
 import math
 import pandas as pd
-from data.data import Data
+from data.data import data
 from tqdm import trange
 
 
-class ccMatrix():
+class cc_matrix():
 
     def __init__(self):
         self.matrix=None

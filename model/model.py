@@ -13,9 +13,9 @@ class model():
 
     def __init__(self):
 
-        self.contagion_correlation_matrix = cc_matrix.ccMatrix()
-        self.adjacency_matrix = a_matrix.aMatrix()
-        self.thresholds_matrix = t_matrix.tMatrix()
+        self.contagion_correlation_matrix = cc_matrix.cc_matrix()
+        self.adjacency_matrix = a_matrix.a_matrix()
+        self.thresholds_matrix = t_matrix.t_matrix()
         self.state_matrix = None  # macierz indykatorow
         self.activity_index_vector = None  # wykladnik
 
@@ -38,7 +38,7 @@ class model():
     def fill_state_matrix(self, data):
         self.state_matrix = single_iter_result()
         self.state_matrix.num_contagions = data.num_contagions
-        self.state_matrix.num_users = data.numUsers
+        self.state_matrix.num_users = data.num_users
         self.state_matrix.matrix = np.full((self.state_matrix.num_users, self.state_matrix.num_contagions), False, dtype=bool)
         for index, row in data.event_log.iterrows():
             self.state_matrix.matrix[row['user']][row['contagion_id']] = True
@@ -75,7 +75,7 @@ class model():
                     self.state_matrix.matrix[i][temp1] = True  # aktywacja uzytkownika i w tagach z listy temp1
                     self.activity_index_vector[i] += 1  # Y[i]+=1 #zwiekszenie licznika aktywacji uzytkownika i
                     num_activations += 1
-                    for contagion in range(self.state_matrix.numContagions): #temporary solution
+                    for contagion in range(self.state_matrix.num_contagions): #temporary solution
                         self.thresholds_matrix.matrix[i][contagion] = 1 - math.pow(1 - self.thresholds_matrix.initial_matrix[i][contagion], self.activity_index_vector[i] + 1)  # aktualizacja thety
             r.add_result(self.state_matrix)
         print(num_activations)

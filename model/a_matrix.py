@@ -5,7 +5,7 @@ from tqdm import tqdm
 import copy
 
 
-class aMatrix():
+class a_matrix():
     def __init__(self):
         self.matrix = None
         self.matrix_transposed = None
@@ -29,20 +29,25 @@ class aMatrix():
         self.v_2_u = defaultdict(lambda: 0)
         self.v_and_u = defaultdict(lambda: 0)
         self.u = defaultdict(lambda: 0)
+        global prev_contagion
         prev_contagion = None
         data.add_graph()
         d = data.event_log.drop_duplicates(subset=['contagion', 'user'], keep='first')
         for row in d.itertuples(index=False, name=None):
-            self.u[row[1]] += 1
-            if (row[2] is prev_contagion):
-                prev_contagion = row[2]
-            else:
-                self.reset_event_queue()
-                prev_contagion = row[2]
+            self.process_single_event(row)
             self.propagate(row[0], row[1], data.graph)
         self.reset_event_queue()
         self.calculate_weights(data.graph)
         self.clean_counters()
+
+    def process_single_event(self, row):
+        global prev_contagion
+        self.u[row[1]] += 1
+        if row[2] is prev_contagion:
+            prev_contagion = row[2]
+        else:
+            self.reset_event_queue()
+            prev_contagion = row[2]
 
     def calculate_weights(self, graph):
         G = graph.to_directed()

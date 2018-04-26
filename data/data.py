@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 
 
-class data:
+class Data:
     def __init__(self):
 
         self.event_log = None
@@ -30,11 +30,11 @@ class data:
         :param file_names:
         :return:
         """
-        event_log_df = pd.read_csv(directory + file_names[0])
+        event_log_df = pd.read_csv(directory + file_names[0],header=None)
         event_log_df.columns = ['ts', 'user', 'contagion']
-        edges_df = pd.read_csv(directory + file_names[1])
+        edges_df = pd.read_csv(directory + file_names[1],header=None)
         edges_df.columns = ['user1', 'user2']
-        if data.verify_users_correct(event_log_df, edges_df):
+        if Data.verify_users_correct(event_log_df, edges_df):
             self.event_log = event_log_df
             self.edges = edges_df
             self.reindex_users()
@@ -50,14 +50,14 @@ class data:
     def load_data_data_frame(self, event_log_df, edges_df):
         """
 
-        :param pd.DataFrame event_log_df: data frame containing event log
-        :param pd.DataFrame edges_df: data frame containing
-        :return: If data have been loaded successfully
+        :param pd.DataFrame event_log_df: Data frame containing event log
+        :param pd.DataFrame edges_df: Data frame containing
+        :return: If Data have been loaded successfully
         :rtype: bool
         """
         event_log_df.columns = ['ts', 'user', 'contagion']
         edges_df.columns = ['user1', 'user2']
-        if data.verify_users_correct(event_log_df, edges_df):
+        if Data.verify_users_correct(event_log_df, edges_df):
             self.event_log = event_log_df
             self.edges = edges_df
             self.reindex_users()
@@ -81,7 +81,7 @@ class data:
     # review
 
     def verify_data_correct(self):
-        if not data.verify_users_correct(self.event_log, self.edges):
+        if not Data.verify_users_correct(self.event_log, self.edges):
             return False
         elif not self.num_events == self.event_log.shape[0]:
             return False
@@ -101,7 +101,7 @@ class data:
             self.event_log.sort_values(by=['contagion', 'ts'], inplace=True)
 
     def load_data(self, directory=None, event_log_df=None, edges_df=None, file_names=('event_log', 'edges')):
-        ''' Loads data to class data instance from the source that depends on given arguments'''
+        ''' Loads Data to class Data instance from the source that depends on given arguments'''
         if directory is not None:
             if not self.load_data_file(directory, file_names):
                 return False
@@ -110,6 +110,7 @@ class data:
                 return False
         else:
             return False
+        print('Data loaded')
         return True
         # review
 
@@ -120,7 +121,7 @@ class data:
             return True
 
     def load_data_min_occurrence(self, min_occurs, directory=None, event_log_df=None, edges_df=None):
-        """ Loads data to class data instance from the source that depends on given arguments
+        """ Loads Data to class Data instance from the source that depends on given arguments
         Only contagions appearing in min_occurs events are loaded"""
         if not self.load_data(directory, event_log_df, edges_df):
             return False
@@ -129,7 +130,7 @@ class data:
         # review
 
     def restrict_event_log_min_occurences(self, min_occurs, max_num_contagions=None):
-        """ Restricts events in self to that, which contains contagions appearing in the data min_occurs times."""
+        """ Restricts events in self to that, which contains contagions appearing in the Data min_occurs times."""
         # TODO Use delete_contagions to obtain this
         temp = self.event_log.groupby(by='contagion').count().reset_index()[['contagion', 'ts']]
         if max_num_contagions is None:
@@ -143,7 +144,7 @@ class data:
             # review
 
     def restrict_event_log_max_occurences(self, max_occurs, max_num_contagions=None):
-        """ Restricts events in self to that, which contains contagions appearing in the data minOccurs times."""
+        """ Restricts events in self to that, which contains contagions appearing in the Data minOccurs times."""
         # TODO Use delete_contagions to obtain this
         temp = self.event_log.groupby(by='contagion').count().reset_index()[['contagion', 'ts']]
         if max_num_contagions is None:
@@ -267,7 +268,7 @@ class data:
         self.update_event_log()
 
     def toPickle(self, directory=''):
-        pickle.dump(self, open(directory + 'data.p', 'wb'))
+        pickle.dump(self, open(directory + 'Data.p', 'wb'))
 
     def restrictUsersToActive(self):
         activeUsers = self.event_log.user.unique()
@@ -334,4 +335,4 @@ class data:
 
     @staticmethod
     def from_pickle(directory):
-        return pickle.load(open(directory + 'data.p', 'rb'))
+        return pickle.load(open(directory + 'Data.p', 'rb'))

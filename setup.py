@@ -8,16 +8,16 @@
 # reqs = [str(ir.req) for ir in install_reqs]
 
 
-from setuptools import setup, find_packages
+from setuptools import setup
 
-# Package meta-data.
+# Package meta-Data.
 NAME = 'mcdoi'
 DESCRIPTION = 'mcdoi package for Python 3'
 URL = 'http://github.com/kajdanowicz/mc-doi'
 EMAIL = 'falkiewicz.maciej@gmail.com'
 AUTHOR = 'Maciej Falkiewicz'
 REQUIRES_PYTHON = '>=3.5.0'
-VERSION = None
+VERSION = '0.0.1'
 
 
 with open('README.rst') as f:
@@ -28,7 +28,7 @@ with open('LICENSE') as f:
 
 setup(
     name=NAME,
-    version='0.0.1',
+    version=VERSION,
     description = DESCRIPTION,
     long_description=readme,
     author=AUTHOR,

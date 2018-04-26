@@ -1,7 +1,7 @@
 import numpy as np
 import math
 import pandas as pd
-from data.data import data
+from data.data import Data
 from tqdm import trange
 
 
@@ -16,7 +16,7 @@ class ContagionCorrelation():
         """
         2000 contagions ~ 30min
         300 contagions ~ 30s
-        @:type data: data
+        @:type Data: Data
         """
         data.add_contagion_id()
         self.num_contagions=data.num_contagions

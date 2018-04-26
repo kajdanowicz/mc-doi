@@ -11,7 +11,7 @@ import pickle
 import pandas as pd
 
 from model.model import Model
-from data.data import data
+from data.data import Data
 import config.config as config
 
 from model.threshold import Threshold
@@ -46,17 +46,17 @@ def sendEmail():
 
 def main():
     try:
-        # d = data.from_pickle('./')
-        d = data()
-        d.load_data(directory, file_names=('eventLog','edges'))
+        # d = Data.from_pickle('./')
+        d = Data()
+        d.load_data(directory)
         # d.sample_edges(fraction=0.001)
         # d.restrict_event_log(maxNumContagions=25)
         # print(d.num_users, d.num_contagions, d.numEvents)
         # d.addGraph()
         # d.construct_event_log_grouped()
-        validationData = d.prepare_test_data(fraction = 0.8)
+        # validationData = d.prepare_test_data(fraction = 0.8)
         m = Model()
-        m.fit(d, 'volume', 10000)
+        m.fit(d, 'volume', 2)
         # m = Model.from_pickle('./')
         m.predict(3)
     except Exception as err:
@@ -68,7 +68,7 @@ def main():
 
 def main1():
     try:
-        d = data()
+        d = Data()
         d.load_data(directory)
         d.sample_edges(fraction=0.001)
         d.restrict_event_log(max_num_contagions=25)
@@ -89,23 +89,23 @@ def test(t):
         print('Failed')
 
 def testDeleteUsers(userList):
-    d=data.data()
+    d=Data.data()
     d.load_data(directory=directory)
     u=d.delete_users(userList)
     print(u.values())
 
 def testLoadDataFile(directory):
     # passed
-    d=data.data()
+    d=Data.data()
     return d.load_data_file(directory)
 
 def testLoadDataDataFrame(eventLogDF,edgesDF):
-    d=data.data()
+    d=Data.data()
     return d.load_data_data_frame(eventLogDF, edgesDF)
 
 def testRestrictEventLogMinOccurences(directory, minOccurs = 40000):
     # TODO Design this tests
-    d=data.data()
+    d=Data.data()
     d.load_data(directory=directory)
     print('Before restriction:',d.numEvents,'num_contagions:',d.numContagions)
     d.restrict_event_log_min_occurences(minOccurs)
@@ -114,7 +114,7 @@ def testRestrictEventLogMinOccurences(directory, minOccurs = 40000):
 def testEstimateContagionCorrelationMatrix(directory,minOccurs=40000):
     # TODO Design this tests
     m=Model.model()
-    d=data.data()
+    d=Data.data()
     d.load_data(directory)
     d.restrict_event_log_min_occurences(minOccurs)
     m.estimate_contagion_correlation_matrix(d)

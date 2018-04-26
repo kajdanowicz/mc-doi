@@ -12,12 +12,13 @@ class Model:
     """
     The base class for Mutli-Contagion Diffusion of Information Model.
 
-    A Model stores all the model parameters required to perform predition of multi-contagious diffusion precess.
+    A Model stores all the model parameters required to perform prediction of multi-contagious diffusion precess.
 
-    Parameters
+    Attributes
     ----------
-    contagion_correlation : ContagionCorrelation
-        Data to initialize the
+
+    Methods
+    -------
 
 
     """
@@ -30,18 +31,20 @@ class Model:
                  activity_index_vector=None):
         """
 
-
         Parameters
         ----------
-        contagion_correlation
-        adjacency_matrix
-        thresholds_matrix
-        state_matrix
-        activity_index_vector
+        contagion_correlation : ContagionCorrelation, optional
+            ContagionCorrelation object to initialize the model. The default is None.
+        adjacency_matrix : Adjacency, optional
+            Adjacency object to initialize the model. The default is None.
+        thresholds_matrix : Threshold, optional
+            Threshold object to initialize the model. The default is None.
+        state_matrix :
+        activity_index_vector :
         """
-        self.contagion_correlation = contagion_correlation
-        self.adjacency_matrix = adjacency_matrix
-        self.thresholds_matrix = thresholds_matrix
+        self.contagion_correlation = ContagionCorrelation()
+        self.adjacency_matrix = Adjacency()
+        self.thresholds_matrix = Threshold()
         self.state_matrix = state_matrix # macierz indykatorow
         self.activity_index_vector = activity_index_vector  # wykladnik
 
@@ -101,6 +104,7 @@ class Model:
                     self.state_matrix.matrix[i][temp1] = True  # aktywacja uzytkownika i w tagach z listy temp1
                     self.activity_index_vector[i] += 1  # Y[i]+=1 #zwiekszenie licznika aktywacji uzytkownika i
                     num_activations += 1
+                    print([i,temp1])
                     for contagion in range(self.state_matrix.num_contagions): #temporary solution
                         self.thresholds_matrix.matrix[i][contagion] = 1 - math.pow(1 - self.thresholds_matrix.initial_matrix[i][contagion], self.activity_index_vector[i] + 1)  # aktualizacja thety
             r.add_result(self.state_matrix)

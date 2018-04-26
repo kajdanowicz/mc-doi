@@ -1,4 +1,4 @@
-__docformat__ = 'restructuredtext'
+__docformat__ = 'numpydoc'
 
 # Let users know if they're missing any of our hard dependencies
 hard_dependencies = ("numpy", "networkx", "pandas")
@@ -20,7 +20,6 @@ from model.adjacency import *
 from model.contagion_correlation import *
 from model.model import *
 from model.results import *
-from model.single_iter_result import *
 from model.threshold import *
 
 # module level doc-string

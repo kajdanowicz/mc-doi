@@ -104,7 +104,7 @@ def testLoadDataDataFrame(eventLogDF,edgesDF):
     return d.load_data_data_frame(eventLogDF, edgesDF)
 
 def testRestrictEventLogMinOccurences(directory, minOccurs = 40000):
-    # TODO Design this test
+    # TODO Design this tests
     d=data.data()
     d.load_data(directory=directory)
     print('Before restriction:',d.numEvents,'num_contagions:',d.numContagions)
@@ -112,7 +112,7 @@ def testRestrictEventLogMinOccurences(directory, minOccurs = 40000):
     print('After restriction:', d.numEvents,'num_contagions:',d.numContagions)
 
 def testEstimateContagionCorrelationMatrix(directory,minOccurs=40000):
-    # TODO Design this test
+    # TODO Design this tests
     m=Model.model()
     d=data.data()
     d.load_data(directory)

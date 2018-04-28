@@ -91,28 +91,47 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
         return pickle.load(open(directory+'MultiContagionDynamicThresholdModel.p','rb'))
 
     def _predict(self, num_iterations):
+        global num_activations
         num_activations = 0
         r = Results()
         self.adjacency_matrix.transpose()
         for l in range(num_iterations):
-            U = self.adjacency_matrix.matrix_transposed.dot(self.state_matrix_.matrix)
-            F = U.dot(self.contagion_correlation.matrix) / self.contagion_correlation.num_contagions
-            temp = np.greater_equal(F, self.thresholds_matrix.matrix)  # porównanie funkcji aktywacji z progiem
-            ### dodawanie rekordów bez przekroczenia progu
-            for i in np.unique(np.where(temp[:, :] == True)[0]):  # iteracja po użytkownikach, którzy mają przekroczony próg
-                temp1 = np.where(temp[i, :] == True)[0]  # tagi, w których dla użytkownika i przekroczony był próg
-                temp2 = np.where(self.state_matrix_.matrix[i][:] == True)[0]  # tagi juz aktywne
-                temp1 = np.setdiff1d(temp1, temp2)  # usuniecie juz aktywnych tagow
-                if (not np.any(self.contagion_correlation.matrix[temp1[:, None], temp1] < 0)) and (not temp1.size == 0):  # sprawdzenie, czy kandydaci do aktywacji nie są negatywnie skorelowani
-                    # print('YES! ',l)
-                    self.state_matrix_.matrix[i][temp1] = True  # aktywacja uzytkownika i w tagach z listy temp1
-                    self.activity_index_vector_[i] += 1  # Y[i]+=1 #zwiekszenie licznika aktywacji uzytkownika i
-                    num_activations += 1
-                    for contagion in range(self.state_matrix_.num_contagions): #temporary solution
-                        self.thresholds_matrix.matrix[i][contagion] = 1 - math.pow(1 - self.thresholds_matrix.initial_matrix[i][contagion], self.activity_index_vector_[i] + 1)  # aktualizacja thety
-            r.add_result(self.state_matrix_)
+            self._single_iteration(r)
         print(num_activations)
         return r
+
+    def _single_iteration(self, r):
+        influence_matrix = self._influence_matrix()
+        activation_matrix = self._activation_matrix(influence_matrix)
+        self._activation_procedure(activation_matrix)
+        r.add_result(self.state_matrix_)
+
+    def _activation_procedure(self, activation_matrix):
+        global num_activations
+        activation_candidates = self.__find_activation_candidates(activation_matrix)
+        for i in np.unique(np.where(activation_candidates[:, :] == True)[0]):  # iteracja po użytkownikach, którzy mają przekroczony próg
+            temp1 = np.where(activation_candidates[i, :] == True)[0]  # tagi, w których dla użytkownika i przekroczony był próg
+            temp2 = np.where(self.state_matrix_.matrix[i][:] == True)[0]  # tagi juz aktywne
+            temp1 = np.setdiff1d(temp1, temp2)  # usuniecie juz aktywnych tagow
+            if (not np.any(self.contagion_correlation.matrix[temp1[:, None], temp1] < 0)) and (
+            not temp1.size == 0):  # sprawdzenie, czy kandydaci do aktywacji nie są negatywnie skorelowani
+                # print('YES! ',l)
+                self.state_matrix_.matrix[i][temp1] = True  # aktywacja uzytkownika i w tagach z listy temp1
+                self.activity_index_vector_[i] += 1  # Y[i]+=1 #zwiekszenie licznika aktywacji uzytkownika i
+                num_activations += 1
+                for contagion in range(self.state_matrix_.num_contagions):  # temporary solution
+                    self.thresholds_matrix.matrix[i][contagion] = 1 - math.pow(
+                        1 - self.thresholds_matrix.initial_matrix[i][contagion],
+                        self.activity_index_vector_[i] + 1)  # aktualizacja thety
+
+    def __find_activation_candidates(self, activation_matrix):
+        return np.greater_equal(activation_matrix, self.thresholds_matrix.matrix)
+
+    def _activation_matrix(self, influence_matrix):
+        return influence_matrix.dot(self.contagion_correlation.matrix) / self.contagion_correlation.num_contagions
+
+    def _influence_matrix(self):
+        return self.adjacency_matrix.matrix_transposed.dot(self.state_matrix_.matrix)
 
     def assign_contagions_correlation_matrix(self, matrix):
         # TODO Implement this method

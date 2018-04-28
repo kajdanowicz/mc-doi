@@ -21,10 +21,8 @@ mode = 'Testing'
 
 if get_mac() == 2485377892363:
     directory = config.remote['directory' + mode]
-elif get_mac() == 215977245577188:
-    directory = config.localPC['directory' + mode]
 else:
-    directory = config.local['directory' + mode]
+    directory = config.localPC['directory' + mode]
 
 
 def writeToLogger(args):

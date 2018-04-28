@@ -9,7 +9,7 @@ from datetime import datetime
 import pickle
 import numpy as np
 
-from model.model import Model
+from model.model import MultiContagionDynamicThresholdModel as MCDOI
 from data.data import Data
 import config.config as config
 
@@ -49,8 +49,8 @@ def main():
     try:
         d = Data()
         d.load_data(directory)
-        m = Model()
-        m.fit(d, 'volume', 50)
+        m = MCDOI()
+        m.fit(d, batch_type = 'volume', batch_size = 50)
         m.predict(3) #predict(3) zwraca 63 aktywacje
     except Exception as err:
         writeToLogger(err.args)

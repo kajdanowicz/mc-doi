@@ -41,7 +41,7 @@ class Data:
             return False
             # review
 
-    def load_data_data_frame(self, event_log_df, edges_df):
+    def load_data_data_frame(self, event_log_df: pd.DataFrame, edges_df: pd.DataFrame) -> bool:
         event_log_df.columns = ['ts', 'user', 'contagion']
         edges_df.columns = ['user1', 'user2']
         if Data.verify_users_correct(event_log_df, edges_df):

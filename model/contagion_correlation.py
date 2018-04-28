@@ -14,9 +14,6 @@ class ContagionCorrelation():
 
     def estimate(self,data):
         """
-        2000 contagions ~ 30min
-        300 contagions ~ 30s
-        @:type Data: Data
         """
         data.add_contagion_id()
         self.num_contagions=data.num_contagions
@@ -37,7 +34,7 @@ class ContagionCorrelation():
                 self.matrix[j][i] = wynik
         # review
 
-    def verify_matrix_symetry(self, matrix=None):
+    def verify_matrix_symmetry(self, matrix=None):
         if matrix is None:
             for i in range(self.num_contagions):
                 for j in range(i+1, self.num_contagions):

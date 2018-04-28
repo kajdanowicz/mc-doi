@@ -112,11 +112,11 @@ class Data:
         Only contagions appearing in min_occurs events are loaded"""
         if not self.load_data(directory, event_log_df, edges_df):
             return False
-        self.restrict_event_log_min_occurences(min_occurs)
+        self.restrict_event_log_min_occurrence(min_occurs)
         return True
         # review
 
-    def restrict_event_log_min_occurences(self, min_occurs, max_num_contagions=None):
+    def restrict_event_log_min_occurrence(self, min_occurs, max_num_contagions=None):
         """ Restricts events in self to that, which contains contagions appearing in the Data min_occurs times."""
         # TODO Use delete_contagions to obtain this
         temp = self.event_log.groupby(by='contagion').count().reset_index()[['contagion', 'ts']]
@@ -130,7 +130,7 @@ class Data:
             self.update_event_log()
             # review
 
-    def restrict_event_log_max_occurences(self, max_occurs, max_num_contagions=None):
+    def restrict_event_log_max_occurrence(self, max_occurs, max_num_contagions=None):
         """ Restricts events in self to that, which contains contagions appearing in the Data minOccurs times."""
         # TODO Use delete_contagions to obtain this
         temp = self.event_log.groupby(by='contagion').count().reset_index()[['contagion', 'ts']]
@@ -145,7 +145,7 @@ class Data:
             self.update_event_log()
             # review
 
-    def restrict_event_log_min_max_occurences(self, min_occurs, max_occurs):
+    def restrict_event_log_min_max_occurrence(self, min_occurs, max_occurs):
         temp = self.event_log.groupby(by='contagion').count().reset_index()[['contagion', 'ts']]
         series = temp[(min_occurs <= temp['ts']) & (temp['ts'] <= max_occurs)]['contagion']
         self.event_log = self.event_log[self.event_log['contagion'].isin(series)]
@@ -161,11 +161,11 @@ class Data:
         """ """
         # TODO Use delete_contagions to obtain this
         if (max_occurs is not None) and (min_occurs is None):
-            self.restrict_event_log_max_occurences(max_occurs, max_num_contagions)
+            self.restrict_event_log_max_occurrence(max_occurs, max_num_contagions)
         elif (max_occurs is not None) and (min_occurs is not None) and (min_occurs <= max_occurs):
-            self.restrict_event_log_min_max_occurences(min_occurs, max_occurs)
+            self.restrict_event_log_min_max_occurrence(min_occurs, max_occurs)
         elif (max_occurs is None) and (min_occurs is not None):
-            self.restrict_event_log_min_occurences(min_occurs, max_num_contagions)
+            self.restrict_event_log_min_occurrence(min_occurs, max_num_contagions)
         elif (max_occurs is None) and (min_occurs is None) and (max_num_contagions is not None):
             self.restrict_event_log_max_num_contagions(max_num_contagions)
             # review
@@ -213,6 +213,15 @@ class Data:
         self.num_contagions = len(self.event_log['contagion'].unique())
         # review
 
+    def keep_contagions(self, contagion_list):
+        self.event_log.drop(self.event_log[~self.event_log['contagion'].isin(contagion_list)].index, inplace=True)
+        self.num_events = self.event_log.shape[0]
+        self.num_contagions = len(self.event_log['contagion'].unique())
+
+    def restrict_contagions_to_present(self):
+        self.keep_contagions(self.event_log['contagion'])
+        self.update_event_log()
+
     def delete_contagions_by_id(self, contagion_id_list):
         if 'contagion_id' in self.event_log.columns:
             self.event_log.drop(self.event_log[self.event_log['contagion_id'].isin(contagion_id_list)].index, inplace=True)
@@ -237,7 +246,7 @@ class Data:
             # review
 
     def to_csv(self, directory=''):
-        self.event_log.to_csv(directory + 'event_log', header=False, index=False)
+        self.event_log.to_csv(directory + 'event_log', header=False, index=False, columns = ['ts','user','contagion'])
         self.edges.to_csv(directory + 'edges', header=False, index=False)
 
     def sample_events(self, fraction):
@@ -254,21 +263,21 @@ class Data:
         self.reindex_users()
         self.update_event_log()
 
-    def toPickle(self, directory=''):
+    def to_pickle(self, directory=''):
         pickle.dump(self, open(directory + 'Data.p', 'wb'))
 
-    def restrictUsersToActive(self):
-        activeUsers = self.event_log.user.unique()
-        self.keep_users(activeUsers)
+    def restrict_users_to_active(self):
+        active_users = self.event_log.user.unique()
+        self.keep_users(active_users)
         if self.graph is not None:
-            self.restrict_graph(activeUsers)
+            self.restrict_graph(active_users)
         self.reindex_users()
 
-    def restrictUsersTo(self, userList):
-        self.keep_users(userList)
+    def restrict_users_to(self, user_list):
+        self.keep_users(user_list)
         if self.graph is not None:
-            self.restrict_graph(userList)
-        self.keep_events_of_users(userList)
+            self.restrict_graph(user_list)
+        self.keep_events_of_users(user_list)
         self.reindex_users()
 
     def delete_events_of_users(self, userList):
@@ -276,6 +285,7 @@ class Data:
 
     def keep_events_of_users(self, userList):
         self.event_log = self.event_log[self.event_log.user.isin(userList)]
+        self.num_events = self.event_log.shape[0]
 
     def restrict_graph(self, userList):
         self.graph.remove_nodes_from(np.setdiff1d(self.graph.nodes(), userList))
@@ -323,3 +333,20 @@ class Data:
     @staticmethod
     def from_pickle(directory):
         return pickle.load(open(directory + 'Data.p', 'rb'))
+
+    def get_neighbors(self,user: int) -> set:
+        user_set = set()
+        row_mask = self.edges.isin([user]).any(1)
+        user_set.update(set(self.edges[row_mask].user1))
+        user_set.update(set(self.edges[row_mask].user2))
+        return user_set
+
+    def snowball_sampling(self,initial_user_id: int) -> set:
+        set_of_users = set()
+        set_of_users.update(self.get_neighbors(initial_user_id))
+        # temporary_set = set()
+        # for user in set_of_users:
+        #     temporary_set.update(self.get_neighbors(user))
+        # set_of_users.update(temporary_set)
+        return set_of_users
+

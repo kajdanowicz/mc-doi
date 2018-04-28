@@ -52,8 +52,10 @@ class Model:
         # TODO Implement this method
         if self.contagion_correlation.matrix is None:
             self.estimate_contagion_correlation_matrix(data)
+            print('ContagionCorrelation')
         if self.adjacency_matrix.matrix is None:
             self.estimate_adjacency_matrix(data)
+            print('Adjacency')
         if batch_type == 'time':
             self.thresholds_matrix.estimate_time_batch(data, self.adjacency_matrix, self.contagion_correlation,
                                                        batch_size)
@@ -62,7 +64,9 @@ class Model:
                                                          batch_size)
         elif batch_type == 'hybrid':
             self.thresholds_matrix.estimate_hybride_batch(data)
+        print('Threshold')
         self.fill_state_matrix(data)
+        print('State')
 
     def fill_state_matrix(self, data):
         self.state_matrix = SingleIterResult()

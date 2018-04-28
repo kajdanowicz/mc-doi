@@ -24,12 +24,6 @@ class Data:
             self.graph = nx.from_pandas_edgelist(self.edges, 'user1', 'user2')
 
     def load_data_file(self, directory, file_names=('event_log', 'edges')):
-        """
-
-        :param directory:
-        :param file_names:
-        :return:
-        """
         event_log_df = pd.read_csv(directory + file_names[0],header=None)
         event_log_df.columns = ['ts', 'user', 'contagion']
         edges_df = pd.read_csv(directory + file_names[1],header=None)
@@ -48,13 +42,6 @@ class Data:
             # review
 
     def load_data_data_frame(self, event_log_df, edges_df):
-        """
-
-        :param pd.DataFrame event_log_df: Data frame containing event log
-        :param pd.DataFrame edges_df: Data frame containing
-        :return: If Data have been loaded successfully
-        :rtype: bool
-        """
         event_log_df.columns = ['ts', 'user', 'contagion']
         edges_df.columns = ['user1', 'user2']
         if Data.verify_users_correct(event_log_df, edges_df):

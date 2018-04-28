@@ -1,11 +1,11 @@
 # from distutils.core import setup
-# try: # for pip >= 10
-#     from pip._internal.req import parse_requirements
-# except ImportError: # for pip <= 9.0.3
-#     from pip.req import parse_requirements
-#
-# install_reqs = parse_requirements('requirements.txt', session='hack')
-# reqs = [str(ir.req) for ir in install_reqs]
+try: # for pip >= 10
+    from pip._internal.req import parse_requirements
+except ImportError: # for pip <= 9.0.3
+    from pip.req import parse_requirements
+
+install_reqs = parse_requirements('requirements.txt', session='hack')
+reqs = [str(ir.req) for ir in install_reqs]
 
 
 from setuptools import setup
@@ -38,6 +38,6 @@ setup(
     license=license,
     py_modules=['mc-doi'],
     include_package_data=True,
-#    install_requires=reqs
+    install_requires=reqs
 )
 

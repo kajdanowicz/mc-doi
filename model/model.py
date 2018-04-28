@@ -104,7 +104,6 @@ class Model:
                     self.state_matrix.matrix[i][temp1] = True  # aktywacja uzytkownika i w tagach z listy temp1
                     self.activity_index_vector[i] += 1  # Y[i]+=1 #zwiekszenie licznika aktywacji uzytkownika i
                     num_activations += 1
-                    print([i,temp1])
                     for contagion in range(self.state_matrix.num_contagions): #temporary solution
                         self.thresholds_matrix.matrix[i][contagion] = 1 - math.pow(1 - self.thresholds_matrix.initial_matrix[i][contagion], self.activity_index_vector[i] + 1)  # aktualizacja thety
             r.add_result(self.state_matrix)

@@ -3,12 +3,12 @@ from uuid import getnode as get_mac
 if get_mac() == 2485377892363:
     sys.path.append('/home/maciek/pyCharmProjects/mc-doi')
 
-import numpy as np
+
 import logging
 from datetime import datetime
 import pickle
+import numpy as np
 
-import pandas as pd
 
 from model.model import Model
 from data.data import Data
@@ -18,7 +18,7 @@ from model.threshold import Threshold
 from model.adjacency import Adjacency
 from model.contagion_correlation import ContagionCorrelation
 
-mode = 'Testing'
+mode = ''
 
 if get_mac() == 2485377892363:
     directory=config.remote['directory'+mode]
@@ -54,11 +54,11 @@ def main():
         # print(d.num_users, d.num_contagions, d.numEvents)
         # d.addGraph()
         # d.construct_event_log_grouped()
-        # validationData = d.prepare_test_data(fraction = 0.8)
+        d.restrictUsersTo(np.random.choice(np.arange(0,d.num_users),1000,replace=False))
         m = Model()
-        m.fit(d, 'volume', 2)
+        m.fit(d, 'volume', 1000)
         # m = Model.from_pickle('./')
-        m.predict(3)
+        # m.predict(3)
     except Exception as err:
         writeToLogger(err.args)
         print(err.args)

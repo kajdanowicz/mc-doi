@@ -30,9 +30,9 @@ class Threshold():
             I = copy.deepcopy(I)
             event_id += volume
         Y = np.sum(indicators[0], axis=1)
-        self.estimate(Y, a_matrix, cc_matrix, data, indicators)
+        self._estimate(Y, a_matrix, cc_matrix, data, indicators)
 
-    def estimate(self, Y, a_matrix, cc_matrix, data, indicators):
+    def _estimate(self, Y, a_matrix, cc_matrix, data, indicators):
         a_matrix.transpose()
         # print('Adjacency.matrix_transposed.shape', Adjacency.matrix_transposed.shape)
         # print('indicators[0].shape', indicators[0].shape)
@@ -81,7 +81,7 @@ class Threshold():
             I = copy.deepcopy(I)
             ts += volume
         Y = np.sum(indicators[0], axis=1)
-        self.estimate(Y, a_matrix, cc_matrix, data, indicators)
+        self._estimate(Y, a_matrix, cc_matrix, data, indicators)
 
     def estimate_hybride_batch(self, data):
         # TODO Implement
@@ -97,6 +97,6 @@ class Threshold():
     #         indykatory_est.append(I)
     #         I = copy.deepcopy(I)
     #
-    # def estimate(self,Data):
+    # def _estimate(self,Data):
     #     #TODO Implement
     #     # Construct matrix from vector

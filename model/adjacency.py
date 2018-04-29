@@ -55,11 +55,6 @@ class Adjacency():
         for v in self.u:
             for u in G.successors(v):
                 G[v][u]['weight'] = round(float(self.v_2_u[(v, u)]) / float(self.u[v]), 6)
-        # for v, u in G.edges():
-        #     if self.u[v] > 0:
-        #         G[v][u]['weight'] = round(float(self.v_2_u[(v, u)]) / float(self.u[v]), 6)
-        #     else:
-        #         G[v][u]['weight'] = 0
         for i in G.nodes():
             in_degree = G.in_degree(i, weight='weight')
             if in_degree != 0:

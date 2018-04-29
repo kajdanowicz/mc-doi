@@ -13,10 +13,29 @@ from abc import abstractmethod
 class BaseMultiContagionDiffusionModel:
 
     def fit(self, data: Data, **kwargs):
+        """
+        Base method for fitting model's parameters. It evaluates model's specific methods.
+
+        Parameters
+        ----------
+        data : Data
+            Data object to which model's parameters are fitted. In contains an event log and the underlying social network.
+        kwargs :
+            Other parameters which specify types of algorithms used to while fitting.
+        """
         self._estimate(data, **kwargs)
 
-    def predict(self, nam_iterations):
-        self._predict(nam_iterations)
+    def predict(self, num_iterations: int):
+        """
+        Base method for prediction of information diffusion in multi-contagion world. It evaluates model's specific
+        prediction methods.
+
+        Parameters
+        ----------
+        num_iterations :  int
+            Number of iterations of prediction algorithm.
+        """
+        self._predict(num_iterations)
 
     @abstractmethod
     def _predict(self,num_iterations):
@@ -31,10 +50,18 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
     """
     The base class for Mutli-Contagion Diffusion of Information MultiContagionDynamicThresholdModel.
 
-    A MultiContagionDynamicThresholdModel stores all the model parameters required to perform prediction of multi-contagious diffusion precess.
+    A MultiContagionDynamicThresholdModel stores all the model parameters required to perform prediction of
+    multi-contagious diffusion precess.
 
     Attributes
     ----------
+    contagion_correlation : ContagionCorrelation
+        Stores the contagion correlation matrix of contagions in event log.
+    adjacency_matrix : Adjacency
+        Stores the adjacency matrix of the underlying social network.
+    thresholds_matrix : Threshold
+        Stores dynamic threshold of all users in the form of a matrix. Entries for specific user are equal
+        across all columns.
 
     Methods
     -------

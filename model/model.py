@@ -12,6 +12,7 @@ from abc import abstractmethod
 
 class BaseMultiContagionDiffusionModel:
 
+    @abstractmethod
     def fit(self, data: Data, **kwargs):
         """
         Base method for fitting model's parameters. It evaluates model's specific methods.
@@ -23,9 +24,10 @@ class BaseMultiContagionDiffusionModel:
         kwargs :
             Other parameters which specify types of algorithms used to while fitting.
         """
-        self._estimate(data, **kwargs)
+        pass
 
-    def predict(self, num_iterations: int):
+    @abstractmethod
+    def predict(self, num_iterations: int) -> Results:
         """
         Base method for prediction of information diffusion in multi-contagion world. It evaluates model's specific
         prediction methods.
@@ -35,16 +37,7 @@ class BaseMultiContagionDiffusionModel:
         num_iterations :  int
             Number of iterations of prediction algorithm.
         """
-        self._predict(num_iterations)
-
-    @abstractmethod
-    def _predict(self,num_iterations):
         pass
-
-    @abstractmethod
-    def _estimate(self, data, **kwargs):
-        pass
-
 
 class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
     """
@@ -75,7 +68,7 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
         self.adjacency_matrix = Adjacency()
         self.thresholds_matrix = Threshold()
 
-    def _estimate(self, data, **kwargs):
+    def fit(self, data, **kwargs):
         # TODO Implement this method
         if self.contagion_correlation.matrix is None:
             self.estimate_contagion_correlation_matrix(data)
@@ -110,14 +103,14 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
     def estimate_adjacency_matrix(self, data):
         self.adjacency_matrix.estimate(data)
 
-    def toPickle(self, directory):
+    def to_pickle(self, directory):
         pickle.dump(self, open(directory + 'MultiContagionDynamicThresholdModel.p', 'wb'))
 
     @staticmethod
     def from_pickle(directory):
         return pickle.load(open(directory+'MultiContagionDynamicThresholdModel.p','rb'))
 
-    def _predict(self, num_iterations):
+    def predict(self, num_iterations: int) -> Results:
         global num_activations
         num_activations = 0
         r = Results()
@@ -136,20 +129,43 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
     def _activation_procedure(self, activation_matrix):
         global num_activations
         activation_candidates = self.__find_activation_candidates(activation_matrix)
-        for i in np.unique(np.where(activation_candidates[:, :] == True)[0]):  # iteracja po użytkownikach, którzy mają przekroczony próg
-            temp1 = np.where(activation_candidates[i, :] == True)[0]  # tagi, w których dla użytkownika i przekroczony był próg
-            temp2 = np.where(self.state_matrix_.matrix[i][:] == True)[0]  # tagi juz aktywne
-            temp1 = np.setdiff1d(temp1, temp2)  # usuniecie juz aktywnych tagow
-            if (not np.any(self.contagion_correlation.matrix[temp1[:, None], temp1] < 0)) and (
-            not temp1.size == 0):  # sprawdzenie, czy kandydaci do aktywacji nie są negatywnie skorelowani
-                # print('YES! ',l)
-                self.state_matrix_.matrix[i][temp1] = True  # aktywacja uzytkownika i w tagach z listy temp1
-                self.activity_index_vector_[i] += 1  # Y[i]+=1 #zwiekszenie licznika aktywacji uzytkownika i
+        for user in self.__users_above_threshold(activation_candidates):  # iteracja po użytkownikach, którzy mają przekroczony próg
+            contagions_above_threshold = self.__contagions_above_threshold(activation_candidates,
+                                                      user)  # tagi, w których dla użytkownika user przekroczony był próg
+            active_contagions = self.active_contagions(user)  # tagi juz aktywne
+            contagions_above_threshold_not_active = self.__contagions_above_threshold_not_active(active_contagions,
+                                                                                                 contagions_above_threshold)  # usuniecie juz aktywnych tagow
+            if (not np.any(self.contagion_correlation.matrix[contagions_above_threshold_not_active[:, None], contagions_above_threshold_not_active] < 0)) and (
+            not contagions_above_threshold_not_active.size == 0):  # sprawdzenie, czy kandydaci do aktywacji nie są negatywnie skorelowani
+                self.__activation(contagions_above_threshold_not_active, user)
+                self.__increase_activity_index(user)
                 num_activations += 1
-                for contagion in range(self.state_matrix_.num_contagions):  # temporary solution
-                    self.thresholds_matrix.matrix[i][contagion] = 1 - math.pow(
-                        1 - self.thresholds_matrix.initial_matrix[i][contagion],
-                        self.activity_index_vector_[i] + 1)  # aktualizacja thety
+                self.__update_threshold(user)
+
+    def __update_threshold(self, user):
+        for contagion in range(self.state_matrix_.num_contagions):  # temporary solution
+            self.thresholds_matrix.matrix[user][contagion] = 1 - math.pow(
+                1 - self.thresholds_matrix.initial_matrix[user][contagion],
+                self.activity_index_vector_[user] + 1)  # aktualizacja thety
+
+    def __increase_activity_index(self, user):
+        self.activity_index_vector_[user] += 1  # Y[user]+=1 #zwiekszenie licznika aktywacji uzytkownika user
+
+    def __activation(self, contagions_above_threshold_not_active, user):
+        self.state_matrix_.matrix[user][
+            contagions_above_threshold_not_active] = True  # aktywacja uzytkownika user w tagach z listy contagions_above_threshold
+
+    def __contagions_above_threshold_not_active(self, active_contagions, contagions_above_threshold):
+        return np.setdiff1d(contagions_above_threshold, active_contagions)
+
+    def active_contagions(self, user):
+        return np.where(self.state_matrix_.matrix[user][:])[0]
+
+    def __contagions_above_threshold(self, activation_candidates, user):
+        return np.where(activation_candidates[user, :])[0]
+
+    def __users_above_threshold(self, activation_candidates):
+        return np.unique(np.where(activation_candidates[:, :])[0])
 
     def __find_activation_candidates(self, activation_matrix):
         return np.greater_equal(activation_matrix, self.thresholds_matrix.matrix)

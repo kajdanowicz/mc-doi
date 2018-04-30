@@ -61,7 +61,16 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
         self.adjacency = Adjacency()
         self.thresholds = Threshold()
 
-    def fit(self, data, **kwargs):
+    def fit(self, data: Data, **kwargs):
+        """
+
+        Parameters
+        ----------
+        data : Data
+            :obj:`Data` object according to which parameters should be fitted.
+        **kwargs
+            Arbitrary keyword arguments.
+        """
         # TODO Implement this method
         # TODO Change logic: either all parameters or None
         batch_type = kwargs.get('batch_type', None)
@@ -121,7 +130,7 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
 
         Returns
         -------
-        result : Results
+        Results
             Object containing results from all predication iterations.
 
         """

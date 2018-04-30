@@ -8,54 +8,47 @@ import copy
 
 class Adjacency():
     def __init__(self):
+        # TODO follow sklearn way
         self.matrix = None
-        self.matrix_transposed = None
-        self.num_users = None
-        self.event_queue = dict()
-        self.v_2_u = None
-        self.v_and_u = None
-        self.u = None
 
     def transpose(self):
-        if self.matrix_transposed is None:
-            self.matrix_transposed = self.matrix.transpose()
+        if self.__dict__.get('matrix_transposed_',None) is None:
+            self.matrix_transposed_ = self.matrix.transpose()
 
-    def clean_counters(self):
-        self.v_2_u = None
-        self.v_and_u = None
-        self.u = None
+    def __clean_counters(self):
+        del self.v_2_u_
+        del self.v_and_u_
+        del self.u_
 
     def estimate(self, data: Data):
-        self.num_users = data.num_users
-        self.v_2_u = defaultdict(lambda: 0)
-        self.v_and_u = defaultdict(lambda: 0)
-        self.u = defaultdict(lambda: 0)
-        global prev_contagion
+        self.num_users_ = data.num_users
+        self.v_2_u_ = defaultdict(lambda: 0)
+        self.v_and_u_ = defaultdict(lambda: 0)
+        self.u_ = defaultdict(lambda: 0)
+        self.event_queue_ = dict()
         prev_contagion = None
         data.add_graph()
         d = data.event_log.drop_duplicates(subset=['contagion', 'user'], keep='first')
         for row in d.itertuples(index=False, name=None):
-            self.process_single_event(row)
-            self.propagate(row[0], row[1], data.graph)
-        self.reset_event_queue()
-        self.calculate_weights(data.graph)
-        self.clean_counters()
+            prev_contagion = self.__verify_contagion(row, prev_contagion)
+            self.__propagate(row[0], row[1], data.graph)
+        self.__reset_event_queue()
+        self._calculate_weights(data.graph)
+        self.__clean_counters()
 
-    def process_single_event(self, row):
-        global prev_contagion
-        self.u[row[1]] += 1
-        if row[2] is prev_contagion:
+    def __verify_contagion(self, row: tuple, prev_contagion: int) -> int:
+        self.u_[row[1]] += 1
+        if row[2] is not prev_contagion:
+            self.__reset_event_queue()
             prev_contagion = row[2]
-        else:
-            self.reset_event_queue()
-            prev_contagion = row[2]
+        return prev_contagion
 
-    def calculate_weights(self, graph):
+    def _calculate_weights(self, graph):
         G = graph.to_directed()
         nx.set_edge_attributes(G, 0, 'weight')
-        for v in self.u:
+        for v in self.u_:
             for u in G.successors(v):
-                G[v][u]['weight'] = round(float(self.v_2_u[(v, u)]) / float(self.u[v]), 6)
+                G[v][u]['weight'] = round(float(self.v_2_u_[(v, u)]) / float(self.u_[v]), 6)
         for i in G.nodes():
             in_degree = G.in_degree(i, weight='weight')
             if in_degree != 0:
@@ -63,18 +56,18 @@ class Adjacency():
                     G[v][u]['weight'] /= in_degree
         self.matrix = nx.adjacency_matrix(G, weight='weight')
 
-    def reset_event_queue(self):
-        self.event_queue = dict()
+    def __reset_event_queue(self):
+        self.event_queue_ = dict()
 
     def add_to_queue(self, user, ts):
-        self.event_queue[user] = ts
+        self.event_queue_[user] = ts
 
-    def propagate(self, ts, user, graph):
+    def __propagate(self, ts, user, graph):
         for v in graph.neighbors(user):
-            # if self.event_queue.get(v):
-            if v in self.event_queue:
-                self.v_and_u[(user, v)] += 1
-                # self.v_and_u[(v, user)] += 1
-                if ts - self.event_queue[v] != 0:
-                    self.v_2_u[(v, user)] += 1
+            # if self.event_queue_.get(v):
+            if v in self.event_queue_:
+                self.v_and_u_[(user, v)] += 1
+                # self.v_and_u_[(v, user)] += 1
+                if ts - self.event_queue_[v] != 0:
+                    self.v_2_u_[(v, user)] += 1
         self.add_to_queue(user, ts)

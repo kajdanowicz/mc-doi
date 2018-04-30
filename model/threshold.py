@@ -6,6 +6,7 @@ from tqdm import trange, tqdm
 tqdm.pandas(desc="Progress apply")
 from collections import defaultdict
 import copy
+from data.data import Data
 
 import sys
 
@@ -34,12 +35,12 @@ class Threshold():
 
     def _estimate(self, Y, a_matrix, cc_matrix, data, indicators):
         a_matrix.transpose()
-        # print('Adjacency.matrix_transposed.shape', Adjacency.matrix_transposed.shape)
+        # print('Adjacency.matrix_transposed_.shape', Adjacency.matrix_transposed_.shape)
         # print('indicators[0].shape', indicators[0].shape)
         max_neg = defaultdict(lambda : -2)
         min_pos = defaultdict(lambda : 2)
         for l in range(len(indicators) - 1):
-            U = a_matrix.matrix_transposed.dot(indicators[l])
+            U = a_matrix.matrix_transposed_.dot(indicators[l])
             F = U.dot(cc_matrix.matrix) / data.num_contagions
             temp = np.logical_xor(indicators[l], indicators[l + 1])  # aktywowane z l na l+1
             temp1 = np.logical_or(temp, indicators[l])  # nieaktywowane z l na l+1 z wylaczeniem wczesniej aktywnych (po nalozeniu nagacji)
@@ -74,9 +75,9 @@ class Threshold():
         indicators = []
         I = np.full((data.num_users, data.num_contagions), False, dtype=bool)
         ts = 0
-        while ts < data.event_log['ts'].max():
-            for index, row in data.event_log[(data.event_log['ts'] > ts) & (data.event_log['ts'] <= ts + volume)].iterrows():
-                I[row['user']][row['contagion_id']] = True
+        while ts < data.event_log[Data.time_stamp].max():
+            for index, row in data.event_log[(data.event_log[Data.time_stamp] > ts) & (data.event_log[Data.time_stamp] <= ts + volume)].iterrows():
+                I[row[Data.user]][row[Data.contagion_id]] = True
             indicators.append(I)
             I = copy.deepcopy(I)
             ts += volume
@@ -90,7 +91,7 @@ class Threshold():
     # def estimateVector(self,Data):
     #     #TODO Implement
     #     indykatory_est = []
-    #     I = np.full((Data.num_users, Data.num_contagions), False, dtype=bool)
+    #     I = np.full((Data.num_users_, Data.num_contagions), False, dtype=bool)
     #     for i in range(history):
     #         for index, row in event_log[event_log['ts'] == i].iterrows():
     #             I[row['userNEW'], row['tagID']] = True

@@ -9,6 +9,13 @@ import pandas as pd
 
 
 class Data:
+    # TODO Finish refactoring. Done: user_1, user_2, time_stamp
+    time_stamp = 'ts'
+    user = 'user'
+    contagion = 'contagion'
+    contagion_id = 'contagion_id'
+    user_1 = 'user_1'
+    user_2 = 'user_2'
     def __init__(self):
 
         self.event_log = None
@@ -21,13 +28,12 @@ class Data:
 
     def add_graph(self):
         if self.graph is None:
-            self.graph = nx.from_pandas_edgelist(self.edges, 'user1', 'user2')
+            self.graph = nx.from_pandas_edgelist(self.edges, Data.user_1, Data.user_2)
 
     def load_data_file(self, directory, file_names=('event_log', 'edges')):
-        event_log_df = pd.read_csv(directory + file_names[0],header=None)
-        event_log_df.columns = ['ts', 'user', 'contagion']
-        edges_df = pd.read_csv(directory + file_names[1],header=None)
-        edges_df.columns = ['user1', 'user2']
+        # TODO extract column names as class attributes?
+        event_log_df = pd.read_csv(directory + file_names[0],header=None, names=[Data.time_stamp, Data.user, Data.contagion])
+        edges_df = pd.read_csv(directory + file_names[1],header=None, names=[Data.user_1, Data.user_2])
         if Data.verify_users_correct(event_log_df, edges_df):
             self.event_log = event_log_df
             self.edges = edges_df
@@ -42,8 +48,8 @@ class Data:
             # review
 
     def load_data_data_frame(self, event_log_df: pd.DataFrame, edges_df: pd.DataFrame) -> bool:
-        event_log_df.columns = ['ts', 'user', 'contagion']
-        edges_df.columns = ['user1', 'user2']
+        event_log_df.columns = [Data.time_stamp, Data.user, Data.contagion]
+        edges_df.columns = [Data.user_1, Data.user_2]
         if Data.verify_users_correct(event_log_df, edges_df):
             self.event_log = event_log_df
             self.edges = edges_df
@@ -59,7 +65,7 @@ class Data:
 
     @staticmethod
     def verify_users_correct(event_log_df, edges_df):
-        if set(event_log_df['user']).issubset(edges_df['user1'].append(edges_df['user2'])):
+        if set(event_log_df['user']).issubset(edges_df[Data.user_1].append(edges_df[Data.user_2])):
             return True
         else:
             return False
@@ -74,7 +80,7 @@ class Data:
             return False
         elif not self.num_contagions == len(self.event_log['contagions'].unique()):
             return False
-        elif not self.num_users == len(np.union1d(self.edges['user1'], self.edges['user2'])):
+        elif not self.num_users == len(np.union1d(self.edges[Data.user_1], self.edges[Data.user_2])):
             return False
         else:
             return True
@@ -83,9 +89,9 @@ class Data:
 
     def sort_data(self):
         if 'contagion_id' in self.event_log.columns:
-            self.event_log.sort_values(by=['contagion_id', 'ts'], inplace=True)
+            self.event_log.sort_values(by=[Data.contagion_id, Data.time_stamp], inplace=True)
         else:
-            self.event_log.sort_values(by=['contagion', 'ts'], inplace=True)
+            self.event_log.sort_values(by=[Data.contagion, Data.time_stamp], inplace=True)
 
     def load_data(self, directory=None, event_log_df=None, edges_df=None, file_names=('event_log', 'edges')):
         ''' Loads Data to class Data instance from the source that depends on given arguments'''
@@ -101,8 +107,8 @@ class Data:
         return True
         # review
 
-    def edge_exists(self, user1, user2):
-        if self.edges[(self.edges['user1'].isin([user1, user2])) & (self.edges['user2'].isin([user1, user2]))].empty:
+    def edge_exists(self, user_1, user_2):
+        if self.edges[(self.edges[Data.user_1].isin([user_1, user_2])) & (self.edges[Data.user_2].isin([user_1, user_2]))].empty:
             return False
         else:
             return True
@@ -119,42 +125,42 @@ class Data:
     def restrict_event_log_min_occurrence(self, min_occurs, max_num_contagions=None):
         """ Restricts events in self to that, which contains contagions appearing in the Data min_occurs times."""
         # TODO Use delete_contagions to obtain this
-        temp = self.event_log.groupby(by='contagion').count().reset_index()[['contagion', 'ts']]
+        temp = self.event_log.groupby(by=Data.contagion).count().reset_index()[[Data.contagion, Data.time_stamp]]
         if max_num_contagions is None:
-            series = temp[(temp['ts'] >= min_occurs)]['contagion']
-            self.event_log = self.event_log[self.event_log['contagion'].isin(series)]
+            series = temp[(temp[Data.time_stamp] >= min_occurs)][Data.contagion]
+            self.event_log = self.event_log[self.event_log[Data.contagion].isin(series)]
             self.update_event_log()
         else:
-            series = temp[(min_occurs <= temp['ts'])].sort_values(by='ts').iloc[:max_num_contagions]['contagion']
-            self.event_log = self.event_log[self.event_log['contagion'].isin(series)]
+            series = temp[(min_occurs <= temp[Data.time_stamp])].sort_values(by=Data.time_stamp).iloc[:max_num_contagions][Data.contagion]
+            self.event_log = self.event_log[self.event_log[Data.contagion].isin(series)]
             self.update_event_log()
             # review
 
     def restrict_event_log_max_occurrence(self, max_occurs, max_num_contagions=None):
         """ Restricts events in self to that, which contains contagions appearing in the Data minOccurs times."""
         # TODO Use delete_contagions to obtain this
-        temp = self.event_log.groupby(by='contagion').count().reset_index()[['contagion', 'ts']]
+        temp = self.event_log.groupby(by=Data.contagion).count().reset_index()[[Data.contagion, Data.time_stamp]]
         if max_num_contagions is None:
-            series = temp[(temp['ts'] <= max_occurs)]['contagion']
-            self.event_log = self.event_log[self.event_log['contagion'].isin(series)]
+            series = temp[(temp[Data.time_stamp] <= max_occurs)][Data.contagion]
+            self.event_log = self.event_log[self.event_log[Data.contagion].isin(series)]
             self.update_event_log()
         else:
-            series = temp[(temp['ts'] <= max_occurs)].sort_values(by='ts', ascending=False).iloc[:max_num_contagions][
-                'contagion']
-            self.event_log = self.event_log[self.event_log['contagion'].isin(series)]
+            series = temp[(temp[Data.time_stamp] <= max_occurs)].sort_values(by=Data.time_stamp, ascending=False).iloc[:max_num_contagions][
+                Data.contagion]
+            self.event_log = self.event_log[self.event_log[Data.contagion].isin(series)]
             self.update_event_log()
             # review
 
     def restrict_event_log_min_max_occurrence(self, min_occurs, max_occurs):
-        temp = self.event_log.groupby(by='contagion').count().reset_index()[['contagion', 'ts']]
-        series = temp[(min_occurs <= temp['ts']) & (temp['ts'] <= max_occurs)]['contagion']
-        self.event_log = self.event_log[self.event_log['contagion'].isin(series)]
+        temp = self.event_log.groupby(by=Data.contagion).count().reset_index()[[Data.contagion, Data.time_stamp]]
+        series = temp[(min_occurs <= temp[Data.time_stamp]) & (temp[Data.time_stamp] <= max_occurs)][Data.contagion]
+        self.event_log = self.event_log[self.event_log[Data.contagion].isin(series)]
         self.update_event_log()
 
     def restrict_event_log_max_num_contagions(self, max_num_contagions):
-        temp = self.event_log.groupby(by='contagion').count().reset_index()[['contagion', 'ts']]
-        series = temp.sort_values(by='ts', ascending=False).iloc[:max_num_contagions]['contagion']
-        self.event_log = self.event_log[self.event_log['contagion'].isin(series)]
+        temp = self.event_log.groupby(by=Data.contagion).count().reset_index()[[Data.contagion, Data.time_stamp]]
+        series = temp.sort_values(by=Data.time_stamp, ascending=False).iloc[:max_num_contagions][Data.contagion]
+        self.event_log = self.event_log[self.event_log[Data.contagion].isin(series)]
         self.update_event_log()
 
     def restrict_event_log(self, max_occurs=None, min_occurs=None, max_num_contagions=None):
@@ -171,7 +177,7 @@ class Data:
             # review
 
     def delete_users(self, user_list):
-        self.edges.drop(self.edges[(self.edges['user1'].isin(user_list)) | (self.edges['user2'].isin(user_list))].index,
+        self.edges.drop(self.edges[(self.edges[Data.user_1].isin(user_list)) | (self.edges[Data.user_2].isin(user_list))].index,
                         inplace=True)
         self.event_log.drop(self.event_log[self.event_log['user'].isin(user_list)].index, inplace=True)
         self.update_event_log()
@@ -191,11 +197,11 @@ class Data:
 
     def drop_edge(self, edge=None, user_1=None, user_2=None):
         if (user_1 is None) & (user_2 is None):
-            self.edges.drop(self.edges[((self.edges['user_1'] == edge[0]) & (self.edges['user_2'] == edge[1])) | (
-                (self.edges['user_1'] == edge[1]) & (self.edges['user_2'] == edge[0]))].index, inplace=True)
+            self.edges.drop(self.edges[((self.edges[Data.user_1] == edge[0]) & (self.edges[Data.user_2] == edge[1])) | (
+                (self.edges[Data.user_1] == edge[1]) & (self.edges[Data.user_2] == edge[0]))].index, inplace=True)
         elif (edge is None) & (user_1 is not None) & (user_2 is not None):
-            self.edges.drop(self.edges[(self.edges['user_1'].isin([user_1, user_2])) & (
-                self.edges['user_2'].isin([user_1, user_2]))].index, inplace=True)
+            self.edges.drop(self.edges[(self.edges[Data.user_1].isin([user_1, user_2])) & (
+                self.edges[Data.user_2].isin([user_1, user_2]))].index, inplace=True)
         else:
             return False
             # question Should an unconnected user be deleted?
@@ -242,11 +248,11 @@ class Data:
         if 'event_id' not in self.event_log.columns:
             t = defaultdict(functools.partial(next, itertools.count()))
             self.event_log = self.event_log.assign(
-                event_id=self.event_log.apply(lambda row: t[(row['user'], row['ts'])], axis=1, reduce=True))
+                event_id=self.event_log.apply(lambda row: t[(row[Data.user], row[Data.time_stamp])], axis=1, reduce=True))
             # review
 
     def to_csv(self, directory=''):
-        self.event_log.to_csv(directory + 'event_log', header=False, index=False, columns = ['ts','user','contagion'])
+        self.event_log.to_csv(directory + 'event_log', header=False, index=False, columns = [Data.time_stamp,Data.user,Data.contagion])
         self.edges.to_csv(directory + 'edges', header=False, index=False)
 
     def sample_events(self, fraction):
@@ -259,7 +265,7 @@ class Data:
             self.edges = self.edges.sample(frac=fraction)
         else:
             self.edges = self.edges.sample(frac=float(number) / self.edges.shape[0])
-        self.keep_events_of_users(set(self.edges.user1.unique()).union(self.edges.user2.unique()))
+        self.keep_events_of_users(set(self.edges[Data.user_1].unique()).union(self.edges[Data.user_2].unique()))
         self.reindex_users()
         self.update_event_log()
 
@@ -314,19 +320,19 @@ class Data:
 
     def reindex_users(self):
         t = defaultdict(functools.partial(next, itertools.count()))
-        self.edges.user1 = self.edges.user1.map(t)
-        self.edges.user2 = self.edges.user2.map(t)
+        self.edges[Data.user_1] = self.edges[Data.user_1].map(t)
+        self.edges[Data.user_2] = self.edges[Data.user_2].map(t)
         self.reindex_users_in_event_log(t)
         if self.graph is not None:
             self.reindex_users_in_graph(t)
         self.num_users = max(t.values()) + 1
 
     def prepare_test_data(self, fraction):
-        min_time = self.event_log.ts.min()
-        max_time = self.event_log.ts.max()
+        min_time = self.event_log[Data.time_stamp].min()
+        max_time = self.event_log[Data.time_stamp].max()
         stopping_time = float(max_time - min_time) * fraction + min_time
-        tmp = self.event_log[self.event_log.ts > stopping_time]
-        self.event_log = self.event_log[self.event_log.ts <= stopping_time]
+        tmp = self.event_log[self.event_log[Data.time_stamp] > stopping_time]
+        self.event_log = self.event_log[self.event_log[Data.time_stamp] <= stopping_time]
         self.num_events = self.event_log.shape[0]
         return tmp
 
@@ -337,8 +343,8 @@ class Data:
     def get_neighbors(self,user: int) -> set:
         user_set = set()
         row_mask = self.edges.isin([user]).any(1)
-        user_set.update(set(self.edges[row_mask].user1))
-        user_set.update(set(self.edges[row_mask].user2))
+        user_set.update(set(self.edges[row_mask][Data.user_1]))
+        user_set.update(set(self.edges[row_mask][Data.user_2]))
         return user_set
 
     def snowball_sampling(self,initial_user_id: int) -> set:

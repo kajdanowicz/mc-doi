@@ -18,7 +18,7 @@ del hard_dependencies, dependency, missing_dependencies
 from data.data import *
 from model.adjacency import *
 from model.contagion_correlation import *
-from model.model import *
+from model.multi_contagion_models import *
 from model.results import *
 from model.threshold import *
 

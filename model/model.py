@@ -67,7 +67,7 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
         Parameters
         ----------
         data : Data
-            :obj:`Data` object according to which parameters should be fitted.
+            `Data` object according to which parameters should be fitted.
         **kwargs
             Arbitrary keyword arguments.
         """

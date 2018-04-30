@@ -11,18 +11,16 @@ from abc import abstractmethod
 
 
 class BaseMultiContagionDiffusionModel:
+    """
+    # TODO Finish docstring
+    Base class for multi-contagion diffusion models. Each class inheriting class should have :mathod: fit and
+    :method: predict methods.
+    """
 
     @abstractmethod
     def fit(self, data: Data, **kwargs):
         """
         Base method for fitting model's parameters. It evaluates model's specific methods.
-
-        Parameters
-        ----------
-        data : Data
-            Data object to which model's parameters are fitted. In contains an event log and the underlying social network.
-        kwargs :
-            Other parameters which specify types of algorithms used to while fitting.
         """
         pass
 
@@ -31,11 +29,6 @@ class BaseMultiContagionDiffusionModel:
         """
         Base method for prediction of information diffusion in multi-contagion world. It evaluates model's specific
         prediction methods.
-
-        Parameters
-        ----------
-        num_iterations :  int
-            Number of iterations of prediction algorithm.
         """
         pass
 
@@ -50,9 +43,9 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
     ----------
     contagion_correlation : ContagionCorrelation
         Stores the contagion correlation matrix of contagions in event log.
-    adjacency_matrix : Adjacency
+    adjacency : Adjacency
         Stores the adjacency matrix of the underlying social network.
-    thresholds_matrix : Threshold
+    thresholds : Threshold
         Stores dynamic threshold of all users in the form of a matrix. Entries for specific user are equal
         across all columns.
 
@@ -65,30 +58,34 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
     def __init__(self):
 
         self.contagion_correlation = ContagionCorrelation()
-        self.adjacency_matrix = Adjacency()
-        self.thresholds_matrix = Threshold()
+        self.adjacency = Adjacency()
+        self.thresholds = Threshold()
 
     def fit(self, data, **kwargs):
         # TODO Implement this method
+        # TODO Change logic: either all parameters or None
+        batch_type = kwargs.get('batch_type', None)
         if self.contagion_correlation.matrix is None:
             self.estimate_contagion_correlation_matrix(data)
             print('ContagionCorrelation')
-        if self.adjacency_matrix.matrix is None:
+        if self.adjacency.matrix is None:
             self.estimate_adjacency_matrix(data)
             print('Adjacency')
-        if kwargs['batch_type'] == 'time':
-            self.thresholds_matrix.estimate_time_batch(data, self.adjacency_matrix, self.contagion_correlation,
-                                                       kwargs['batch_size'])
-        elif kwargs['batch_type'] == 'volume':
-            self.thresholds_matrix.estimate_volume_batch(data, self.adjacency_matrix, self.contagion_correlation,
-                                                         kwargs['batch_size'])
-        elif kwargs['batch_type'] == 'hybrid':
-            self.thresholds_matrix.estimate_hybride_batch(data)
+        if batch_type == 'time':
+            self.thresholds.estimate_time_batch(data, self.adjacency, self.contagion_correlation,
+                                                kwargs['batch_size'])
+        elif batch_type == 'volume':
+            self.thresholds.estimate_volume_batch(data, self.adjacency, self.contagion_correlation,
+                                                  kwargs['batch_size'])
+        elif batch_type == 'hybrid':
+            self.thresholds.estimate_hybride_batch(data)
         print('Threshold')
         self.fill_state_matrix(data)
         print('State')
 
     def fill_state_matrix(self, data):
+        # TODO Make class for state_matrix, inherit from SingleIterResult
+        # TODO state_matrix_.matrix -> sparse
         self.state_matrix_ = SingleIterResult()
         self.state_matrix_.num_contagions = data.num_contagions
         self.state_matrix_.num_users = data.num_users
@@ -101,51 +98,77 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
         self.contagion_correlation.estimate(data)
 
     def estimate_adjacency_matrix(self, data):
-        self.adjacency_matrix.estimate(data)
+        self.adjacency.estimate(data)
 
     def to_pickle(self, directory):
+        # TODO directory + ... -> fileName
         pickle.dump(self, open(directory + 'MultiContagionDynamicThresholdModel.p', 'wb'))
 
     @staticmethod
     def from_pickle(directory):
+        # TODO directory + ... -> fileName
         return pickle.load(open(directory+'MultiContagionDynamicThresholdModel.p','rb'))
 
     def predict(self, num_iterations: int) -> Results:
+        # TODO "method" rst
+        # TODO replace num_activation by proper test
+        """
+
+        Parameters
+        ----------
+        num_iterations : int
+            Discrete number of prediction iteration steps to perform by :method:predict method
+
+        Returns
+        -------
+        result : Results
+            Object containing results from all predication iterations.
+
+        """
         global num_activations
         num_activations = 0
-        r = Results()
-        self.adjacency_matrix.transpose()
+        result = Results()
+        self.adjacency.transpose()
         for l in range(num_iterations):
-            self._single_iteration(r)
+            result.add_result(self.__single_iteration())
         print(num_activations)
-        return r
+        return result
 
-    def _single_iteration(self, r):
-        influence_matrix = self._influence_matrix()
-        activation_matrix = self._activation_matrix(influence_matrix)
-        self._activation_procedure(activation_matrix)
-        r.add_result(self.state_matrix_)
+    def __single_iteration(self) -> SingleIterResult:
+        # TODO SingleIterResult -> new special class
+        influence_matrix = self.__influence_matrix()
+        activation_matrix = self.__activation_matrix(influence_matrix)
+        self.__activation_procedure(activation_matrix)
+        return self.state_matrix_
 
-    def _activation_procedure(self, activation_matrix):
+    def __activation_procedure(self, activation_matrix):
+        # TODO delete num_activations
         global num_activations
         activation_candidates = self.__find_activation_candidates(activation_matrix)
-        for user in self.__users_above_threshold(activation_candidates):  # iteracja po użytkownikach, którzy mają przekroczony próg
+        for user in self.__users_above_threshold(activation_candidates):
             contagions_above_threshold = self.__contagions_above_threshold(activation_candidates,
-                                                      user)  # tagi, w których dla użytkownika user przekroczony był próg
-            active_contagions = self.active_contagions(user)  # tagi juz aktywne
+                                                      user)  # contagions for user in which threshold has been exceeded
+            active_contagions = self.active_contagions(user)  # contagions in which user is already active
             contagions_above_threshold_not_active = self.__contagions_above_threshold_not_active(active_contagions,
-                                                                                                 contagions_above_threshold)  # usuniecie juz aktywnych tagow
-            if (not np.any(self.contagion_correlation.matrix[contagions_above_threshold_not_active[:, None], contagions_above_threshold_not_active] < 0)) and (
-            not contagions_above_threshold_not_active.size == 0):  # sprawdzenie, czy kandydaci do aktywacji nie są negatywnie skorelowani
+                                                                                                 contagions_above_threshold)  # delete active_contagions from contagions_above_threshold
+            if self.__check_negative_contagion_correlation(contagions_above_threshold_not_active):  # check weather
+                # candidates are not negatively correlated
                 self.__activation(contagions_above_threshold_not_active, user)
                 self.__increase_activity_index(user)
                 num_activations += 1
                 self.__update_threshold(user)
 
+    def __check_negative_contagion_correlation(self, contagions_above_threshold_not_active):
+        # TODO review of correctness of condition
+        return (not np.any(self.contagion_correlation.matrix[contagions_above_threshold_not_active[:,
+                                                             None], contagions_above_threshold_not_active] < 0)) and (
+                   not contagions_above_threshold_not_active.size == 0)
+
     def __update_threshold(self, user):
+        # TODO assign vector in one line
         for contagion in range(self.state_matrix_.num_contagions):  # temporary solution
-            self.thresholds_matrix.matrix[user][contagion] = 1 - math.pow(
-                1 - self.thresholds_matrix.initial_matrix[user][contagion],
+            self.thresholds.matrix[user][contagion] = 1 - math.pow(
+                1 - self.thresholds.initial_matrix[user][contagion],
                 self.activity_index_vector_[user] + 1)  # aktualizacja thety
 
     def __increase_activity_index(self, user):
@@ -168,13 +191,13 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
         return np.unique(np.where(activation_candidates[:, :])[0])
 
     def __find_activation_candidates(self, activation_matrix):
-        return np.greater_equal(activation_matrix, self.thresholds_matrix.matrix)
+        return np.greater_equal(activation_matrix, self.thresholds.matrix)
 
-    def _activation_matrix(self, influence_matrix):
+    def __activation_matrix(self, influence_matrix):
         return influence_matrix.dot(self.contagion_correlation.matrix) / self.contagion_correlation.num_contagions
 
-    def _influence_matrix(self):
-        return self.adjacency_matrix.matrix_transposed.dot(self.state_matrix_.matrix)
+    def __influence_matrix(self):
+        return self.adjacency.matrix_transposed.dot(self.state_matrix_.matrix)
 
     def assign_contagions_correlation_matrix(self, matrix):
         # TODO Implement this method

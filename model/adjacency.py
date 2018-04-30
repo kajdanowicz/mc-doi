@@ -1,4 +1,5 @@
 from collections import defaultdict
+from data.data import Data
 
 import networkx as nx
 from tqdm import tqdm
@@ -24,7 +25,7 @@ class Adjacency():
         self.v_and_u = None
         self.u = None
 
-    def estimate(self, data):
+    def estimate(self, data: Data):
         self.num_users = data.num_users
         self.v_2_u = defaultdict(lambda: 0)
         self.v_and_u = defaultdict(lambda: 0)

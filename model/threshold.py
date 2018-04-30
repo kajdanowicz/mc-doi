@@ -24,9 +24,9 @@ class Threshold():
         indicators = []
         I = np.full((data.num_users, data.num_contagions), False, dtype=bool)
         event_id = 0
-        while event_id < data.event_log['event_id'].max():
-            for index, row in data.event_log[(data.event_log['event_id'] > event_id) & (data.event_log['event_id'] <= event_id + volume)].iterrows():
-                I[row['user']][row['contagion_id']] = True
+        while event_id < data.event_log[Data.event_id].max():
+            for index, row in data.event_log[(data.event_log[Data.event_id] > event_id) & (data.event_log[Data.event_id] <= event_id + volume)].iterrows():
+                I[row[Data.user]][row[Data.contagion_id]] = True
             indicators.append(I)
             I = copy.deepcopy(I)
             event_id += volume

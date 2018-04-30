@@ -91,7 +91,7 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
         self.state_matrix_.num_users = data.num_users
         self.state_matrix_.matrix = np.full((self.state_matrix_.num_users, self.state_matrix_.num_contagions), False, dtype=bool)
         for index, row in data.event_log.iterrows():
-            self.state_matrix_.matrix[row['user']][row['contagion_id']] = True
+            self.state_matrix_.matrix[row[Data.user]][row[Data.contagion_id]] = True
         self.activity_index_vector_ = np.sum(self.state_matrix_.matrix, axis=1)
 
     def estimate_contagion_correlation_matrix(self, data):

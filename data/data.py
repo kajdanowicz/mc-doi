@@ -9,13 +9,14 @@ import pandas as pd
 
 
 class Data:
-    # TODO Finish refactoring. Done: user_1, user_2, time_stamp
     time_stamp = 'ts'
     user = 'user'
     contagion = 'contagion'
     contagion_id = 'contagion_id'
     user_1 = 'user_1'
     user_2 = 'user_2'
+    event_id = 'event_id'
+
     def __init__(self):
 
         self.event_log = None
@@ -78,7 +79,7 @@ class Data:
             return False
         elif not self.num_events == self.event_log.shape[0]:
             return False
-        elif not self.num_contagions == len(self.event_log['contagions'].unique()):
+        elif not self.num_contagions == len(self.event_log[Data.contagion].unique()):
             return False
         elif not self.num_users == len(np.union1d(self.edges[Data.user_1], self.edges[Data.user_2])):
             return False
@@ -88,7 +89,7 @@ class Data:
     # review
 
     def sort_data(self):
-        if 'contagion_id' in self.event_log.columns:
+        if Data.contagion_id in self.event_log.columns:
             self.event_log.sort_values(by=[Data.contagion_id, Data.time_stamp], inplace=True)
         else:
             self.event_log.sort_values(by=[Data.contagion, Data.time_stamp], inplace=True)
@@ -214,38 +215,38 @@ class Data:
             # review
 
     def delete_contagions(self, contagion_list):
-        self.event_log.drop(self.event_log[self.event_log['contagion'].isin(contagion_list)].index, inplace=True)
+        self.event_log.drop(self.event_log[self.event_log[Data.contagion].isin(contagion_list)].index, inplace=True)
         self.num_events = self.event_log.shape[0]
-        self.num_contagions = len(self.event_log['contagion'].unique())
+        self.num_contagions = len(self.event_log[Data.contagion].unique())
         # review
 
     def keep_contagions(self, contagion_list):
-        self.event_log.drop(self.event_log[~self.event_log['contagion'].isin(contagion_list)].index, inplace=True)
+        self.event_log.drop(self.event_log[~self.event_log[Data.contagion].isin(contagion_list)].index, inplace=True)
         self.num_events = self.event_log.shape[0]
-        self.num_contagions = len(self.event_log['contagion'].unique())
+        self.num_contagions = len(self.event_log[Data.contagion].unique())
 
     def restrict_contagions_to_present(self):
-        self.keep_contagions(self.event_log['contagion'])
+        self.keep_contagions(self.event_log[Data.contagion])
         self.update_event_log()
 
     def delete_contagions_by_id(self, contagion_id_list):
-        if 'contagion_id' in self.event_log.columns:
-            self.event_log.drop(self.event_log[self.event_log['contagion_id'].isin(contagion_id_list)].index, inplace=True)
+        if Data.contagion_id in self.event_log.columns:
+            self.event_log.drop(self.event_log[self.event_log[Data.contagion_id].isin(contagion_id_list)].index, inplace=True)
             self.num_events = self.event_log.shape[0]
-            self.num_contagions = len(self.event_log['contagion_id'].unique())
+            self.num_contagions = len(self.event_log[Data.contagion_id].unique())
             # review
 
     def add_contagion_id(self):
-        if 'contagion_id' not in self.event_log.columns:
+        if Data.contagion_id not in self.event_log.columns:
             t = defaultdict(functools.partial(next, itertools.count()))
-            self.event_log = self.event_log.assign(contagion_id=self.event_log['contagion'].map(t))
+            self.event_log = self.event_log.assign(contagion_id=self.event_log[Data.contagion].map(t))
             self.contagion_id_dict = t
         else:
             pass
             # review
 
     def construct_event_log_grouped(self):
-        if 'event_id' not in self.event_log.columns:
+        if Data.event_id not in self.event_log.columns:
             t = defaultdict(functools.partial(next, itertools.count()))
             self.event_log = self.event_log.assign(
                 event_id=self.event_log.apply(lambda row: t[(row[Data.user], row[Data.time_stamp])], axis=1, reduce=True))
@@ -303,10 +304,10 @@ class Data:
         self.event_log.user = self.event_log.user.map(dictionary)
 
     def reindex_contagion_id(self, dictionary):
-        self.event_log = self.event_log.assign(contagion_id=self.event_log['contagion'].map(dictionary))
+        self.event_log = self.event_log.assign(contagion_id=self.event_log[Data.contagion].map(dictionary))
 
     def update_event_log(self):
-        if 'contagion_id' in self.event_log.columns:
+        if Data.contagion_id in self.event_log.columns:
             t = defaultdict(functools.partial(next, itertools.count()))
             self.reindex_contagion_id(t)
             self.num_contagions = max(t.values()) + 1

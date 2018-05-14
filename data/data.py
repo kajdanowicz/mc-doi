@@ -26,6 +26,7 @@ class Data:
         self.num_events = None
         self.contagion_id_dict = None
         self.graph = None
+        self.sorted = False
 
     def add_graph(self):
         if self.graph is None:
@@ -93,9 +94,11 @@ class Data:
             self.event_log.sort_values(by=[Data.contagion_id, Data.time_stamp], inplace=True)
         else:
             self.event_log.sort_values(by=[Data.contagion, Data.time_stamp], inplace=True)
+        self.sorted = True
 
     def load_data(self, directory=None, event_log_df=None, edges_df=None, file_names=('event_log', 'edges')):
-        ''' Loads Data to class Data instance from the source that depends on given arguments'''
+        ''' Loads Data to class Data instance from the source that depends on given arguments
+            All edges are treated as undirected (mutual)'''
         if directory is not None:
             if not self.load_data_file(directory, file_names):
                 return False

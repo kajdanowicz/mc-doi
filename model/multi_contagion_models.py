@@ -96,8 +96,8 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
     def estimate_contagion_correlation_matrix(self, data):
         self.contagion_correlation.estimate(data)
 
-    def estimate_adjacency_matrix(self, data: Data):
-        self.adjacency.estimate(data)
+    def estimate_adjacency_matrix(self, data: Data, **kwargs):
+        self.adjacency.estimate(data, **kwargs)
 
     def estimate_threshold_matrix(self, data: Data, adjacency, contagion_correlation, **kwargs):
         self.thresholds.estimate(data, adjacency, contagion_correlation, **kwargs)

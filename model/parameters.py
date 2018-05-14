@@ -33,7 +33,23 @@ class Adjacency(BaseParameter):
         super(Adjacency, self).__init__()
 
     def estimate(self, data: Data, **kwargs):
-        # TODO write dosctring
+        """
+        Estimates edge weights in Linear Threshold model setting according to [1]_. It uses Bernoulli trial MLE or
+        Jaccard index depending on keyword argument :name:`function`, default Bernoulli.
+
+        Parameters
+        ----------
+        data : Data
+            :class:`Data` object according to which adjacency matrix should be estimated.
+        kwargs
+            Arbitrary keyword arguments.
+
+
+            .. [1] Goyal, A., Bonchi, F., & Lakshmanan, L. V. S. (2010). Learning influence probabilities in social
+                networks. In Proceedings of the third ACM international conference on Web search and data mining - WSDM ’10 (
+                p. 241).
+
+        """
         if data.sorted is False:
             raise NameError('Data not sorted. Can not estimate adjacency matrix.')
         self.num_users_ = data.num_users
@@ -49,8 +65,11 @@ class Adjacency(BaseParameter):
             prev_contagion = self.__verify_contagion(row, prev_contagion)
             self.__propagate(row[0], row[1], data.graph)
         self.__reset_event_queue()
-        self._calculate_weights(data.graph)
+        function = kwargs.get('function','bernoulli')
+        edge_probability_func = {'bernoulli': self.__MLE_Bernoulli_trial, 'jaccard' : self.__Jaccard_index}
+        self._calculate_weights(data.graph, edge_probability_func[function])
         self.__clean_counters()
+        # review function
 
     def assign_matrix(self, matrix):
         #TODO Implement this method
@@ -84,12 +103,12 @@ class Adjacency(BaseParameter):
             prev_contagion = row[2]
         return prev_contagion
 
-    def _calculate_weights(self, graph):
+    def _calculate_weights(self, graph, edge_probability_func):
         G = graph.to_directed()
         nx.set_edge_attributes(G, 0, 'weight')
         for v in self.u_.keys():
             for u in G.successors(v):
-                G[v][u]['weight'] = self.__MLE_Jaccard_index(v, u)
+                G[v][u]['weight'] = edge_probability_func(v, u)
         for i in G.nodes():
             in_degree = G.in_degree(i, weight='weight')
             if in_degree != 0:
@@ -129,7 +148,7 @@ class Adjacency(BaseParameter):
         """
         return round(float(self.v_2_u_[(v, u)]) / float(self.u_[v]), 6)
 
-    def __MLE_Jaccard_index(self, v, u):
+    def __Jaccard_index(self, v, u):
         """
         Computes (v,u) edge probability in sense of the Independent Cascade Model using Jaccard index.
 

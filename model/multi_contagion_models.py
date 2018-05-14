@@ -137,7 +137,7 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
         global num_activations
         num_activations = 0
         result = Results()
-        self.adjacency.transpose()
+        self.adjacency._transpose()
         for l in range(num_iterations):
             result.add_result(self.__single_iteration())
         print(num_activations)

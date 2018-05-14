@@ -34,7 +34,7 @@ class Threshold():
         self._estimate(Y, a_matrix, cc_matrix, data, indicators)
 
     def _estimate(self, Y, a_matrix, cc_matrix, data, indicators):
-        a_matrix.transpose()
+        a_matrix._transpose()
         # print('Adjacency.matrix_transposed_.shape', Adjacency.matrix_transposed_.shape)
         # print('indicators[0].shape', indicators[0].shape)
         max_neg = defaultdict(lambda : -2)

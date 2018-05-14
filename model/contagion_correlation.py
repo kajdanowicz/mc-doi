@@ -16,9 +16,12 @@ class ContagionCorrelation():
     def estimate(self,data):
         """
         """
+        # TODO Reconsider sparse matrix implementation
+        # TODO Consider using PyTables
+        # TODO Refactor
         data.add_contagion_id()
         self.num_contagions=data.num_contagions
-        self.matrix= np.eye(N=self.num_contagions)
+        self.matrix = np.eye(N=self.num_contagions)
         self.num_users_performing_events=len(data.event_log.user.unique())
         tmp = data.event_log[[Data.user, Data.contagion_id]].drop_duplicates(subset=None, keep='first', inplace=False)
         tmp = pd.merge(tmp[[Data.user, Data.contagion_id]], tmp[[Data.user, Data.contagion_id]], on=Data.user,suffixes=('_1','_2')).groupby([Data.contagion_id+'_1',Data.contagion_id+'_2']).count()

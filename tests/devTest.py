@@ -15,7 +15,7 @@ import config.config as config
 
 from model.threshold import Threshold
 from model.parameters import Adjacency
-from model.contagion_correlation import ContagionCorrelation
+from model.parameters import ContagionCorrelation
 
 mode = 'Testing'
 

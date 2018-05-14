@@ -17,14 +17,13 @@ del hard_dependencies, dependency, missing_dependencies
 
 from data.data import *
 from model.parameters import *
-from model.contagion_correlation import *
 from model.multi_contagion_models import *
 from model.results import *
 from model.threshold import *
 
 # module level doc-string
 __doc__ = """
-mcdoi - a powerfull Multi-Contagion Diffusion Of Information library for Python
+mcdoi - a powerful Multi-Contagion Diffusion Of Information library for Python
 =====================================================================
 
 Main Features

@@ -67,27 +67,19 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
         Parameters
         ----------
         data : Data
-            `Data` object according to which parameters should be fitted.
+            :class:`Data` object according to which parameters should be fitted.
         **kwargs
             Arbitrary keyword arguments.
         """
-        # TODO Implement this method
         # TODO Change logic: either all model parameters or None
-        batch_type = kwargs.get('batch_type', None)
         if self.contagion_correlation.matrix is None:
             self.estimate_contagion_correlation_matrix(data)
             print('ContagionCorrelation')
         if self.adjacency.matrix is None:
             self.estimate_adjacency_matrix(data)
             print('Adjacency')
-        if batch_type == 'time': #TODO refactor to single estimate - move logic to parameters.threshold; kwargs handled in parameters.threshold
-            self.thresholds.estimate_time_batch(data, self.adjacency, self.contagion_correlation,
-                                                kwargs['batch_size'])
-        elif batch_type == 'volume':
-            self.thresholds.estimate_volume_batch(data, self.adjacency, self.contagion_correlation,
-                                                  kwargs['batch_size'])
-        elif batch_type == 'hybrid':
-            self.thresholds.estimate_hybride_batch(data)
+        if self.thresholds.matrix is None:
+            self.estimate_threshold_matrix(data, self.adjacency, self.contagion_correlation, **kwargs)
         print('Threshold')
         self.fill_state_matrix(data)
         print('State')
@@ -106,8 +98,11 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
     def estimate_contagion_correlation_matrix(self, data):
         self.contagion_correlation.estimate(data)
 
-    def estimate_adjacency_matrix(self, data):
+    def estimate_adjacency_matrix(self, data: Data):
         self.adjacency.estimate(data)
+
+    def estimate_threshold_matrix(self, data: Data, adjacency, contagion_correlation, **kwargs):
+        self.thresholds.estimate(data, adjacency, contagion_correlation, **kwargs)
 
     def to_pickle(self, directory):
         # TODO directory + ... -> fileName

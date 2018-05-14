@@ -3,7 +3,7 @@ import math
 import pickle
 from model.parameters import ContagionCorrelation
 from model.parameters import Adjacency
-from model.threshold import Threshold
+from model.parameters import Threshold
 from model.results import SingleIterResult
 from model.results import Results
 from data.data import Data
@@ -72,7 +72,7 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
             Arbitrary keyword arguments.
         """
         # TODO Implement this method
-        # TODO Change logic: either all parameters or None
+        # TODO Change logic: either all model parameters or None
         batch_type = kwargs.get('batch_type', None)
         if self.contagion_correlation.matrix is None:
             self.estimate_contagion_correlation_matrix(data)
@@ -80,7 +80,7 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
         if self.adjacency.matrix is None:
             self.estimate_adjacency_matrix(data)
             print('Adjacency')
-        if batch_type == 'time':
+        if batch_type == 'time': #TODO refactor to single estimate - move logic to parameters.threshold; kwargs handled in parameters.threshold
             self.thresholds.estimate_time_batch(data, self.adjacency, self.contagion_correlation,
                                                 kwargs['batch_size'])
         elif batch_type == 'volume':

@@ -13,7 +13,7 @@ from model.multi_contagion_models import MultiContagionDynamicThresholdModel as 
 from data.data import Data
 import config.config as config
 
-from model.threshold import Threshold
+from model.parameters import Threshold
 from model.parameters import Adjacency
 from model.parameters import ContagionCorrelation
 

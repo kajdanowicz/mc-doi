@@ -19,7 +19,6 @@ from data.data import *
 from model.parameters import *
 from model.multi_contagion_models import *
 from model.results import *
-from model.threshold import *
 
 # module level doc-string
 __doc__ = """

@@ -58,10 +58,18 @@ class Adjacency(BaseParameter):
             self.matrix_transposed_ = self.matrix.transpose()
 
     def __clean_counters(self):
-        # TODO What if dicts do not exist?
-        del self.v_2_u_
-        del self.v_and_u_
-        del self.u_
+        if self.__dict__.get('v_2_u_',None) is None:
+            raise NameError('Can not delete self.v_2_u_, it does not exist')
+        else:
+            del self.v_2_u_
+        if self.__dict__.get('v_and_u_',None) is None:
+            raise NameError('Can not delete self.v_and_u_, it does not exist')
+        else:
+            del self.v_and_u_
+        if self.__dict__.get('u_',None) is None:
+            raise NameError('Can not delete self.u_, it does not exist')
+        else:
+            del self.u_
 
     def __verify_contagion(self, row: tuple, prev_contagion: int) -> int:
         self.u_[row[1]] += 1

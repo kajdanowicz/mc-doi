@@ -28,7 +28,10 @@ class BaseParameter:
 
 
 class Adjacency(BaseParameter):
-    # TODO write docstring
+    # TODO Finish docstring - describe attributes
+    """
+    Class for estimation and storing adjacency matrix of multi-contagion threshold model.
+    """
     def __init__(self):
         super(Adjacency, self).__init__()
 

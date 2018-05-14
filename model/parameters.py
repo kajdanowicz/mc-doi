@@ -66,7 +66,7 @@ class Adjacency(BaseParameter):
             self.__propagate(row[0], row[1], data.graph)
         self.__reset_event_queue()
         function = kwargs.get('function','bernoulli')
-        edge_probability_func = {'bernoulli': self.__MLE_Bernoulli_trial, 'jaccard' : self.__Jaccard_index}
+        edge_probability_func = {'bernoulli': self.__MLE_Bernoulli_trial, 'jaccard' : self.__jaccard_index}
         self._calculate_weights(data.graph, edge_probability_func[function])
         self.__clean_counters()
         # review function
@@ -148,7 +148,7 @@ class Adjacency(BaseParameter):
         """
         return round(float(self.v_2_u_[(v, u)]) / float(self.u_[v]), 6)
 
-    def __Jaccard_index(self, v, u):
+    def __jaccard_index(self, v, u):
         """
         Computes (v,u) edge probability in sense of the Independent Cascade Model using Jaccard index.
 

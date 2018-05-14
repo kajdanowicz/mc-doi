@@ -129,25 +129,23 @@ class ContagionCorrelation(BaseParameter):
         """
         # TODO Reconsider sparse matrix implementation
         # TODO Consider using PyTables
-        # TODO Refactor
         data.add_contagion_id()
         self.num_contagions=data.num_contagions
         self.matrix = np.eye(N=self.num_contagions)
         self.num_users_performing_events=len(data.event_log.user.unique())
-        tmp = data.event_log[[Data.user, Data.contagion_id]].drop_duplicates(subset=None, keep='first', inplace=False)
-        tmp = pd.merge(tmp[[Data.user, Data.contagion_id]], tmp[[Data.user, Data.contagion_id]], on=Data.user,suffixes=('_1','_2')).groupby([Data.contagion_id+'_1',Data.contagion_id+'_2']).count()
+        unique_event_log = data.event_log[[Data.user, Data.contagion_id]].drop_duplicates(subset=None, keep='first', inplace=False)
+        co_occurrence_counter = pd.merge(unique_event_log[[Data.user, Data.contagion_id]], unique_event_log[[Data.user, Data.contagion_id]], on=Data.user,suffixes=('_1','_2')).groupby([Data.contagion_id+'_1',Data.contagion_id+'_2']).count()
         for i in range(self.num_contagions):
-            count_i = float(tmp.loc[(i, i)].values[0])
+            count_i = float(co_occurrence_counter.loc[(i, i)].values[0])
             for j in range(i + 1, self.num_contagions):
-                count_j = float(tmp.loc[(j, j)].values[0])
-                if (i,j) in tmp.index:
-                    count_ij = float(tmp.loc[(i, j)].values[0])
+                count_j = float(co_occurrence_counter.loc[(j, j)].values[0])
+                if (i,j) in co_occurrence_counter.index:
+                    count_ij = float(co_occurrence_counter.loc[(i, j)].values[0])
                 else:
                     count_ij = 0.
-                wynik = count_ij / math.sqrt(count_i * count_j) - ((count_j-count_ij) / math.sqrt((self.num_users_performing_events - count_i) * count_j) + (count_i - count_ij) / math.sqrt(count_i * (self.num_users_performing_events - count_j))) / 2
-                self.matrix[i][j] = wynik
-                self.matrix[j][i] = wynik
-        # review
+                contagion_correlation = count_ij / math.sqrt(count_i * count_j) - ((count_j-count_ij) / math.sqrt((self.num_users_performing_events - count_i) * count_j) + (count_i - count_ij) / math.sqrt(count_i * (self.num_users_performing_events - count_j))) / 2
+                self.matrix[i][j] = contagion_correlation
+                self.matrix[j][i] = contagion_correlation
 
     def assign_matrix(self, matrix):
         #TODO Implement this method

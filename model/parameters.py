@@ -30,7 +30,7 @@ class BaseParameter:
 class Adjacency(BaseParameter):
     # TODO Finish docstring - describe attributes
     """
-    Class for estimation and storing adjacency matrix of multi-contagion threshold model.
+    Class for estimation and storage of adjacency matrix in multi-contagion threshold model.
     """
     def __init__(self):
         super(Adjacency, self).__init__()
@@ -203,7 +203,9 @@ class Adjacency(BaseParameter):
 
 
 class ContagionCorrelation(BaseParameter):
-
+    """
+    Class for estimation and storage of contagion correlation matrix in multi-contagion model.
+    """
     def __init__(self):
         super(ContagionCorrelation, self).__init__()
         self.num_contagions=None
@@ -212,6 +214,14 @@ class ContagionCorrelation(BaseParameter):
     def estimate(self,data, **kwargs):
         # TODO write docstring
         """
+        Estimates contagion correlation matrix according to `data`.
+
+        Parameters
+        ----------
+        data : Data
+            :class:`Data` object according to which contagion correlation matrix should be estimated.
+        kwargs
+            Arbitrary keyword arguments.
         """
         # TODO Reconsider sparse matrix implementation
         # TODO Consider using PyTables

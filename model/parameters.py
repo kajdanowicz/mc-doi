@@ -1,12 +1,14 @@
+import copy
+import math
 from abc import abstractmethod
-from data.data import Data
-from numpy import ndarray
 from collections import defaultdict
+
 import networkx as nx
 import numpy as np
-import math
 import pandas as pd
-import copy
+from numpy import ndarray
+
+from data.data import Data
 
 
 class BaseParameter:
@@ -174,31 +176,54 @@ class Threshold(BaseParameter):
         self.initial_matrix = None
         self.num_users = None
 
-    def estimate(self, data: Data, **kwargs):
-        # TODO estimate this method - handle different batch types
+    def estimate(self, data: Data, *args, **kwargs):
         batch_type = kwargs.get('batch_type', None)
+        adjacency_matrix = args[0]
+        correlation_matrix = args[1]
+        batch_size = kwargs.get('batch_size')
+        if batch_type == 'volume':
+            self.estimate_volume_batch(data, adjacency_matrix, correlation_matrix, batch_size)
+        elif batch_type == 'time':
+            self.estimate_time_batch(data, adjacency_matrix, correlation_matrix, batch_size)
+        else:
+            raise NameError('Can not estimate thresholds. No such method as '+batch_type)
+
+    def assign_matrix(self, matrix):
+        #TODO Implement this method
         pass
 
-    def estimate_volume_batch(self, data, a_matrix, cc_matrix, volume):
+    def estimate_volume_batch(self, data, a_matrix, cc_matrix, batch_size):
         data.add_contagion_id()
         data.construct_event_log_grouped()
         indicators = []
         I = np.full((data.num_users, data.num_contagions), False, dtype=bool)
         event_id = 0
         while event_id < data.event_log[Data.event_id].max():
-            for index, row in data.event_log[(data.event_log[Data.event_id] > event_id) & (data.event_log[Data.event_id] <= event_id + volume)].iterrows():
+            for index, row in data.event_log[(data.event_log[Data.event_id] > event_id) & (data.event_log[Data.event_id] <= event_id + batch_size)].iterrows():
                 I[row[Data.user]][row[Data.contagion_id]] = True
             indicators.append(I)
             I = copy.deepcopy(I)
-            event_id += volume
+            event_id += batch_size
         Y = np.sum(indicators[0], axis=1)
         self._estimate(Y, a_matrix, cc_matrix, data, indicators)
 
-    def assign_matrix(self, matrix):
-        #TODO Implement this method
-        pass
+    def estimate_time_batch(self, data, a_matrix, cc_matrix, batch_size):
+        data.add_contagion_id()
+        data.construct_event_log_grouped()
+        indicators = []
+        I = np.full((data.num_users, data.num_contagions), False, dtype=bool)
+        ts = 0
+        while ts < data.event_log[Data.time_stamp].max():
+            for index, row in data.event_log[(data.event_log[Data.time_stamp] > ts) & (data.event_log[Data.time_stamp] <= ts + batch_size)].iterrows():
+                I[row[Data.user]][row[Data.contagion_id]] = True
+            indicators.append(I)
+            I = copy.deepcopy(I)
+            ts += batch_size
+        Y = np.sum(indicators[0], axis=1)
+        self._estimate(Y, a_matrix, cc_matrix, data, indicators)
 
     def _estimate(self, Y, a_matrix, cc_matrix, data, indicators):
+        # TODO refactor
         a_matrix._transpose()
         # print('Adjacency.matrix_transposed_.shape', Adjacency.matrix_transposed_.shape)
         # print('indicators[0].shape', indicators[0].shape)
@@ -232,37 +257,7 @@ class Threshold(BaseParameter):
         # print([(i,e) for i, e in enumerate(Results) if e != 0])
         self.matrix = np.repeat(np.asarray(results)[np.newaxis].T, data.num_contagions, axis=1)
         self.initial_matrix = copy.copy(self.matrix)
-        # review
 
-    def estimate_time_batch(self, data, a_matrix, cc_matrix, volume):
-        data.add_contagion_id()
-        data.construct_event_log_grouped()
-        indicators = []
-        I = np.full((data.num_users, data.num_contagions), False, dtype=bool)
-        ts = 0
-        while ts < data.event_log[Data.time_stamp].max():
-            for index, row in data.event_log[(data.event_log[Data.time_stamp] > ts) & (data.event_log[Data.time_stamp] <= ts + volume)].iterrows():
-                I[row[Data.user]][row[Data.contagion_id]] = True
-            indicators.append(I)
-            I = copy.deepcopy(I)
-            ts += volume
-        Y = np.sum(indicators[0], axis=1)
-        self._estimate(Y, a_matrix, cc_matrix, data, indicators)
-
-    def estimate_hybride_batch(self, data):
+    def estimate_hybrid_batch(self, data):
         # TODO Implement
         pass
-
-    # def estimateVector(self,Data):
-    #     #TODO Implement
-    #     indykatory_est = []
-    #     I = np.full((Data.num_users_, Data.num_contagions), False, dtype=bool)
-    #     for i in range(history):
-    #         for index, row in event_log[event_log['ts'] == i].iterrows():
-    #             I[row['userNEW'], row['tagID']] = True
-    #         indykatory_est.append(I)
-    #         I = copy.deepcopy(I)
-    #
-    # def _estimate(self,Data):
-    #     #TODO Implement
-    #     # Construct matrix from vector

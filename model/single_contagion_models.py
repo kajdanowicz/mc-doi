@@ -1,10 +1,10 @@
 from abc import abstractmethod
 
+
 class BaseSingleContagionDiffusionModel:
     """
-    # TODO Finish docstring
-    Base class for multi-contagion diffusion models. Each class inheriting class should have :mathod: fit and
-    :method: predict methods.
+    Base class for multi-contagion diffusion models. Each class inheriting from
+    :class:`BaseSingleContagionDiffusionModel` should have :name:`fit` method and :name:`predict` method implemented.
     """
 
     @abstractmethod
@@ -17,7 +17,7 @@ class BaseSingleContagionDiffusionModel:
     @abstractmethod
     def predict(self, num_iterations: int):
         """
-        Base method for prediction of information diffusion in multi-contagion world. It evaluates model's specific
+        Base method for prediction of information diffusion in single-contagion world. It evaluates model's specific
         prediction methods.
         """
         pass

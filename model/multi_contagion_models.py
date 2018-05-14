@@ -12,9 +12,8 @@ from abc import abstractmethod
 
 class BaseMultiContagionDiffusionModel:
     """
-    # TODO Finish docstring
-    Base class for multi-contagion diffusion models. Each class inheriting class should have :mathod: fit and
-    :method: predict methods.
+    Base class for multi-contagion diffusion models. Each class inheriting from
+    :class:`BaseMultiContagionDiffusionModel` should have :name:`fit` and :name:`predict` methods.
     """
 
     @abstractmethod
@@ -32,7 +31,9 @@ class BaseMultiContagionDiffusionModel:
         """
         pass
 
+
 class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
+    # TODO Finish docstring - attributes description (even those defined outside __init__)
     """
     The base class for Mutli-Contagion Diffusion of Information MultiContagionDynamicThresholdModel.
 
@@ -48,11 +49,6 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
     thresholds : Threshold
         Stores dynamic threshold of all users in the form of a matrix. Entries for specific user are equal
         across all columns.
-
-    Methods
-    -------
-
-
     """
 
     def __init__(self):
@@ -63,6 +59,8 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
 
     def fit(self, data: Data, **kwargs):
         """
+        Fit Multi-Contagion Dynamic Threshold models parameters according to :name:`data`. Method evaluates parameters specific
+        estimation procedures.
 
         Parameters
         ----------
@@ -132,7 +130,7 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
         global num_activations
         num_activations = 0
         result = Results()
-        self.adjacency._transpose()
+        self.adjacency.transpose()
         for l in range(num_iterations):
             result.add_result(self.__single_iteration())
         print(num_activations)

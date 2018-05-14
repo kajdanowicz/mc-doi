@@ -28,11 +28,12 @@ class BaseParameter:
 
 
 class Adjacency(BaseParameter):
-    # TODO Implement assign_matrix method
+    # TODO write docstring
     def __init__(self):
         super(Adjacency, self).__init__()
 
     def estimate(self, data: Data, **kwargs):
+        # TODO write dosctring
         if data.sorted is False:
             raise NameError('Data not sorted. Can not estimate adjacency matrix.')
         self.num_users_ = data.num_users
@@ -55,7 +56,10 @@ class Adjacency(BaseParameter):
         #TODO Implement this method
         pass
 
-    def _transpose(self):
+    def transpose(self):
+        """
+        Creates :name:`matrix_transposed_` attribute containing transposition of :name:`matrix`.
+        """
         if self.__dict__.get('matrix_transposed_',None) is None:
             self.matrix_transposed_ = self.matrix.transpose()
 
@@ -93,10 +97,67 @@ class Adjacency(BaseParameter):
                     G[v][u]['weight'] /= in_degree
         self.matrix = nx.adjacency_matrix(G, weight='weight')
 
-    def __MLE_Bernoulli_trial(self, v, u):
+    def __MLE_Bernoulli_trial(self, v: int, u: int) -> float:
+        """
+        Computes (v,u) edge probability in sense of the Independent Cascade Model using Maximum Likelihood Estimator
+        for Bernoulli distribution.
+
+        Parameters
+        ----------
+        v : int
+            Source node.
+        u : int
+            Target node.
+
+        Returns
+        -------
+        float
+            Calculated edge probability in sense of the Independent Cascade Model.
+
+
+        According to [1]_ in Bernoulli distribution static model:
+
+        .. math:: p_{v,u} = \frac{A_{v2u } }{A_v },
+
+        where :math:`A_{v2u}` is the number of actions propagate from :math:`v` to :math:`u` and :math:`A_{v}` is the
+        number of actions performed by :math:`v`.
+
+        .. [1] Goyal, A., Bonchi, F., & Lakshmanan, L. V. S. (2010). Learning influence probabilities in social
+            networks. In Proceedings of the third ACM international conference on Web search and data mining - WSDM ’10 (
+            p. 241).
+
+        """
         return round(float(self.v_2_u_[(v, u)]) / float(self.u_[v]), 6)
 
     def __MLE_Jaccard_index(self, v, u):
+        """
+        Computes (v,u) edge probability in sense of the Independent Cascade Model using Jaccard index.
+
+        Parameters
+        ----------
+        v : int
+            Source node.
+        u : int
+            Target node.
+
+        Returns
+        -------
+        float
+            Calculated edge probability in sense of the Independent Cascade Model.
+
+
+        According to [1]_ in Jaccard index static model:
+
+        .. math:: p_{v,u} = \frac{A_{v2u } }{A{u|v} },
+
+        where :math:`A_{v2u}` is the number of actions propagate from :math:`v` to :math:`u` and :math:`A_{u|v}` is the
+        number of actions performed either by :math:`u` or :math:`v`.
+
+        .. [1] Goyal, A., Bonchi, F., & Lakshmanan, L. V. S. (2010). Learning influence probabilities in social
+            networks. In Proceedings of the third ACM international conference on Web search and data mining - WSDM ’10 (
+            p. 241).
+
+        """
         if self.v_2_u_[(v, u)] != 0:
             return round(float(self.v_2_u_[(v, u)]) / float(self.u_[v]+self.u_[u]-(self.v_and_u_[(u,v)]+self.v_and_u_[(v,u)])), 6)
         else:
@@ -127,6 +188,7 @@ class ContagionCorrelation(BaseParameter):
         self.num_users_performing_events = None
 
     def estimate(self,data, **kwargs):
+        # TODO write docstring
         """
         """
         # TODO Reconsider sparse matrix implementation
@@ -222,11 +284,9 @@ class Threshold(BaseParameter):
         Y = np.sum(indicators[0], axis=1)
         self._estimate(Y, a_matrix, cc_matrix, data, indicators)
 
-    def _estimate(self, Y, a_matrix, cc_matrix, data, indicators):
+    def _estimate(self, Y, a_matrix: Adjacency, cc_matrix, data, indicators):
         # TODO refactor
-        a_matrix._transpose()
-        # print('Adjacency.matrix_transposed_.shape', Adjacency.matrix_transposed_.shape)
-        # print('indicators[0].shape', indicators[0].shape)
+        a_matrix.transpose()
         max_neg = defaultdict(lambda : -2)
         min_pos = defaultdict(lambda : 2)
         for l in range(len(indicators) - 1):

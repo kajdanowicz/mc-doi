@@ -2,7 +2,7 @@ import numpy as np
 import math
 import pickle
 from model.contagion_correlation import ContagionCorrelation
-from model.adjacency import Adjacency
+from model.parameters import Adjacency
 from model.threshold import Threshold
 from model.results import SingleIterResult
 from model.results import Results

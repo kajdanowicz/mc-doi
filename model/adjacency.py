@@ -50,10 +50,9 @@ class Adjacency():
     def _calculate_weights(self, graph):
         G = graph.to_directed()
         nx.set_edge_attributes(G, 0, 'weight')
-        for v in self.u_:
+        for v in self.u_.keys():
             for u in G.successors(v):
-                # TODO Implement Jaccard index MLE
-                G[v][u]['weight'] = self.__MLE_Bernoulli_trial(u, v)
+                G[v][u]['weight'] = self.__MLE_Jaccard_index(v, u)
         for i in G.nodes():
             in_degree = G.in_degree(i, weight='weight')
             if in_degree != 0:
@@ -61,8 +60,14 @@ class Adjacency():
                     G[v][u]['weight'] /= in_degree
         self.matrix = nx.adjacency_matrix(G, weight='weight')
 
-    def __MLE_Bernoulli_trial(self, u, v):
+    def __MLE_Bernoulli_trial(self, v, u):
         return round(float(self.v_2_u_[(v, u)]) / float(self.u_[v]), 6)
+
+    def __MLE_Jaccard_index(self, v, u):
+        if self.v_2_u_[(v, u)] != 0:
+            return round(float(self.v_2_u_[(v, u)]) / float(self.u_[v]+self.u_[u]-(self.v_and_u_[(u,v)]+self.v_and_u_[(v,u)])), 6)
+        else:
+            return 0
 
     def __reset_event_queue(self):
         self.event_queue_ = dict()

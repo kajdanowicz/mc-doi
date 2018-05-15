@@ -77,7 +77,7 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
             print('ContagionCorrelation')
             self.estimate_adjacency_matrix(data)
             print('Adjacency')
-            self.estimate_threshold_matrix(data, adjcacency = self.adjacency, correlation = self.contagion_correlation, **kwargs)
+            self.estimate_threshold_matrix(data, adjacency = self.adjacency, correlation = self.contagion_correlation, **kwargs)
             print('Threshold')
             self.fill_state_matrix(data)
             print('State')
@@ -100,8 +100,8 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
     def estimate_adjacency_matrix(self, data: Data, **kwargs):
         self.adjacency.estimate(data, **kwargs)
 
-    def estimate_threshold_matrix(self, data: Data, adjacency, contagion_correlation, **kwargs):
-        self.thresholds.estimate(data, adjacency, contagion_correlation, **kwargs)
+    def estimate_threshold_matrix(self, data: Data, adjacency, correlation, **kwargs):
+        self.thresholds.estimate(data, adjacency=adjacency, correlation=correlation, **kwargs)
 
     def to_pickle(self, directory):
         # TODO directory + ... -> fileName

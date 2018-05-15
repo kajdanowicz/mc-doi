@@ -72,18 +72,17 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
         **kwargs
             Arbitrary keyword arguments.
         """
-        # TODO Change logic: either all model parameters or None
-        if self.contagion_correlation.matrix is None:
+        if (self.contagion_correlation.matrix is None) and (self.adjacency.matrix is None) and (self.thresholds.matrix in None):
             self.estimate_contagion_correlation_matrix(data)
             print('ContagionCorrelation')
-        if self.adjacency.matrix is None:
             self.estimate_adjacency_matrix(data)
             print('Adjacency')
-        if self.thresholds.matrix is None:
             self.estimate_threshold_matrix(data, self.adjacency, self.contagion_correlation, **kwargs)
-        print('Threshold')
-        self.fill_state_matrix(data)
-        print('State')
+            print('Threshold')
+            self.fill_state_matrix(data)
+            print('State')
+        else:
+            raise NameError('Can not estimate parameters when any of them is already assigned')
 
     def fill_state_matrix(self, data):
         # TODO Make class for state_matrix, inherit from SingleIterResult

@@ -33,7 +33,6 @@ class BaseMultiContagionDiffusionModel:
 
 
 class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
-    # TODO Finish docstring - attributes description (even those defined outside __init__)
     """
     The base class for Mutli-Contagion Diffusion of Information MultiContagionDynamicThresholdModel.
 
@@ -49,6 +48,10 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
     thresholds : Threshold
         Stores dynamic threshold of all users in the form of a matrix. Entries for specific user are equal
         across all columns.
+    state_matrix_ : SingleIterResult
+        Stores the current state of the network in the sense of users activity in particular contagions.
+    activity_index_vector_ : numpy.array
+        Stores the current number of activations performed by each user.
     """
 
     def __init__(self):

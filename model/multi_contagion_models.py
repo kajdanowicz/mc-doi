@@ -72,7 +72,7 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
         **kwargs
             Arbitrary keyword arguments.
         """
-        if (self.contagion_correlation.matrix is None) and (self.adjacency.matrix is None) and (self.thresholds.matrix in None):
+        if (self.contagion_correlation.matrix is None) and (self.adjacency.matrix is None) and (self.thresholds.matrix is None):
             self.estimate_contagion_correlation_matrix(data)
             print('ContagionCorrelation')
             self.estimate_adjacency_matrix(data)
@@ -85,9 +85,8 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
             raise NameError('Can not estimate parameters when any of them is already assigned')
 
     def fill_state_matrix(self, data):
-        # TODO Make class for state_matrix, inherit from SingleIterResult
         # TODO state_matrix_.matrix -> sparse
-        self.state_matrix_ = SingleIterResult()
+        self.state_matrix_ = StateMatrix()
         self.state_matrix_.num_contagions = data.num_contagions
         self.state_matrix_.num_users = data.num_users
         self.state_matrix_.matrix = np.full((self.state_matrix_.num_users, self.state_matrix_.num_contagions), False, dtype=bool)
@@ -222,3 +221,9 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
     def assign_activity_index_vector(self, activity_index_vector):
         # TODO Implement this method
         pass
+
+
+class StateMatrix(SingleIterResult):
+    # TODO Write docstring
+    def __init__(self):
+        super(StateMatrix, self).__init__()

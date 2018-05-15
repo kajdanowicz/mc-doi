@@ -1,7 +1,7 @@
 import copy
 
 
-class Results():
+class Results:
 
     def __init__(self):
         self.list_single_iter_results = []
@@ -17,6 +17,7 @@ class Results():
             return False
         else:
             return self.list_single_iter_results[result_num]
+
 
 class SingleIterResult():
 

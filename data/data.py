@@ -249,6 +249,7 @@ class Data:
             # review
 
     def construct_event_log_grouped(self):
+        # TODO verify map vs apply
         if Data.event_id not in self.event_log.columns:
             t = defaultdict(functools.partial(next, itertools.count()))
             self.event_log = self.event_log.assign(

@@ -77,7 +77,7 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
             print('ContagionCorrelation')
             self.estimate_adjacency_matrix(data)
             print('Adjacency')
-            self.estimate_threshold_matrix(data, self.adjacency, self.contagion_correlation, **kwargs)
+            self.estimate_threshold_matrix(data, adjcacency = self.adjacency, correlation = self.contagion_correlation, **kwargs)
             print('Threshold')
             self.fill_state_matrix(data)
             print('State')
@@ -131,7 +131,7 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
         global num_activations
         num_activations = 0
         result = Results()
-        self.adjacency.transpose()
+        self.adjacency.transposed()
         for l in range(num_iterations):
             result.add_result(self.__single_iteration())
         print(num_activations)

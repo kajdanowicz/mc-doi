@@ -78,7 +78,7 @@ class Adjacency(BaseParameter):
         #TODO Implement this method
         pass
 
-    def transpose(self):
+    def transposed(self):
         """
         Creates :name:`matrix_transposed_` attribute containing transposition of :name:`matrix`.
         """
@@ -213,6 +213,7 @@ class ContagionCorrelation(BaseParameter):
 
     def estimate(self,data, **kwargs):
         # TODO write docstring
+        # TODO consider L1 normalisation
         """
         Estimates contagion correlation matrix according to `data`.
 
@@ -270,10 +271,19 @@ class Threshold(BaseParameter):
         self.initial_matrix = None
         self.num_users = None
 
-    def estimate(self, data: Data, *args, **kwargs):
-        batch_type = kwargs.get('batch_type', None)
-        adjacency_matrix = args[0]
-        correlation_matrix = args[1]
+    def estimate(self, data: Data, **kwargs):
+        # TODO exception handling - bad matrices provided
+        """
+        Estimates threshold according to provided :class:`Data` object and
+        Parameters
+        ----------
+        data
+        args
+        kwargs
+        """
+        batch_type = kwargs.get('batch_type',None)
+        adjacency_matrix = kwargs.get('adjacency',None)
+        correlation_matrix = kwargs.get('correlation',None)
         batch_size = kwargs.get('batch_size')
         if batch_type == 'volume':
             self.estimate_volume_batch(data, adjacency_matrix, correlation_matrix, batch_size)
@@ -287,6 +297,7 @@ class Threshold(BaseParameter):
         pass
 
     def estimate_volume_batch(self, data, a_matrix, cc_matrix, batch_size):
+        # TODO I->sparse
         data.add_contagion_id()
         data.construct_event_log_grouped()
         indicators = []
@@ -303,7 +314,6 @@ class Threshold(BaseParameter):
 
     def estimate_time_batch(self, data, a_matrix, cc_matrix, batch_size):
         data.add_contagion_id()
-        data.construct_event_log_grouped()
         indicators = []
         I = np.full((data.num_users, data.num_contagions), False, dtype=bool)
         ts = 0
@@ -316,14 +326,20 @@ class Threshold(BaseParameter):
         Y = np.sum(indicators[0], axis=1)
         self._estimate(Y, a_matrix, cc_matrix, data, indicators)
 
-    def _estimate(self, Y, a_matrix: Adjacency, cc_matrix, data, indicators):
+    def estimate_hybrid_batch(self, data):
+        # TODO Implement
+        pass
+
+    def _estimate(self, Y, adjacency: Adjacency, correlation : ContagionCorrelation, data : Data, indicators : list):
         # TODO refactor
-        a_matrix.transpose()
+        adjacency.transposed()
         max_neg = defaultdict(lambda : -2)
         min_pos = defaultdict(lambda : 2)
         for l in range(len(indicators) - 1):
-            U = a_matrix.matrix_transposed_.dot(indicators[l])
-            F = U.dot(cc_matrix.matrix) / data.num_contagions
+            # TODO refactor according to MCDOI
+            U = adjacency.matrix_transposed_.dot(indicators[l])
+            F = U.dot(correlation.matrix) / data.num_contagions
+            # TODO export xor to indicators creation procedure
             temp = np.logical_xor(indicators[l], indicators[l + 1])  # aktywowane z l na l+1
             temp1 = np.logical_or(temp, indicators[l])  # nieaktywowane z l na l+1 z wylaczeniem wczesniej aktywnych (po nalozeniu nagacji)
             activated = set()
@@ -345,11 +361,6 @@ class Threshold(BaseParameter):
                 results.append(max(max_neg[user], 0))
             else:
                 results.append(max((max_neg[user] + min_pos[user]) / 2, 0))
-        # print(Results)
-        # print([(i,e) for i, e in enumerate(Results) if e != 0])
         self.matrix = np.repeat(np.asarray(results)[np.newaxis].T, data.num_contagions, axis=1)
         self.initial_matrix = copy.copy(self.matrix)
 
-    def estimate_hybrid_batch(self, data):
-        # TODO Implement
-        pass

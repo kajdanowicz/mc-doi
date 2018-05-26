@@ -31,6 +31,15 @@ class Adjacency(BaseParameter):
     # TODO Finish docstring - describe attributes
     """
     Class for estimation and storage of adjacency matrix in multi-contagion threshold model.
+
+    Attributes
+    ----------
+    matrix : numpy.array
+        Contains weighted adjacency matrix.
+    num_users_ : int
+        Number of users in social network.
+    matrix_transposed_ : numpy.array
+        Transposition of matrix
     """
     def __init__(self):
         super(Adjacency, self).__init__()
@@ -151,7 +160,7 @@ class Adjacency(BaseParameter):
         """
         return round(float(self.v_2_u_[(v, u)]) / float(self.u_[v]), 6)
 
-    def __jaccard_index(self, v, u):
+    def __jaccard_index(self, v:int, u:int) -> float:
         """
         Computes (v,u) edge probability in sense of the Independent Cascade Model using Jaccard index.
 
@@ -205,6 +214,15 @@ class Adjacency(BaseParameter):
 class ContagionCorrelation(BaseParameter):
     """
     Class for estimation and storage of contagion correlation matrix in multi-contagion model.
+
+    Attributes
+    ----------
+    matrix : numpy.array
+        Contains contagion correlation matrix.
+    num_contagions : int
+        Number of contagions in matrix
+    num_users_performing_events : int
+        Number of users active in at least one contagion.
     """
     def __init__(self):
         super(ContagionCorrelation, self).__init__()

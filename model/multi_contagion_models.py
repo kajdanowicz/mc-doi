@@ -74,13 +74,13 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
         """
         if (self.contagion_correlation.matrix is None) and (self.adjacency.matrix is None) and (self.thresholds.matrix is None):
             self.estimate_contagion_correlation_matrix(data)
-            print('ContagionCorrelation')
+            # print('ContagionCorrelation')
             self.estimate_adjacency_matrix(data)
-            print('Adjacency')
+            # print('Adjacency')
             self.estimate_threshold_matrix(data, adjacency = self.adjacency, correlation = self.contagion_correlation, **kwargs)
-            print('Threshold')
+            # print('Threshold')
             self.fill_state_matrix(data)
-            print('State')
+            # print('State')
         else:
             raise NameError('Can not estimate parameters when any of them is already assigned')
 

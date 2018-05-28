@@ -134,7 +134,7 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
         self.adjacency.transposed()
         for l in range(num_iterations):
             result.add_result(self.__single_iteration())
-        print(num_activations)
+        # print(num_activations)
         return result
 
     def __single_iteration(self) -> SingleIterResult:

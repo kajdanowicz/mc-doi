@@ -67,10 +67,9 @@ class Data:
 
     @staticmethod
     def verify_users_correct(event_log_df, edges_df):
-        if set(event_log_df['user']).issubset(edges_df[Data.user_1].append(edges_df[Data.user_2])):
-            return True
-        else:
-            return False
+        if not set(event_log_df['user']).issubset(edges_df[Data.user_1].append(edges_df[Data.user_2])):
+            raise NameError('Users verification not passed!')
+        return True
 
     # TODO find faster way
     # review

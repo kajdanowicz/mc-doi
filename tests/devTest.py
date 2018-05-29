@@ -44,11 +44,12 @@ def send_email():
         mail.close()
 
 def main():
+    directory = '/datasets/mcdoi/louvain/louvain_46_720/'
     try:
         d = Data()
         d.load_data(directory)
         m = MCDOI()
-        m.fit(d, batch_type = 'volume', batch_size = 50)
+        m.fit(d, batch_type = 'time', batch_size = 86400)
         m.predict(3) #predict(3) zwraca 63 aktywacje
     except Exception as err:
         writeToLogger(err.args)

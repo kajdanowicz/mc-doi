@@ -10,6 +10,8 @@ from numpy import ndarray
 
 from data.data import Data
 
+from tqdm import trange
+
 
 class BaseParameter:
     """
@@ -250,7 +252,7 @@ class ContagionCorrelation(BaseParameter):
         self.num_users_performing_events=len(data.event_log.user.unique())
         unique_event_log = data.event_log[[Data.user, Data.contagion_id]].drop_duplicates(subset=None, keep='first', inplace=False)
         co_occurrence_counter = pd.merge(unique_event_log[[Data.user, Data.contagion_id]], unique_event_log[[Data.user, Data.contagion_id]], on=Data.user,suffixes=('_1','_2')).groupby([Data.contagion_id+'_1',Data.contagion_id+'_2']).count()
-        for i in range(self.num_contagions):
+        for i in trange(self.num_contagions):
             count_i = float(co_occurrence_counter.loc[(i, i)].values[0])
             for j in range(i + 1, self.num_contagions):
                 count_j = float(co_occurrence_counter.loc[(j, j)].values[0])

@@ -58,7 +58,7 @@ def save_parameters(m: MCDOI, dir):
         pickle.dump(m.thresholds.matrix, threshold_file)
 
 
-def estimate_and_predict(d, batch_type, batch_size, num_predictions):
+def estimate_and_predict(d, dir, batch_type, batch_size, num_predictions):
     try:
         m = MCDOI()
         m.fit(d, batch_type = batch_type, batch_size = batch_size)

@@ -8,11 +8,43 @@ from data.data import Data
 from model.results import Results
 import pickle
 from tqdm import tqdm
+import numpy as np
+import pandas as pd
+from data.data import Data
+from model.parameters import ContagionCorrelation, Adjacency
+from copy import copy
 
 
 directory = '/datasets/mcdoi/louvain/'
 
-# print(next(os.walk(directory))[1]) # all subdirectories in directory
+from joblib import Parallel, delayed
+import time
+def text_progessbar(seq, total=None):
+    step = 1
+    tick = time.time()
+    while True:
+        time_diff = time.time()-tick
+        avg_speed = time_diff/step
+        total_str = 'of %n' % total if total else ''
+        print('step', step, '%.2f' % time_diff, 'avg: %.2f iter/sec' % avg_speed, total_str)
+        step += 1
+        yield next(seq)
+all_bar_funcs = {
+    'txt': lambda args: lambda x: text_progessbar(x, **args),
+    'None': lambda args: iter,
+}
+def ParallelExecutor(use_bar='tqdm', **joblib_args):
+    def aprun(bar=use_bar, **tq_args):
+        def tmp(op_iter):
+            if str(bar) in all_bar_funcs.keys():
+                bar_func = all_bar_funcs[str(bar)](tq_args)
+            else:
+                raise ValueError("Value %s not supported as bar type"%bar)
+            return Parallel(**joblib_args)(bar_func(op_iter))
+        return tmp
+    return aprun
+
+aprun = ParallelExecutor(n_jobs=12)
 
 batch_sizes = [60, 3600, 43200, 86400, 604800]
 
@@ -73,12 +105,39 @@ def estimate_and_predict(d, dir, batch_type, batch_size, num_predictions):
         send_email()
 
 
-for dataset in ['louvain_46_720']:#tqdm(next(os.walk(directory))[1]):
+def proceed_with_history(history_length, directory, dataset, edges):
+    dir = directory + dataset + '/history_' + str(history_length)
+    event_log = pd.read_csv(dir + '/event_log')
     d = Data()
-    d.load_data(directory+dataset+'/')
-    if d.num_contagions <= 25000:
-        for batch_size in tqdm(batch_sizes):
-            estimate_and_predict(d, 'time', batch_size, 3)
-    else:
-        print('Number of contagions in "' + dataset + '" is equal to ' + str(d.num_contagions) + ', it is too much.')
-    print(dataset + ' done!')
+    d.load_data_data_frame(event_log, copy(edges))
+    cc = ContagionCorrelation()
+    cc.estimate(d)
+    contagion_file_name = dir + '/contagion.pickle'
+    os.makedirs(os.path.dirname(contagion_file_name), exist_ok=True)
+    with open(contagion_file_name, 'wb') as contagion_file:
+        pickle.dump(cc.matrix, contagion_file)
+    a = Adjacency()
+    a.estimate(d)
+    adjacency_file_name = dir + '/adjacency.pickle'
+    os.makedirs(os.path.dirname(adjacency_file_name), exist_ok=True)
+    with open(adjacency_file_name, 'wb') as adjacency_file:
+        pickle.dump(a.matrix, adjacency_file)
+
+
+for dataset in ['louvain_46_720']:#tqdm(next(os.walk(directory))[1]):
+    dir = directory + dataset
+    edges = pd.read_csv(dir+'/edges')
+    aprun(bar='txt')(delayed(proceed_with_history)(history_length, directory, dataset, edges) for history_length in np.arange(1,31,1))
+
+
+
+
+
+    # d = Data()
+    # d.load_data(dir)
+    # if d.num_contagions <= 25000:
+    #     for batch_size in tqdm(batch_sizes[0:1]):
+    #         estimate_and_predict(d, dir, 'time', batch_size, 3)
+    # else:
+    #     print('Number of contagions in "' + dataset + '" is equal to ' + str(d.num_contagions) + ', it is too much.')
+    # print(dataset + ' done!')

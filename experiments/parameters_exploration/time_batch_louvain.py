@@ -124,10 +124,10 @@ def proceed_with_history(history_length, directory, dataset, edges):
         pickle.dump(a.matrix, adjacency_file)
 
 
-for dataset in ['louvain_46_720']:#tqdm(next(os.walk(directory))[1]):
+for dataset in tqdm(next(os.walk(directory))[1]):
     dir = directory + dataset
     edges = pd.read_csv(dir+'/edges')
-    aprun(bar='txt')(delayed(proceed_with_history)(history_length, directory, dataset, edges) for history_length in np.arange(1,31,1))
+    aprun(bar='None')(delayed(proceed_with_history)(history_length, directory, dataset, edges) for history_length in np.arange(1,31,1))
 
 
 

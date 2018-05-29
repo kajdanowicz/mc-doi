@@ -8,6 +8,11 @@ from data.data import Data
 from model.results import Results
 import pickle
 from tqdm import tqdm
+import numpy as np
+import pandas as pd
+from data.data import Data
+from model.parameters import ContagionCorrelation, Adjacency
+
 
 
 directory = '/datasets/mcdoi/louvain/'
@@ -74,12 +79,27 @@ def estimate_and_predict(d, dir, batch_type, batch_size, num_predictions):
 
 
 for dataset in ['louvain_46_720']:#tqdm(next(os.walk(directory))[1]):
-    dir = directory+dataset+'/'
-    d = Data()
-    d.load_data(dir)
-    if d.num_contagions <= 25000:
-        for batch_size in tqdm(batch_sizes[0:1]):
-            estimate_and_predict(d, dir, 'time', batch_size, 3)
-    else:
-        print('Number of contagions in "' + dataset + '" is equal to ' + str(d.num_contagions) + ', it is too much.')
-    print(dataset + ' done!')
+    dir = directory + dataset
+    edges = pd.read_csv(dir+'/edges')
+    for history_length in tqdm(np.arange(1,31,1)):
+        dir = directory + dataset +'/history_'+str(history_length)
+        event_log = pd.read_csv(dir+'/event_log')
+        d = Data()
+        d.load_data_data_frame(event_log,edges)
+        cc = ContagionCorrelation()
+        cc.estimate(d)
+        print(cc.num_contagions_)
+        a = Adjacency()
+        a.estimate(d)
+        print(a.num_users_)
+
+
+
+    # d = Data()
+    # d.load_data(dir)
+    # if d.num_contagions <= 25000:
+    #     for batch_size in tqdm(batch_sizes[0:1]):
+    #         estimate_and_predict(d, dir, 'time', batch_size, 3)
+    # else:
+    #     print('Number of contagions in "' + dataset + '" is equal to ' + str(d.num_contagions) + ', it is too much.')
+    # print(dataset + ' done!')

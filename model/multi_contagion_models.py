@@ -205,9 +205,8 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
     def assign_contagions_correlation_matrix(self, matrix):
         self.contagion_correlation.assign_matrix(matrix)
 
-    def assign_adjacency_matrix(self, adjacency_matrix):
-        # TODO Implement this method
-        pass
+    def assign_adjacency_matrix(self, matrix):
+        self.adjacency.assign_matrix(matrix)
 
     def assign_thresholds_matrix(self, thresholds_vector):
         # TODO Implement this method

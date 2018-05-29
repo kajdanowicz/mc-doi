@@ -58,7 +58,7 @@ def save_parameters(m: MCDOI, dir):
         pickle.dump(m.thresholds.matrix, threshold_file)
 
 
-def estimate_and_predict(d, batch_type, batch_size, num_predictions):
+def estimate_and_predict(d, dir, batch_type, batch_size, num_predictions):
     try:
         m = MCDOI()
         m.fit(d, batch_type = batch_type, batch_size = batch_size)
@@ -74,11 +74,12 @@ def estimate_and_predict(d, batch_type, batch_size, num_predictions):
 
 
 for dataset in ['louvain_46_720']:#tqdm(next(os.walk(directory))[1]):
+    dir = directory+dataset+'/'
     d = Data()
-    d.load_data(directory+dataset+'/')
+    d.load_data(dir)
     if d.num_contagions <= 25000:
-        for batch_size in tqdm(batch_sizes):
-            estimate_and_predict(d, 'time', batch_size, 3)
+        for batch_size in tqdm(batch_sizes[0:1]):
+            estimate_and_predict(d, dir, 'time', batch_size, 3)
     else:
         print('Number of contagions in "' + dataset + '" is equal to ' + str(d.num_contagions) + ', it is too much.')
     print(dataset + ' done!')

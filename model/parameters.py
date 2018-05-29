@@ -262,9 +262,11 @@ class ContagionCorrelation(BaseParameter):
                 self.matrix[i][j] = contagion_correlation
                 self.matrix[j][i] = contagion_correlation
 
-    def assign_matrix(self, matrix):
-        #TODO Implement this method
-        pass
+    def assign_matrix(self, matrix: ndarray):
+        # TODO Handle self.num_users_performing_events attribute
+        self.matrix = matrix
+        self.num_contagions = matrix.shape[0]
+
 
     def verify_matrix_symmetry(self, matrix=None):
         if matrix is None:

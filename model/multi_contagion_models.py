@@ -197,7 +197,7 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
         return np.greater_equal(activation_matrix, self.thresholds.matrix)
 
     def __activation_matrix(self, influence_matrix):
-        return influence_matrix.dot(self.contagion_correlation.matrix) / self.contagion_correlation.num_contagions
+        return influence_matrix.dot(self.contagion_correlation.matrix) / self.contagion_correlation.num_contagions_
 
     def __influence_matrix(self):
         return self.adjacency.matrix_transposed_.dot(self.state_matrix_.matrix)

@@ -11,7 +11,7 @@ class Results:
         self.list_single_iter_results.append(copy.copy(result))
         self.num_results += 1
 
-    def get_result(self, result_num):
+    def get_result(self, result_num: int):
         # TODO Implement exceptions
         if result_num >= self.num_results:
             return False

@@ -83,9 +83,9 @@ class Adjacency(BaseParameter):
         self.__clean_counters()
         # review function
 
-    def assign_matrix(self, matrix):
-        #TODO Implement this method
-        pass
+    def assign_matrix(self, matrix: ndarray):
+        self.matrix = matrix
+        self.num_users_ = matrix.shape[0]
 
     def transposed(self):
         """

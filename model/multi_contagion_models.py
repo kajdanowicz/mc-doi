@@ -84,6 +84,16 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
         else:
             raise NameError('Can not estimate parameters when any of them is already assigned')
 
+    def fit_only_thresholds_states(self, data: Data, **kwargs):
+        if (self.contagion_correlation.matrix is not None) and (self.adjacency.matrix is not None):
+            self.estimate_threshold_matrix(data, adjacency=self.adjacency, correlation=self.contagion_correlation, **kwargs)
+            # print('Threshold')
+            self.fill_state_matrix(data)
+            # print('State')
+        else:
+            raise NameError('Can not estimate threshold - contagion correlation matrix or adjacency matrix not assigned')
+
+
     def fill_state_matrix(self, data):
         # TODO state_matrix_.matrix -> sparse
         self.state_matrix_ = StateMatrix()
@@ -197,18 +207,16 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
         return np.greater_equal(activation_matrix, self.thresholds.matrix)
 
     def __activation_matrix(self, influence_matrix):
-        return influence_matrix.dot(self.contagion_correlation.matrix) / self.contagion_correlation.num_contagions
+        return influence_matrix.dot(self.contagion_correlation.matrix) / self.contagion_correlation.num_contagions_
 
     def __influence_matrix(self):
         return self.adjacency.matrix_transposed_.dot(self.state_matrix_.matrix)
 
     def assign_contagions_correlation_matrix(self, matrix):
-        # TODO Implement this method
-        pass
+        self.contagion_correlation.assign_matrix(matrix)
 
-    def assign_adjacency_matrix(self, adjacency_matrix):
-        # TODO Implement this method
-        pass
+    def assign_adjacency_matrix(self, matrix):
+        self.adjacency.assign_matrix(matrix)
 
     def assign_thresholds_matrix(self, thresholds_vector):
         # TODO Implement this method

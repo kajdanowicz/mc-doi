@@ -203,8 +203,7 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
         return self.adjacency.matrix_transposed_.dot(self.state_matrix_.matrix)
 
     def assign_contagions_correlation_matrix(self, matrix):
-        # TODO Implement this method
-        pass
+        self.contagion_correlation.assign_matrix(matrix)
 
     def assign_adjacency_matrix(self, adjacency_matrix):
         # TODO Implement this method

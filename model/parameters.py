@@ -10,6 +10,8 @@ from numpy import ndarray
 
 from data.data import Data
 
+from tqdm import trange
+
 
 class BaseParameter:
     """

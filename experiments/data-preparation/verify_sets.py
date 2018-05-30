@@ -14,6 +14,7 @@ from data.data import Data
 
 directory = '/datasets/mcdoi/louvain/'
 
+open(directory+'sets_to_omit', 'w', encoding='utf-8').close()
 for dataset in tqdm(next(os.walk(directory))[1]):
     secik = directory + dataset
     edges = pd.read_csv(secik + '/edges')
@@ -22,7 +23,9 @@ for dataset in tqdm(next(os.walk(directory))[1]):
         event_log = pd.read_csv(secik + '/event_log')
         event_log.columns = ['ts', 'user', 'contagion']
         if not set(event_log['user']).issubset(edges['user1'].append(edges['user2'])):
-            print(dataset)
+            with open(directory+'sets_to_omit', 'a', encoding='utf-8') as handle:
+                handle.write(dataset + '\n')
     else:
-        print('event_log empty in '+dataset)
+        with open(directory + 'sets_to_omit', 'a', encoding='utf-8') as handle:
+            handle.write(dataset + '\n')
 

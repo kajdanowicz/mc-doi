@@ -44,7 +44,7 @@ def ParallelExecutor(use_bar='tqdm', **joblib_args):
         return tmp
     return aprun
 
-aprun = ParallelExecutor(n_jobs=1)
+aprun = ParallelExecutor(n_jobs=20)
 
 batch_sizes = [60, 3600, 43200, 86400, 604800]
 
@@ -109,7 +109,7 @@ def proceed_with_history(history_length, directory, dataset, edges):
     dir = directory + dataset + '/history_' + str(history_length)
     if sum(1 for line in open(dir + '/event_log', 'r', encoding='utf-8')) > 0:
         event_log = pd.read_csv(dir + '/event_log', header=None)
-        if (event_log.shape[0] > 0) & (len(event_log.iloc[:,2].unique()) <= 2500):
+        if len(event_log.iloc[:, 2].unique()) <= 2500:
             d = Data()
             d.load_data_data_frame(event_log, copy(edges))
             cc = ContagionCorrelation()
@@ -137,16 +137,24 @@ with open(directory + 'sets_to_omit', 'r', encoding='utf-8') as sets_to_omit:
 
 sets_to_omit = set([x.strip() for x in sets_to_omit])
 
-for dataset in tqdm(next(os.walk(directory))[1]):
+# for dataset in tqdm(next(os.walk(directory))[1]):
+#     if dataset not in sets_to_omit:
+#         open(directory+'not_estimated', 'w', encoding='utf-8').close()
+#         dir = directory + dataset
+#         edges = pd.read_csv(dir+'/edges')
+#         aprun(bar='None')(delayed(proceed_with_history)(history_length, directory, dataset, edges) for history_length in np.arange(1,31,1))
+
+
+def proceed_dataset(dataset, sets_to_omit):
     if dataset not in sets_to_omit:
-        open(directory+'not_estimated', 'w', encoding='utf-8').close()
         dir = directory + dataset
-        edges = pd.read_csv(dir+'/edges')
-        aprun(bar='None')(delayed(proceed_with_history)(history_length, directory, dataset, edges) for history_length in np.arange(1,31,1))
+        edges = pd.read_csv(dir + '/edges')
+        for history_length in np.arange(1, 31, 1):
+            proceed_with_history(history_length, directory, dataset, edges)
 
 
-
-
+open(directory + 'not_estimated', 'w', encoding='utf-8').close()
+aprun(bar='txt')(delayed(proceed_dataset)(dat, sets_to_omit) for dat in next(os.walk(directory))[1])
 
     # d = Data()
     # d.load_data(dir)

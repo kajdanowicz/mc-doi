@@ -44,7 +44,7 @@ def ParallelExecutor(use_bar='tqdm', **joblib_args):
         return tmp
     return aprun
 
-aprun = ParallelExecutor(n_jobs=12)
+aprun = ParallelExecutor(n_jobs=1)
 
 batch_sizes = [60, 3600, 43200, 86400, 604800]
 
@@ -107,28 +107,32 @@ def estimate_and_predict(d, dir, batch_type, batch_size, num_predictions):
 
 def proceed_with_history(history_length, directory, dataset, edges):
     dir = directory + dataset + '/history_' + str(history_length)
-    event_log = pd.read_csv(dir + '/event_log', header = None, names = ['ts','user','contagion'])
-    if len(event_log['contagion'].unique()) <= 2500:
-        d = Data()
-        d.load_data_data_frame(event_log, copy(edges))
-        cc = ContagionCorrelation()
-        cc.estimate(d)
-        contagion_file_name = dir + '/contagion.pickle'
-        os.makedirs(os.path.dirname(contagion_file_name), exist_ok=True)
-        with open(contagion_file_name, 'wb') as contagion_file:
-            pickle.dump(cc.matrix, contagion_file)
-        a = Adjacency()
-        a.estimate(d)
-        adjacency_file_name = dir + '/adjacency.pickle'
-        os.makedirs(os.path.dirname(adjacency_file_name), exist_ok=True)
-        with open(adjacency_file_name, 'wb') as adjacency_file:
-            pickle.dump(a.matrix, adjacency_file)
+    if sum(1 for line in open(dir + '/event_log', 'r', encoding='utf-8')) > 0:
+        event_log = pd.read_csv(dir + '/event_log', header=None)
+        if (event_log.shape[0] > 0) & (len(event_log.iloc[:,2].unique()) <= 2500):
+            d = Data()
+            d.load_data_data_frame(event_log, copy(edges))
+            cc = ContagionCorrelation()
+            cc.estimate(d)
+            contagion_file_name = dir + '/contagion.pickle'
+            os.makedirs(os.path.dirname(contagion_file_name), exist_ok=True)
+            with open(contagion_file_name, 'wb') as contagion_file:
+                pickle.dump(cc.matrix, contagion_file)
+            a = Adjacency()
+            a.estimate(d)
+            adjacency_file_name = dir + '/adjacency.pickle'
+            os.makedirs(os.path.dirname(adjacency_file_name), exist_ok=True)
+            with open(adjacency_file_name, 'wb') as adjacency_file:
+                pickle.dump(a.matrix, adjacency_file)
+        else:
+            with open(directory+'not_estimated', 'a', encoding='utf-8') as file:
+                file.write(dataset + '/history_' + str(history_length) + '\n')
     else:
-        with open(directory+'not_estimated', 'a', encoding='utf-8') as file:
+        with open(directory + 'not_estimated', 'a', encoding='utf-8') as file:
             file.write(dataset + '/history_' + str(history_length) + '\n')
 
 
-for dataset in tqdm(next(os.walk(directory))[1][:1]):
+for dataset in tqdm(next(os.walk(directory))[1][1:]):
     open(directory+'not_estimated', 'w', encoding='utf-8').close()
     dir = directory + dataset
     edges = pd.read_csv(dir+'/edges')

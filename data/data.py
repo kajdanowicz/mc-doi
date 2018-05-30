@@ -67,8 +67,9 @@ class Data:
 
     @staticmethod
     def verify_users_correct(event_log_df, edges_df):
-        # print(set(event_log_df['user']).difference(edges_df[Data.user_1].append(edges_df[Data.user_2])))
+        # print(set(event_log_df['user']).intersection(edges_df[Data.user_1].append(edges_df[Data.user_2])))
         if not set(event_log_df['user']).issubset(edges_df[Data.user_1].append(edges_df[Data.user_2])):
+            print(set(event_log_df['user']).difference(edges_df[Data.user_1].append(edges_df[Data.user_2])))
             raise NameError('Users verification not passed!')
         return True
 

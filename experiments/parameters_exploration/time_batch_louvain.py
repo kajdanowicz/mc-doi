@@ -107,27 +107,34 @@ def estimate_and_predict(d, dir, batch_type, batch_size, num_predictions):
 
 def proceed_with_history(history_length, directory, dataset, edges):
     dir = directory + dataset + '/history_' + str(history_length)
-    event_log = pd.read_csv(dir + '/event_log')
-    d = Data()
-    d.load_data_data_frame(event_log, copy(edges))
-    cc = ContagionCorrelation()
-    cc.estimate(d)
-    contagion_file_name = dir + '/contagion.pickle'
-    os.makedirs(os.path.dirname(contagion_file_name), exist_ok=True)
-    with open(contagion_file_name, 'wb') as contagion_file:
-        pickle.dump(cc.matrix, contagion_file)
-    a = Adjacency()
-    a.estimate(d)
-    adjacency_file_name = dir + '/adjacency.pickle'
-    os.makedirs(os.path.dirname(adjacency_file_name), exist_ok=True)
-    with open(adjacency_file_name, 'wb') as adjacency_file:
-        pickle.dump(a.matrix, adjacency_file)
+    event_log = pd.read_csv(dir + '/event_log', header = None, names = ['ts','user','contagion'])
+    if len(event_log['contagion'].unique()) <= 2500:
+        d = Data()
+        d.load_data_data_frame(event_log, copy(edges))
+        cc = ContagionCorrelation()
+        cc.estimate(d)
+        contagion_file_name = dir + '/contagion.pickle'
+        os.makedirs(os.path.dirname(contagion_file_name), exist_ok=True)
+        with open(contagion_file_name, 'wb') as contagion_file:
+            pickle.dump(cc.matrix, contagion_file)
+        a = Adjacency()
+        a.estimate(d)
+        adjacency_file_name = dir + '/adjacency.pickle'
+        os.makedirs(os.path.dirname(adjacency_file_name), exist_ok=True)
+        with open(adjacency_file_name, 'wb') as adjacency_file:
+            pickle.dump(a.matrix, adjacency_file)
+    else:
+        with open(directory+'not_estimated', 'a', encoding='utf-8') as file:
+            file.write(dataset + '/history_' + str(history_length) + '\n')
 
 
-for dataset in ['louvain_46_720']:#tqdm(next(os.walk(directory))[1]):
+
+
+for dataset in tqdm(next(os.walk(directory))[1]):
+    open(directory+'not_estimated', 'w', encoding='utf-8').close()
     dir = directory + dataset
     edges = pd.read_csv(dir+'/edges')
-    aprun(bar='txt')(delayed(proceed_with_history)(history_length, directory, dataset, edges) for history_length in np.arange(1,31,1))
+    aprun(bar='None')(delayed(proceed_with_history)(history_length, directory, dataset, edges) for history_length in np.arange(1,31,1))
 
 
 

@@ -128,9 +128,7 @@ def proceed_with_history(history_length, directory, dataset, edges):
             file.write(dataset + '/history_' + str(history_length) + '\n')
 
 
-
-
-for dataset in tqdm(next(os.walk(directory))[1]):
+for dataset in tqdm(next(os.walk(directory))[1][:1]):
     open(directory+'not_estimated', 'w', encoding='utf-8').close()
     dir = directory + dataset
     edges = pd.read_csv(dir+'/edges')

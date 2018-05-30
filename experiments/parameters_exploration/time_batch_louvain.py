@@ -132,11 +132,17 @@ def proceed_with_history(history_length, directory, dataset, edges):
             file.write(dataset + '/history_' + str(history_length) + '\n')
 
 
-for dataset in tqdm(next(os.walk(directory))[1][1:]):
-    open(directory+'not_estimated', 'w', encoding='utf-8').close()
-    dir = directory + dataset
-    edges = pd.read_csv(dir+'/edges')
-    aprun(bar='None')(delayed(proceed_with_history)(history_length, directory, dataset, edges) for history_length in np.arange(1,31,1))
+with open(directory + 'sets_to_omit', 'r', encoding='utf-8') as sets_to_omit:
+    sets_to_omit = sets_to_omit.readlines()
+
+sets_to_omit = set([x.strip() for x in sets_to_omit])
+
+for dataset in tqdm(next(os.walk(directory))[1]):
+    if dataset not in sets_to_omit:
+        open(directory+'not_estimated', 'w', encoding='utf-8').close()
+        dir = directory + dataset
+        edges = pd.read_csv(dir+'/edges')
+        aprun(bar='None')(delayed(proceed_with_history)(history_length, directory, dataset, edges) for history_length in np.arange(1,31,1))
 
 
 

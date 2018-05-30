@@ -16,7 +16,8 @@ from copy import copy
 
 directory = '/datasets/mcdoi/louvain/'
 
-communities = pickle.load('louvain_communities.pickle')
+with open(directory+'louvain_communities.pickle', 'rb') as handle:
+    communities = pickle.load(handle)
 
 user = 38346
 

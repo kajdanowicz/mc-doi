@@ -144,7 +144,7 @@ sets_to_omit = set([x.strip() for x in sets_to_omit])
 #         edges = pd.read_csv(dir+'/edges')
 #         aprun(bar='None')(delayed(proceed_with_history)(history_length, directory, dataset, edges) for history_length in np.arange(1,31,1))
 
-
+# single dataset passed by subdirectory name. All 30 histories proceeded in single thread
 def proceed_dataset(dataset, sets_to_omit):
     if dataset not in sets_to_omit:
         dir = directory + dataset
@@ -152,10 +152,49 @@ def proceed_dataset(dataset, sets_to_omit):
         for history_length in np.arange(1, 31, 1):
             proceed_with_history(history_length, directory, dataset, edges)
 
+def proceed_with_history_path(path_dataset_history, edges):
+    if sum(1 for line in open(path_dataset_history + '/event_log', 'r', encoding='utf-8')) > 0:
+        event_log = pd.read_csv(path_dataset_history + '/event_log', header=None)
+        if len(event_log.iloc[:, 2].unique()) <= 2500:
+            d = Data()
+            d.load_data_data_frame(event_log, edges)
+            cc = ContagionCorrelation()
+            cc.estimate(d)
+            contagion_file_name = path_dataset_history + '/contagion.pickle'
+            os.makedirs(os.path.dirname(contagion_file_name), exist_ok=True)
+            with open(contagion_file_name, 'wb') as contagion_file:
+                pickle.dump(cc.matrix, contagion_file)
+            a = Adjacency()
+            a.estimate(d)
+            adjacency_file_name = path_dataset_history + '/adjacency.pickle'
+            os.makedirs(os.path.dirname(adjacency_file_name), exist_ok=True)
+            with open(adjacency_file_name, 'wb') as adjacency_file:
+                pickle.dump(a.matrix, adjacency_file)
+            print(path_dataset_history.split('/')[4] + ' - ' + path_dataset_history.split('/')[5])
+        else:
+            with open(os.path.dirname(os.path.dirname(path_dataset_history))+'/not_estimated', 'a', encoding='utf-8') as file:
+                file.write(path_dataset_history + '\n')
+    else:
+        with open(os.path.dirname(os.path.dirname(path_dataset_history))+'/not_estimated', 'a', encoding='utf-8') as file:
+            file.write(path_dataset_history + '\n')
+
+# specific history from specific dataset passed by path.
+def proceed_dataset_history_path(path_dataset_history, sets_to_omit):
+    if path_dataset_history.split('/')[4] not in sets_to_omit:
+        edges = pd.read_csv(os.path.dirname(path_dataset_history) + '/edges')
+        proceed_with_history_path(path_dataset_history, edges)
+
+def make_dataset_history_paths():
+    paths = []
+    for dat in next(os.walk(directory))[1]:
+        for history_length in np.arange(1, 31, 1):
+            paths.append(directory+dat+'/history_'+str(history_length))
+    return paths
 
 open(directory + 'not_estimated', 'w', encoding='utf-8').close()
-aprun(bar='txt')(delayed(proceed_dataset)(dat, sets_to_omit) for dat in next(os.walk(directory))[1])
-
+aprun(bar='None')(delayed(proceed_dataset_history_path)(dat, sets_to_omit) for dat in make_dataset_history_paths())
+# for dat in make_dataset_history_paths():
+#     proceed_dataset_history_path(dat, sets_to_omit)
     # d = Data()
     # d.load_data(dir)
     # if d.num_contagions <= 25000:

@@ -78,6 +78,10 @@ def estimate_t_and_predict(path_dataset_history, sets_to_omit, not_estimated, ba
                 m.assign_contagions_correlation_matrix(cc)
                 m.assign_adjacency_matrix(a)
                 m.fit_only_thresholds_states(d, batch_type = batch_type, batch_size = batch_size)
+                file_name = path_dataset_history + '/' + batch_type + '/size_' + str(batch_size) + '/threshold.pickle'
+                os.makedirs(os.path.dirname(file_name), exist_ok=True)
+                with open(file_name, 'wb') as threshold_file:
+                    pickle.dump(m.thresholds.matrix, threshold_file)
                 result = m.predict(num_predictions)
                 save_results(result, path_dataset_history + '/' + batch_type + '/size_' + str(batch_size), num_predictions)
                 print(path_dataset_history + '/' + batch_type + '/size_' + str(batch_size))

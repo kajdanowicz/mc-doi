@@ -58,4 +58,5 @@ def directories_to_evaluate(directory):
     return paths
 
 if __name__ == '__main__':
-    print(directories_to_evaluate(directory))
+    # print(len(directories_to_evaluate(directory)))
+    pass

@@ -53,8 +53,9 @@ def directories_to_evaluate(directory):
     for dat in next(os.walk(directory))[1]:
         for history_length in np.arange(1, 31, 1):
             if 'time' in next(os.walk(directory+dat+'/history_'+str(history_length)))[1]:
-                print(directory+dat+'/history_'+str(history_length))
-            # paths.append(directory+dat+'/history_'+str(history_length))
+                for batch_size in next(os.walk(directory+dat+'/history_'+str(history_length)+'/time'))[1]:
+                    paths.append(directory+dat+'/history_'+str(history_length)+'/time/'+batch_size)
+    return paths
 
 if __name__ == '__main__':
-    directories_to_evaluate(directory)
+    print(directories_to_evaluate(directory))

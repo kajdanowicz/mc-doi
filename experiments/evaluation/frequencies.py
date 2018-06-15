@@ -59,18 +59,22 @@ def directories_to_evaluate(directory):
 
 
 def evaluate(path):
+    print(path)
     batch_size = int(path.split('/')[7].split('_')[1])
     history = int(path.split('/')[5].split('_')[1])
-    edges = pd.read_csv(os.path.dirname(os.path.dirname(os.path.dirname(path))) + '/edges')
-    event_log = pd.read_csv(os.path.dirname(os.path.dirname(path)) + '/event_log')
+    edges = pd.read_csv(os.path.dirname(os.path.dirname(os.path.dirname(path))) + '/edges',header=None)
+    event_log = pd.read_csv(os.path.dirname(os.path.dirname(path)) + '/event_log',header=None)
+    d = Data()
+    d.load_data_data_frame(event_log, edges)
     results = []
     for i in range(0,3):
         with open(path+'/result_'+str(i)+'.pickle', 'rb') as result:
             results.append(pickle.load(result))
-    print(event_log.shape)
+    print(d.contagion_id_dict)
+
 
 
 if __name__ == '__main__':
     paths = directories_to_evaluate(directory)
-    for path in paths:
+    for path in paths[:1]:
         evaluate(path)

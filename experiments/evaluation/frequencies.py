@@ -45,3 +45,16 @@ def ParallelExecutor(use_bar='tqdm', **joblib_args):
 
 aprun = ParallelExecutor(n_jobs=1)
 
+open(directory + 'frequencies_evaluated', 'w', encoding='utf-8').close() # initialize file to store evaluated directories
+
+
+def directories_to_evaluate(directory):
+    paths = []
+    for dat in next(os.walk(directory))[1]:
+        for history_length in np.arange(1, 31, 1):
+            if 'time' in next(os.walk(directory+dat+'/history_'+str(history_length)))[1]:
+                print(directory+dat+'/history_'+str(history_length))
+            # paths.append(directory+dat+'/history_'+str(history_length))
+
+if __name__ == '__main__':
+    directories_to_evaluate(directory)

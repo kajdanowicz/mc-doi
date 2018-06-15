@@ -57,6 +57,12 @@ def directories_to_evaluate(directory):
                     paths.append(directory+dat+'/history_'+str(history_length)+'/time/'+batch_size)
     return paths
 
+
+def evaluate(path):
+    batch_size = int(path.split('/')[7].split('_')[1])
+    print(batch_size)
+
 if __name__ == '__main__':
-    # print(len(directories_to_evaluate(directory)))
-    pass
+    paths = directories_to_evaluate(directory)
+    for path in paths:
+        evaluate(path)

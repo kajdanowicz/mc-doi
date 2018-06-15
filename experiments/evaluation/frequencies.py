@@ -45,7 +45,7 @@ def ParallelExecutor(use_bar='tqdm', **joblib_args):
 
 aprun = ParallelExecutor(n_jobs=1)
 
-open(directory + 'frequencies_evaluated', 'w', encoding='utf-8').close() # initialize file to store evaluated directories
+# open(directory + 'frequencies_evaluated', 'w', encoding='utf-8').close() # initialize file to store evaluated directories
 
 
 def directories_to_evaluate(directory):

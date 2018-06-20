@@ -25,6 +25,10 @@ with open(directory + 'frequencies_evaluated', 'r', encoding='utf-8') as evaluat
     evaluated = evaluated.readlines()
 evaluated = set([x.strip() for x in evaluated])
 
+def diff(first, second):
+    second = set(second)
+    return [item for item in first if item not in second]
+
 from joblib import Parallel, delayed
 import time
 def text_progessbar(seq, total=None):
@@ -63,7 +67,6 @@ def directories_to_evaluate(directory):
                     paths.append(directory+dat+'/history_'+str(history_length)+'/time/'+batch_size)
     return paths
 
-
 def evaluate(path):
     print(path)
     batch_size = int(path.split('/')[7].split('_')[1])
@@ -79,8 +82,7 @@ def evaluate(path):
     print(d.contagion_id_dict)
 
 
-
 if __name__ == '__main__':
-    paths = directories_to_evaluate(directory)
+    paths = diff(sets_to_evaluate,evaluated)
     for path in paths[:1]:
         evaluate(path)

@@ -103,7 +103,7 @@ def estimate_t_and_predict(path_dataset_history, batch_type, batch_sizes, num_pr
 #     return paths
 
 if __name__ == '__main__':
-    aprun(bar='None')(delayed(estimate_t_and_predict)(dat, 'time', batch_sizes, 3, estimated) for dat in sets_to_estimate)
+    aprun(bar='txt')(delayed(estimate_t_and_predict)(dat, 'time', batch_sizes, 3, estimated) for dat in sets_to_estimate)
 
 
 

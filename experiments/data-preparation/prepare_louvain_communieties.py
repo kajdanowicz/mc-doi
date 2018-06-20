@@ -4,13 +4,13 @@ import os
 from tqdm import tqdm
 import networkx as nx
 
-edges = pd.read_csv('/nfs/maciej/twitter/Prediction_of_Viral_Memes_on_Twitter/edges')
+edges = pd.read_csv('/nfs/maciej/twitter/Prediction_of_Viral_Memes_on_Twitter/edges', header = None)
 edges.columns = ['user1','user2']
 
 with open('/nfs/maciej/twitter/Prediction_of_Viral_Memes_on_Twitter/louvain_communities.pickle', 'rb') as handle:
     communities = pickle.load(handle)
 
-event_log = pd.read_csv('/nfs/maciej/twitter/Prediction_of_Viral_Memes_on_Twitter/event_log')
+event_log = pd.read_csv('/nfs/maciej/twitter/Prediction_of_Viral_Memes_on_Twitter/event_log', hedaer = None)
 event_log.columns = ['ts','user','contagion']
 
 directory = '/datasets/mcdoi/louvain/'

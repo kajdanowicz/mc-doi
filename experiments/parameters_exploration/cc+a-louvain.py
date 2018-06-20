@@ -165,26 +165,33 @@ def proceed_dataset(dataset, sets_to_omit):
 def proceed_with_history_path(path_dataset_history, edges):
     if sum(1 for line in open(path_dataset_history + '/event_log', 'r', encoding='utf-8')) > 0:
         event_log = pd.read_csv(path_dataset_history + '/event_log', header=None)
-        d = Data()
-        d.load_data_data_frame(event_log, edges)
-        cc = ContagionCorrelation()
-        cc.estimate(d)
-        contagion_dict_file_name = path_dataset_history + '/contagion_dict.pickle'
-        os.makedirs(os.path.dirname(contagion_dict_file_name), exist_ok=True)
-        with open(contagion_dict_file_name, 'wb') as contagion_dict_file:
-            pickle.dump(d.contagion_id_dict, contagion_dict_file)
-        contagion_file_name = path_dataset_history + '/contagion.pickle'
-        os.makedirs(os.path.dirname(contagion_file_name), exist_ok=True)
-        with open(contagion_file_name, 'wb') as contagion_file:
-            pickle.dump(cc.matrix, contagion_file)
-        a = Adjacency()
-        a.estimate(d)
-        adjacency_file_name = path_dataset_history + '/adjacency.pickle'
-        os.makedirs(os.path.dirname(adjacency_file_name), exist_ok=True)
-        with open(adjacency_file_name, 'wb') as adjacency_file:
-            pickle.dump(a.matrix, adjacency_file)
-        with open(directory + 'estimated_cc+a', 'a+', encoding='utf-8') as handle:
-            handle.write(path_dataset_history + '\n')
+        if len(event_log.iloc[:, 2].unique()) <= 50000:
+            d = Data()
+            d.load_data_data_frame(event_log, edges)
+            cc = ContagionCorrelation()
+            cc.estimate(d)
+            contagion_dict_file_name = path_dataset_history + '/contagion_dict.pickle'
+            os.makedirs(os.path.dirname(contagion_dict_file_name), exist_ok=True)
+            with open(contagion_dict_file_name, 'wb') as contagion_dict_file:
+                pickle.dump(d.contagion_id_dict, contagion_dict_file)
+            contagion_file_name = path_dataset_history + '/contagion.pickle'
+            os.makedirs(os.path.dirname(contagion_file_name), exist_ok=True)
+            with open(contagion_file_name, 'wb') as contagion_file:
+                pickle.dump(cc.matrix, contagion_file)
+            a = Adjacency()
+            a.estimate(d)
+            adjacency_file_name = path_dataset_history + '/adjacency.pickle'
+            os.makedirs(os.path.dirname(adjacency_file_name), exist_ok=True)
+            with open(adjacency_file_name, 'wb') as adjacency_file:
+                pickle.dump(a.matrix, adjacency_file)
+            with open(directory + 'estimated_cc+a', 'a+', encoding='utf-8') as handle:
+                handle.write(path_dataset_history + '\n')
+        else:
+            with open(directory + 'not_estimated_c+aa', 'a', encoding='utf-8') as file:
+                file.write(path_dataset_history + '\n')
+    else:
+        with open(directory + 'not_estimated_c+aa', 'a', encoding='utf-8') as file:
+            file.write(path_dataset_history + '\n')
 
 # specific history from specific dataset passed by path.
 def proceed_dataset_history_path(path_dataset_history, sets_to_omit, histories_to_omit):

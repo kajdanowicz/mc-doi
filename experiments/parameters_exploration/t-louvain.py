@@ -9,6 +9,11 @@ from model.parameters import ContagionCorrelation, Adjacency
 from model.multi_contagion_models import MultiContagionDynamicThresholdModel as MCDOI
 import numpy as np
 
+sets_to_estimate_file = list(sys.argv)[1]
+with open(sets_to_estimate_file, 'r', encoding='utf-8') as sets_to_estimate:
+    sets_to_estimate = sets_to_estimate.readlines()
+sets_to_estimate = [x.strip() for x in sets_to_estimate]
+
 from joblib import Parallel, delayed
 import time
 def text_progessbar(seq, total=None):
@@ -95,7 +100,7 @@ def make_dataset_history_paths():
     return paths
 
 if __name__ == '__main__':
-    aprun(bar='None')(delayed(estimate_t_and_predict)(dat, sets_to_omit, not_estimated, 'time', batch_sizes, 3) for dat in make_dataset_history_paths())
+    aprun(bar='None')(delayed(estimate_t_and_predict)(dat, sets_to_omit, not_estimated, 'time', batch_sizes, 3) for dat in sets_to_estimate)
 
 
 

@@ -141,14 +141,14 @@ sets_to_omit = set([x.strip() for x in sets_to_omit])
 #     if dataset not in sets_to_omit:
 #         open(directory+'not_estimated', 'w', encoding='utf-8').close()
 #         dir = directory + dataset
-#         edges = pd.read_csv(dir+'/edges')
+#         edges = pd.read_csv(dir+'/edges', header=None)
 #         aprun(bar='None')(delayed(proceed_with_history)(history_length, directory, dataset, edges) for history_length in np.arange(1,31,1))
 
 # single dataset passed by subdirectory name. All 30 histories proceeded in single thread
 def proceed_dataset(dataset, sets_to_omit):
     if dataset not in sets_to_omit:
         dir = directory + dataset
-        edges = pd.read_csv(dir + '/edges')
+        edges = pd.read_csv(dir + '/edges', header=None)
         for history_length in np.arange(1, 31, 1):
             proceed_with_history(history_length, directory, dataset, edges)
 
@@ -181,7 +181,7 @@ def proceed_with_history_path(path_dataset_history, edges):
 # specific history from specific dataset passed by path.
 def proceed_dataset_history_path(path_dataset_history, sets_to_omit):
     if path_dataset_history.split('/')[4] not in sets_to_omit:
-        edges = pd.read_csv(os.path.dirname(path_dataset_history) + '/edges')
+        edges = pd.read_csv(os.path.dirname(path_dataset_history) + '/edges', header=None)
         proceed_with_history_path(path_dataset_history, edges)
 
 def make_dataset_history_paths():

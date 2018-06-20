@@ -8,7 +8,7 @@ edges = pd.read_csv('/nfs/maciej/twitter/Prediction_of_Viral_Memes_on_Twitter/ed
 with open('/nfs/maciej/twitter/Prediction_of_Viral_Memes_on_Twitter/fluid_communities.pickle', 'rb') as handle:
     communities = pickle.load(handle)
 
-event_log = pd.read_csv('/nfs/maciej/twitter/Prediction_of_Viral_Memes_on_Twitter/event_log')
+event_log = pd.read_csv('/nfs/maciej/twitter/Prediction_of_Viral_Memes_on_Twitter/event_log', header = None)
 event_log.columns = ['ts','user','contagion']
 
 directory = '/datasets/mcdoi/fluid/'

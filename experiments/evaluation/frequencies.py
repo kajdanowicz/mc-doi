@@ -21,6 +21,10 @@ sets_to_evaluate = [x.strip() for x in sets_to_evaluate]
 
 directory = '/datasets/mcdoi/louvain/'
 
+with open(directory + 'frequencies_evaluated', 'r', encoding='utf-8') as evaluated:
+    evaluated = evaluated.readlines()
+evaluated = set([x.strip() for x in evaluated])
+
 from joblib import Parallel, delayed
 import time
 def text_progessbar(seq, total=None):
@@ -49,9 +53,6 @@ def ParallelExecutor(use_bar='tqdm', **joblib_args):
     return aprun
 
 aprun = ParallelExecutor(n_jobs=1)
-
-# open(directory + 'frequencies_evaluated', 'w', encoding='utf-8').close() # initialize file to store evaluated directories
-
 
 def directories_to_evaluate(directory):
     paths = []

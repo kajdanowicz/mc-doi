@@ -16,8 +16,7 @@ from copy import copy
 
 
 directory = '/datasets/mcdoi/louvain/'
-
-sets_to_estimate_file = str(sys.argv)[1]
+sets_to_estimate_file = list(sys.argv)[1]
 with open(sets_to_estimate_file, 'r', encoding='utf-8') as sets_to_estimate:
     sets_to_estimate = sets_to_estimate.readlines()
 sets_to_estimate = [x.strip() for x in sets_to_estimate]
@@ -187,10 +186,10 @@ def proceed_with_history_path(path_dataset_history, edges):
             with open(directory + 'estimated_cc+a', 'a+', encoding='utf-8') as handle:
                 handle.write(path_dataset_history + '\n')
         else:
-            with open(directory + 'not_estimated_c+aa', 'a', encoding='utf-8') as file:
+            with open(directory + 'not_estimated_c+aa', 'a+', encoding='utf-8') as file:
                 file.write(path_dataset_history + '\n')
     else:
-        with open(directory + 'not_estimated_c+aa', 'a', encoding='utf-8') as file:
+        with open(directory + 'not_estimated_c+aa', 'a+', encoding='utf-8') as file:
             file.write(path_dataset_history + '\n')
 
 # specific history from specific dataset passed by path.
@@ -207,7 +206,6 @@ def make_dataset_history_paths(sets_to_estimate):
             paths.append(set+'/history_'+str(history_length))
     return paths
 
-open(directory + 'not_estimated', 'w', encoding='utf-8').close()
 aprun(bar='None')(delayed(proceed_dataset_history_path)(dat, sets_to_omit, histories_to_omit) for dat in make_dataset_history_paths(sets_to_estimate))
 # for dat in make_dataset_history_paths():
 #     proceed_dataset_history_path(dat, sets_to_omit)

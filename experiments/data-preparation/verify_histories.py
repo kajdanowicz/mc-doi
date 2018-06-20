@@ -26,13 +26,15 @@ sets_to_omit = set([x.strip() for x in sets_to_omit])
 
 open(directory+'histories_to_omit', 'w', encoding='utf-8').close()
 for dataset in tqdm(next(os.walk(directory))[1]):
-    secik = directory + dataset
-    edges = pd.read_csv(secik + '/edges', header=None)
-    edges.columns = ['user1','user2']
-    for history in range(1,31):
-        file_name = secik + '/history_' + str(history)
-        if sum(1 for line in open(file_name + '/event_log', 'r', encoding='utf-8')) > 0:
-            event_log = pd.read_csv(file_name + '/event_log', header=None)
-            event_log.columns = ['ts', 'user', 'contagion']
-            if not set(event_log['user']).issubset(edges['user1'].append(edges['user2'])):
-                print(file_name)
+    if dataset not in sets_to_omit:
+        secik = directory + dataset
+        edges = pd.read_csv(secik + '/edges', header=None)
+        edges.columns = ['user1','user2']
+        for history in range(1,31):
+            file_name = secik + '/history_' + str(history)
+            if sum(1 for line in open(file_name + '/event_log', 'r', encoding='utf-8')) > 0:
+                event_log = pd.read_csv(file_name + '/event_log', header=None)
+                event_log.columns = ['ts', 'user', 'contagion']
+                if not set(event_log['user']).issubset(edges['user1'].append(edges['user2'])):
+                    with open(directory + 'histories_to_omit', 'a', encoding='utf-8') as handle:
+                        handle.write(dataset + '\n')

@@ -20,7 +20,7 @@ time_grid = np.arange(start_time+duration_24h_in_sec,end_time+duration_24h_in_se
 
 for dataset in tqdm(next(os.walk(directory))[1]):
     set = directory + dataset
-    event_log = pd.read_csv(set + '/event_log')
+    event_log = pd.read_csv(set + '/event_log', header = None)
     event_log.columns = ['ts', 'user', 'contagion']
     for counter, time_limit in tqdm(enumerate(time_grid, 1)):
         file_name = set + '/history_' + str(counter) + '/event_log'

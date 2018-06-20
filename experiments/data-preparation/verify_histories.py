@@ -19,6 +19,12 @@ end_time = 1335416399
 duration_24h_in_sec = 60*60*24
 time_grid = np.arange(start_time+duration_24h_in_sec,end_time+duration_24h_in_sec,duration_24h_in_sec)
 
+with open(directory + 'sets_to_omit', 'r', encoding='utf-8') as sets_to_omit:
+    sets_to_omit = sets_to_omit.readlines()
+
+sets_to_omit = set([x.strip() for x in sets_to_omit])
+
+open(directory+'histories_to_omit', 'w', encoding='utf-8').close()
 for dataset in tqdm(next(os.walk(directory))[1]):
     secik = directory + dataset
     edges = pd.read_csv(secik + '/edges', header=None)

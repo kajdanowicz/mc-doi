@@ -21,6 +21,10 @@ with open(sets_to_estimate_file, 'r', encoding='utf-8') as sets_to_estimate:
     sets_to_estimate = sets_to_estimate.readlines()
 sets_to_estimate = [x.strip() for x in sets_to_estimate]
 
+with open(directory+'estimated_cc+a', 'r', encoding='utf-8') as file:
+    estimated = file.readlines()
+estimated = [x.strip() for x in estimated]
+
 from joblib import Parallel, delayed
 import time
 def text_progessbar(seq, total=None):
@@ -199,6 +203,10 @@ def proceed_dataset_history_path(path_dataset_history, sets_to_omit, histories_t
             edges = pd.read_csv(os.path.dirname(path_dataset_history) + '/edges', header=None)
             proceed_with_history_path(path_dataset_history, edges)
 
+def diff(first, second):
+    second = set(second)
+    return [item for item in first if item not in second]
+
 def make_dataset_history_paths(sets_to_estimate):
     paths = []
     for set in sets_to_estimate:
@@ -206,7 +214,7 @@ def make_dataset_history_paths(sets_to_estimate):
             paths.append(set+'/history_'+str(history_length))
     return paths
 
-aprun(bar='txt')(delayed(proceed_dataset_history_path)(dat, sets_to_omit, histories_to_omit) for dat in make_dataset_history_paths(sets_to_estimate))
+aprun(bar='txt')(delayed(proceed_dataset_history_path)(dat, sets_to_omit, histories_to_omit) for dat in make_dataset_history_paths(diff(sets_to_estimate,estimated)))
 # for dat in make_dataset_history_paths():
 #     proceed_dataset_history_path(dat, sets_to_omit)
     # d = Data()

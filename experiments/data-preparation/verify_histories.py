@@ -37,4 +37,4 @@ for dataset in tqdm(next(os.walk(directory))[1]):
                 event_log.columns = ['ts', 'user', 'contagion']
                 if not set(event_log['user']).issubset(edges['user1'].append(edges['user2'])):
                     with open(directory + 'histories_to_omit', 'a', encoding='utf-8') as handle:
-                        handle.write(dataset + '\n')
+                        handle.write(dataset + '/history_' + str(history) + '\n')

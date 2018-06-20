@@ -178,9 +178,8 @@ def proceed_with_history_path(path_dataset_history, edges):
         os.makedirs(os.path.dirname(adjacency_file_name), exist_ok=True)
         with open(adjacency_file_name, 'wb') as adjacency_file:
             pickle.dump(a.matrix, adjacency_file)
-        with open(directory + 'estimated_dirs', 'a+', encoding='utf-8') as handle:
+        with open(directory + 'estimated_cc+a', 'a+', encoding='utf-8') as handle:
             handle.write(path_dataset_history + '\n')
-        print(path_dataset_history.split('/')[4] + ' - ' + path_dataset_history.split('/')[5])
 
 # specific history from specific dataset passed by path.
 def proceed_dataset_history_path(path_dataset_history, sets_to_omit, histories_to_omit):

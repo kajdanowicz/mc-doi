@@ -20,6 +20,7 @@ network = nx.from_pandas_edgelist(edges, 'user1', 'user2')
 
 for community in tqdm(communities):
     community_network = network.subgraph(community)
+    print(len(nx.connected_components(community_network)))
     connected_component_community = sorted(nx.connected_components(community_network), key=len, reverse=True)[0]
     size = len(connected_component_community)
     edges_file_name = directory + 'louvain_' + str(counter) + '_' + str(size) + '/edges'

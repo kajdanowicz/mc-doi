@@ -17,6 +17,11 @@ from copy import copy
 
 directory = '/datasets/mcdoi/louvain/'
 
+sets_to_estimate_file = str(sys.argv)[1]
+with open(sets_to_estimate_file, 'r', encoding='utf-8') as sets_to_estimate:
+    sets_to_estimate = sets_to_estimate.readlines()
+sets_to_estimate = [x.strip() for x in sets_to_estimate]
+
 from joblib import Parallel, delayed
 import time
 def text_progessbar(seq, total=None):
@@ -44,9 +49,9 @@ def ParallelExecutor(use_bar='tqdm', **joblib_args):
         return tmp
     return aprun
 
-aprun = ParallelExecutor(n_jobs=20)
+aprun = ParallelExecutor(n_jobs=6)
 
-batch_sizes = [60, 3600, 43200, 86400, 604800]
+batch_sizes = [3600, 43200, 86400, 604800]
 
 
 def write_to_logger(args):
@@ -196,7 +201,7 @@ def make_dataset_history_paths():
     return paths
 
 open(directory + 'not_estimated', 'w', encoding='utf-8').close()
-aprun(bar='None')(delayed(proceed_dataset_history_path)(dat, sets_to_omit, histories_to_omit) for dat in make_dataset_history_paths())
+aprun(bar='None')(delayed(proceed_dataset_history_path)(dat, sets_to_omit, histories_to_omit) for dat in sets_to_estimate)
 # for dat in make_dataset_history_paths():
 #     proceed_dataset_history_path(dat, sets_to_omit)
     # d = Data()

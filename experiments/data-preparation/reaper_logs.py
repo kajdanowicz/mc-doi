@@ -15,3 +15,12 @@ from model.parameters import ContagionCorrelation, Adjacency
 from copy import copy
 
 file_to_repare = list(sys.argv)[1]
+
+with open(file_to_repare, 'r', encoding='utf-8') as file:
+    records = file.readlines()
+records = [x.strip() for x in records]
+
+open(file_to_repare, 'w').close()
+for record in records:
+    with open(file_to_repare+'_test', 'a', encoding='utf-8') as file:
+        file.write(record.split('//')[0]+'/'+record.split('//')[1] + '\n')

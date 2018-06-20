@@ -41,21 +41,24 @@ def ParallelExecutor(use_bar='tqdm', **joblib_args):
         return tmp
     return aprun
 
-aprun = ParallelExecutor(n_jobs=20)
-
+aprun = ParallelExecutor(n_jobs=6)
 
 directory = '/datasets/mcdoi/louvain/'
+
+with open(directory+'estimated_t+predict', 'r', encoding='utf-8') as file:
+    estimated = file.readlines()
+estimated = [x.strip() for x in estimated]
 
 batch_sizes = [3600, 43200, 86400, 604800]
 batch_sizes.reverse()
 
-with open(directory + 'sets_to_omit', 'r', encoding='utf-8') as sets_to_omit:
-    sets_to_omit = sets_to_omit.readlines()
-sets_to_omit = set([x.strip() for x in sets_to_omit])
-
-with open(directory + 'not_estimated', 'r', encoding='utf-8') as not_estimated:
-    not_estimated = not_estimated.readlines()
-not_estimated = set([x.strip() for x in not_estimated])
+# with open(directory + 'sets_to_omit', 'r', encoding='utf-8') as sets_to_omit:
+#     sets_to_omit = sets_to_omit.readlines()
+# sets_to_omit = set([x.strip() for x in sets_to_omit])
+#
+# with open(directory + 'not_estimated', 'r', encoding='utf-8') as not_estimated:
+#     not_estimated = not_estimated.readlines()
+# not_estimated = set([x.strip() for x in not_estimated])
 
 
 def save_results(result: Results, dir, num_predictions):
@@ -67,40 +70,40 @@ def save_results(result: Results, dir, num_predictions):
             pickle.dump(matrix, file)
 
 
-def estimate_t_and_predict(path_dataset_history, sets_to_omit, not_estimated, batch_type, batch_sizes, num_predictions):
-    if path_dataset_history.split('/')[4] not in sets_to_omit:
-        if path_dataset_history not in not_estimated:
-            edges = pd.read_csv(os.path.dirname(path_dataset_history) + '/edges', header = None)
-            event_log = pd.read_csv(path_dataset_history + '/event_log', header=None)
-            with open(path_dataset_history + '/contagion.pickle', 'rb') as file:
-                cc = pickle.load(file)
-            with open(path_dataset_history + '/adjacency.pickle', 'rb') as file:
-                a = pickle.load(file)
-            for batch_size in batch_sizes:
-                d = Data()
-                d.load_data_data_frame(event_log, edges)
-                m = MCDOI()
-                m.assign_contagions_correlation_matrix(cc)
-                m.assign_adjacency_matrix(a)
-                m.fit_only_thresholds_states(d, batch_type = batch_type, batch_size = batch_size)
-                file_name = path_dataset_history + '/' + batch_type + '/size_' + str(batch_size) + '/threshold.pickle'
-                os.makedirs(os.path.dirname(file_name), exist_ok=True)
-                with open(file_name, 'wb') as threshold_file:
-                    pickle.dump(m.thresholds.matrix, threshold_file)
-                result = m.predict(num_predictions)
-                save_results(result, path_dataset_history + '/' + batch_type + '/size_' + str(batch_size), num_predictions)
-                print(path_dataset_history + '/' + batch_type + '/size_' + str(batch_size))
+def estimate_t_and_predict(path_dataset_history, batch_type, batch_sizes, num_predictions, estimated):
+    edges = pd.read_csv(os.path.dirname(path_dataset_history) + '/edges', header = None)
+    event_log = pd.read_csv(path_dataset_history + '/event_log', header=None)
+    with open(path_dataset_history + '/contagion.pickle', 'rb') as file:
+        cc = pickle.load(file)
+    with open(path_dataset_history + '/adjacency.pickle', 'rb') as file:
+        a = pickle.load(file)
+    for batch_size in batch_sizes:
+        if path_dataset_history+ '/' + batch_type + '/size_' + str(batch_size) not in estimated:
+            d = Data()
+            d.load_data_data_frame(event_log, edges)
+            m = MCDOI()
+            m.assign_contagions_correlation_matrix(cc)
+            m.assign_adjacency_matrix(a)
+            m.fit_only_thresholds_states(d, batch_type = batch_type, batch_size = batch_size)
+            file_name = path_dataset_history + '/' + batch_type + '/size_' + str(batch_size) + '/threshold.pickle'
+            os.makedirs(os.path.dirname(file_name), exist_ok=True)
+            with open(file_name, 'wb') as threshold_file:
+                pickle.dump(m.thresholds.matrix, threshold_file)
+            result = m.predict(num_predictions)
+            save_results(result, path_dataset_history + '/' + batch_type + '/size_' + str(batch_size), num_predictions)
+            with open(directory+'estimated_t+predict', 'a+', encoding='utf-8') as handle:
+                handle.write(path_dataset_history + '/' + batch_type + '/size_' + str(batch_size) + '\n')
 
 
-def make_dataset_history_paths():
-    paths = []
-    for dat in next(os.walk(directory))[1]:
-        for history_length in np.arange(1, 31, 1):
-            paths.append(directory+dat+'/history_'+str(history_length))
-    return paths
+# def make_dataset_history_paths():
+#     paths = []
+#     for dat in next(os.walk(directory))[1]:
+#         for history_length in np.arange(1, 31, 1):
+#             paths.append(directory+dat+'/history_'+str(history_length))
+#     return paths
 
 if __name__ == '__main__':
-    aprun(bar='None')(delayed(estimate_t_and_predict)(dat, sets_to_omit, not_estimated, 'time', batch_sizes, 3) for dat in sets_to_estimate)
+    aprun(bar='None')(delayed(estimate_t_and_predict)(dat, 'time', batch_sizes, 3, estimated) for dat in sets_to_estimate)
 
 
 

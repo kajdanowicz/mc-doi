@@ -137,6 +137,11 @@ with open(directory + 'sets_to_omit', 'r', encoding='utf-8') as sets_to_omit:
 
 sets_to_omit = set([x.strip() for x in sets_to_omit])
 
+with open(directory + 'histories_to_omit', 'r', encoding='utf-8') as histories_to_omit:
+    histories_to_omit = histories_to_omit.readlines()
+
+histories_to_omit = set([x.strip() for x in histories_to_omit])
+
 # for dataset in tqdm(next(os.walk(directory))[1]):
 #     if dataset not in sets_to_omit:
 #         open(directory+'not_estimated', 'w', encoding='utf-8').close()
@@ -155,34 +160,34 @@ def proceed_dataset(dataset, sets_to_omit):
 def proceed_with_history_path(path_dataset_history, edges):
     if sum(1 for line in open(path_dataset_history + '/event_log', 'r', encoding='utf-8')) > 0:
         event_log = pd.read_csv(path_dataset_history + '/event_log', header=None)
-        if len(event_log.iloc[:, 2].unique()) <= 2500:
-            d = Data()
-            d.load_data_data_frame(event_log, edges)
-            cc = ContagionCorrelation()
-            cc.estimate(d)
-            contagion_file_name = path_dataset_history + '/contagion.pickle'
-            os.makedirs(os.path.dirname(contagion_file_name), exist_ok=True)
-            with open(contagion_file_name, 'wb') as contagion_file:
-                pickle.dump(cc.matrix, contagion_file)
-            a = Adjacency()
-            a.estimate(d)
-            adjacency_file_name = path_dataset_history + '/adjacency.pickle'
-            os.makedirs(os.path.dirname(adjacency_file_name), exist_ok=True)
-            with open(adjacency_file_name, 'wb') as adjacency_file:
-                pickle.dump(a.matrix, adjacency_file)
-            print(path_dataset_history.split('/')[4] + ' - ' + path_dataset_history.split('/')[5])
-        else:
-            with open(os.path.dirname(os.path.dirname(path_dataset_history))+'/not_estimated', 'a', encoding='utf-8') as file:
-                file.write(path_dataset_history + '\n')
-    else:
-        with open(os.path.dirname(os.path.dirname(path_dataset_history))+'/not_estimated', 'a', encoding='utf-8') as file:
-            file.write(path_dataset_history + '\n')
+        d = Data()
+        d.load_data_data_frame(event_log, edges)
+        cc = ContagionCorrelation()
+        cc.estimate(d)
+        contagion_dict_file_name = path_dataset_history + '/contagion_dict.pickle'
+        os.makedirs(os.path.dirname(contagion_dict_file_name), exist_ok=True)
+        with open(contagion_dict_file_name, 'wb') as contagion_dict_file:
+            pickle.dump(d.contagion_id_dict, contagion_dict_file)
+        contagion_file_name = path_dataset_history + '/contagion.pickle'
+        os.makedirs(os.path.dirname(contagion_file_name), exist_ok=True)
+        with open(contagion_file_name, 'wb') as contagion_file:
+            pickle.dump(cc.matrix, contagion_file)
+        a = Adjacency()
+        a.estimate(d)
+        adjacency_file_name = path_dataset_history + '/adjacency.pickle'
+        os.makedirs(os.path.dirname(adjacency_file_name), exist_ok=True)
+        with open(adjacency_file_name, 'wb') as adjacency_file:
+            pickle.dump(a.matrix, adjacency_file)
+        with open(directory + 'estimated_dirs', 'a+', encoding='utf-8') as handle:
+            handle.write(path_dataset_history + '\n')
+        print(path_dataset_history.split('/')[4] + ' - ' + path_dataset_history.split('/')[5])
 
 # specific history from specific dataset passed by path.
-def proceed_dataset_history_path(path_dataset_history, sets_to_omit):
+def proceed_dataset_history_path(path_dataset_history, sets_to_omit, histories_to_omit):
     if path_dataset_history.split('/')[4] not in sets_to_omit:
-        edges = pd.read_csv(os.path.dirname(path_dataset_history) + '/edges', header=None)
-        proceed_with_history_path(path_dataset_history, edges)
+        if path_dataset_history.split('/')[4]+'/'+path_dataset_history.split('/')[5] not in histories_to_omit:
+            edges = pd.read_csv(os.path.dirname(path_dataset_history) + '/edges', header=None)
+            proceed_with_history_path(path_dataset_history, edges)
 
 def make_dataset_history_paths():
     paths = []
@@ -192,7 +197,7 @@ def make_dataset_history_paths():
     return paths
 
 open(directory + 'not_estimated', 'w', encoding='utf-8').close()
-aprun(bar='None')(delayed(proceed_dataset_history_path)(dat, sets_to_omit) for dat in make_dataset_history_paths())
+aprun(bar='None')(delayed(proceed_dataset_history_path)(dat, sets_to_omit, histories_to_omit) for dat in make_dataset_history_paths())
 # for dat in make_dataset_history_paths():
 #     proceed_dataset_history_path(dat, sets_to_omit)
     # d = Data()

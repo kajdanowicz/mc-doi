@@ -70,7 +70,7 @@ def save_results(result: Results, dir, num_predictions):
 def estimate_t_and_predict(path_dataset_history, sets_to_omit, not_estimated, batch_type, batch_sizes, num_predictions):
     if path_dataset_history.split('/')[4] not in sets_to_omit:
         if path_dataset_history not in not_estimated:
-            edges = pd.read_csv(os.path.dirname(path_dataset_history) + '/edges')
+            edges = pd.read_csv(os.path.dirname(path_dataset_history) + '/edges', header = None)
             event_log = pd.read_csv(path_dataset_history + '/event_log', header=None)
             with open(path_dataset_history + '/contagion.pickle', 'rb') as file:
                 cc = pickle.load(file)

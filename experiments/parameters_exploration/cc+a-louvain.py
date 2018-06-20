@@ -193,15 +193,15 @@ def proceed_dataset_history_path(path_dataset_history, sets_to_omit, histories_t
             edges = pd.read_csv(os.path.dirname(path_dataset_history) + '/edges', header=None)
             proceed_with_history_path(path_dataset_history, edges)
 
-def make_dataset_history_paths():
+def make_dataset_history_paths(sets_to_estimate):
     paths = []
-    for dat in next(os.walk(directory))[1]:
+    for set in sets_to_estimate:
         for history_length in np.arange(1, 31, 1):
-            paths.append(directory+dat+'/history_'+str(history_length))
+            paths.append(set+'/history_'+str(history_length))
     return paths
 
 open(directory + 'not_estimated', 'w', encoding='utf-8').close()
-aprun(bar='None')(delayed(proceed_dataset_history_path)(dat, sets_to_omit, histories_to_omit) for dat in sets_to_estimate)
+aprun(bar='None')(delayed(proceed_dataset_history_path)(dat, sets_to_omit, histories_to_omit) for dat in make_dataset_history_paths(sets_to_estimate))
 # for dat in make_dataset_history_paths():
 #     proceed_dataset_history_path(dat, sets_to_omit)
     # d = Data()

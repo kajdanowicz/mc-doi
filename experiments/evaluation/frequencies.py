@@ -14,6 +14,11 @@ from data.data import Data
 from model.parameters import ContagionCorrelation, Adjacency
 from copy import copy
 
+sets_to_evaluate_file = list(sys.argv)[1]
+with open(sets_to_evaluate_file, 'r', encoding='utf-8') as sets_to_evaluate:
+    sets_to_evaluate = sets_to_evaluate.readlines()
+sets_to_evaluate = [x.strip() for x in sets_to_evaluate]
+
 directory = '/datasets/mcdoi/louvain/'
 
 from joblib import Parallel, delayed

@@ -21,7 +21,7 @@ with open(sets_to_estimate_file, 'r', encoding='utf-8') as sets_to_estimate:
     sets_to_estimate = sets_to_estimate.readlines()
 sets_to_estimate = [x.strip() for x in sets_to_estimate]
 
-with open(directory+'estimated_cc+a', 'r', encoding='utf-8') as file:
+with open(directory+'estimated_cc+a', 'r+', encoding='utf-8') as file:
     estimated = file.readlines()
 estimated = [x.strip() for x in estimated]
 
@@ -133,19 +133,19 @@ def proceed_with_history(history_length, directory, dataset, edges):
             with open(adjacency_file_name, 'wb') as adjacency_file:
                 pickle.dump(a.matrix, adjacency_file)
         else:
-            with open(directory+'not_estimated', 'a', encoding='utf-8') as file:
+            with open(directory+'not_estimated', 'a+', encoding='utf-8') as file:
                 file.write(dataset + '/history_' + str(history_length) + '\n')
     else:
-        with open(directory + 'not_estimated', 'a', encoding='utf-8') as file:
+        with open(directory + 'not_estimated', 'a+', encoding='utf-8') as file:
             file.write(dataset + '/history_' + str(history_length) + '\n')
 
 
-with open(directory + 'sets_to_omit', 'r', encoding='utf-8') as sets_to_omit:
+with open(directory + 'sets_to_omit', 'r+', encoding='utf-8') as sets_to_omit:
     sets_to_omit = sets_to_omit.readlines()
 
 sets_to_omit = set([x.strip() for x in sets_to_omit])
 
-with open(directory + 'histories_to_omit', 'r', encoding='utf-8') as histories_to_omit:
+with open(directory + 'histories_to_omit', 'r+', encoding='utf-8') as histories_to_omit:
     histories_to_omit = histories_to_omit.readlines()
 
 histories_to_omit = set([x.strip() for x in histories_to_omit])

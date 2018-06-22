@@ -31,10 +31,5 @@ for t in sorted_tuples:
     with open(directory+'sorted_sets_list', 'a+', encoding='utf-8') as handle:
         handle.write(directory +'louvain_' + t[0] + '\n')
 
-    #     if not set(event_log['user']).issubset(edges['user1'].append(edges['user2'])):
-    #         with open(directory+'sets_to_omit', 'a', encoding='utf-8') as handle:
-    #             handle.write(dataset + '\n')
-    # else:
-    #     with open(directory + 'sets_to_omit', 'a', encoding='utf-8') as handle:
-    #         handle.write(dataset + '\n')
+
 

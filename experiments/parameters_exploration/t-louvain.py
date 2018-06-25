@@ -49,7 +49,7 @@ with open(directory+'estimated_t+predict', 'r', encoding='utf-8') as file:
     estimated = file.readlines()
 estimated = [x.strip() for x in estimated]
 
-batch_sizes = [3600, 43200, 86400, 604800] # 1h, 12h, 24h, 7d
+batch_sizes = [43200, 86400] # (1h), 12h, 24h, (7d)
 batch_sizes.reverse()
 
 # with open(directory + 'sets_to_omit', 'r', encoding='utf-8') as sets_to_omit:

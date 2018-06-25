@@ -41,7 +41,7 @@ def ParallelExecutor(use_bar='tqdm', **joblib_args):
         return tmp
     return aprun
 
-aprun = ParallelExecutor(n_jobs=2)
+aprun = ParallelExecutor(n_jobs=6)
 
 directory = '/datasets/mcdoi/louvain/'
 

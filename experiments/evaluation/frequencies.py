@@ -161,5 +161,5 @@ def evaluate(path):
 
 if __name__ == '__main__':
     paths = diff(sets_to_evaluate,evaluated)
-    for path in paths[9:10]:
+    for path in tqdm(paths):
         evaluate(path)

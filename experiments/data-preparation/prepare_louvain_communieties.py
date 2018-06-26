@@ -13,7 +13,7 @@ with open('/nfs/maciej/twitter/Prediction_of_Viral_Memes_on_Twitter/louvain_comm
 event_log = pd.read_csv('/nfs/maciej/twitter/Prediction_of_Viral_Memes_on_Twitter/event_log', header = None)
 event_log.columns = ['ts','user','contagion']
 
-directory = '/datasets/mcdoi/louvain/'
+directory = '/nfs/maciej/mcdoi/louvain/'
 counter = 0
 
 network = nx.from_pandas_edgelist(edges, 'user1', 'user2')

@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 from data.data import Data
 
-directory = '/datasets/mcdoi/louvain/'
+directory = '/nfs/maciej/mcdoi/louvain/'
 
 start_time = 1332565200
 end_time = 1335416399

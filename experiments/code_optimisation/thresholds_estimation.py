@@ -9,7 +9,7 @@ from model.parameters import ContagionCorrelation, Adjacency
 from model.multi_contagion_models import MultiContagionDynamicThresholdModel as MCDOI
 import numpy as np
 
-directory = '/datasets/mcdoi/louvain/'
+directory = '/nfs/maciej/mcdoi/louvain/'
 
 set = 'louvain_58_72/history_27'
 

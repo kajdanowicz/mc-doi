@@ -14,7 +14,7 @@ from data.data import Data
 from model.parameters import ContagionCorrelation, Adjacency
 from copy import copy
 
-directory = '/datasets/mcdoi/louvain/'
+directory = '/nfs/maciej/mcdoi/louvain/'
 
 with open(directory+'louvain_communities.pickle', 'rb') as handle:
     communities = pickle.load(handle)

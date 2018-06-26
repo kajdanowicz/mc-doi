@@ -19,7 +19,7 @@ with open(sets_to_evaluate_file, 'r', encoding='utf-8') as sets_to_evaluate:
     sets_to_evaluate = sets_to_evaluate.readlines()
 sets_to_evaluate = [x.strip() for x in sets_to_evaluate]
 
-directory = '/datasets/mcdoi/louvain/'
+directory = '/nfs/maciej/mcdoi/louvain/'
 
 evaluated = set()
 for batch_size in [3600, 43200, 86400, 604800]:
@@ -75,8 +75,8 @@ duration_24h_in_sec = 60*60*24
 time_grid = np.arange(start_time+duration_24h_in_sec,end_time+duration_24h_in_sec,duration_24h_in_sec)
 
 def evaluate(path):
-    batch_size = int(path.split('/')[7].split('_')[1])
-    history = int(path.split('/')[5].split('_')[1])
+    batch_size = int(path.split('/')[8].split('_')[1])
+    history = int(path.split('/')[6].split('_')[1])
     event_log = pd.read_csv(os.path.dirname(os.path.dirname(path)) + '/event_log',header=None)
     event_log.columns = ['ts', 'user', 'contagion']
     with open(os.path.dirname(os.path.dirname(path)) + '/contagion_dict' + '.pickle', 'rb') as file:

@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 from data.data import Data
 
-directory = '/datasets/mcdoi/louvain/'
+directory = '/nfs/maciej/mcdoi/louvain/'
 
 open(directory+'sets_to_omit', 'w', encoding='utf-8').close()
 for dataset in tqdm(next(os.walk(directory))[1]):

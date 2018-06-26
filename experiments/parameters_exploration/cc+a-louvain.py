@@ -214,7 +214,9 @@ def make_dataset_history_paths(sets_to_estimate):
             paths.append(set+'/history_'+str(history_length))
     return paths
 
-aprun(bar='txt')(delayed(proceed_dataset_history_path)(dat, sets_to_omit, histories_to_omit) for dat in make_dataset_history_paths(diff(sets_to_estimate,estimated)))
+
+if __name__ == '__main__':
+    aprun(bar='txt')(delayed(proceed_dataset_history_path)(dat, sets_to_omit, histories_to_omit) for dat in diff(make_dataset_history_paths(sets_to_estimate),estimated))
 # for dat in make_dataset_history_paths():
 #     proceed_dataset_history_path(dat, sets_to_omit)
     # d = Data()

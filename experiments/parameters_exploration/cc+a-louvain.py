@@ -15,7 +15,7 @@ from model.parameters import ContagionCorrelation, Adjacency
 from copy import copy
 
 
-directory = '/datasets/mcdoi/louvain/'
+directory = '/nfs/maciej/mcdoi/louvain/'
 sets_to_estimate_file = list(sys.argv)[1]
 with open(sets_to_estimate_file, 'r', encoding='utf-8') as sets_to_estimate:
     sets_to_estimate = sets_to_estimate.readlines()
@@ -198,8 +198,8 @@ def proceed_with_history_path(path_dataset_history, edges):
 
 # specific history from specific dataset passed by path.
 def proceed_dataset_history_path(path_dataset_history, sets_to_omit, histories_to_omit):
-    if path_dataset_history.split('/')[4] not in sets_to_omit:
-        if path_dataset_history.split('/')[4]+'/'+path_dataset_history.split('/')[5] not in histories_to_omit:
+    if path_dataset_history.split('/')[5] not in sets_to_omit:
+        if path_dataset_history.split('/')[5]+'/'+path_dataset_history.split('/')[6] not in histories_to_omit:
             edges = pd.read_csv(os.path.dirname(path_dataset_history) + '/edges', header=None)
             proceed_with_history_path(path_dataset_history, edges)
 

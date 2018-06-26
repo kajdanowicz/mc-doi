@@ -13,7 +13,7 @@ import pandas as pd
 from data.data import Data
 import operator
 
-directory = '/datasets/mcdoi/louvain/'
+directory = '/nfs/maciej/mcdoi/louvain/'
 
 d = dict()
 

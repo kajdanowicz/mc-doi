@@ -23,7 +23,11 @@ sets_to_estimate = [x.strip() for x in sets_to_estimate]
 
 with open(directory+'estimated_cc+a', 'r+', encoding='utf-8') as file:
     estimated = file.readlines()
-estimated = [x.strip() for x in estimated]
+estimated = set([x.strip() for x in estimated])
+
+with open(directory+'not_estimated_cc+a', 'r+', encoding='utf-8') as file:
+    not_estimated = file.readlines()
+not_estimated = set([x.strip() for x in not_estimated])
 
 from joblib import Parallel, delayed
 import time
@@ -216,7 +220,7 @@ def make_dataset_history_paths(sets_to_estimate):
 
 
 if __name__ == '__main__':
-    aprun(bar='txt')(delayed(proceed_dataset_history_path)(dat, sets_to_omit, histories_to_omit) for dat in diff(make_dataset_history_paths(sets_to_estimate),estimated))
+    aprun(bar='txt')(delayed(proceed_dataset_history_path)(dat, sets_to_omit, histories_to_omit) for dat in diff(make_dataset_history_paths(sets_to_estimate),estimated.union(not_estimated)))
 # for dat in make_dataset_history_paths():
 #     proceed_dataset_history_path(dat, sets_to_omit)
     # d = Data()

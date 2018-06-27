@@ -41,7 +41,7 @@ def ParallelExecutor(use_bar='tqdm', **joblib_args):
         return tmp
     return aprun
 
-aprun = ParallelExecutor(n_jobs=8)
+aprun = ParallelExecutor(n_jobs=2)
 
 directory = '/nfs/maciej/mcdoi/louvain/'
 

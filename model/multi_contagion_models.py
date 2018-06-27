@@ -213,13 +213,15 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
         return self.adjacency.matrix_transposed_.dot(self.state_matrix_.matrix)
 
     def assign_contagions_correlation_matrix(self, matrix):
+        # TODO check if matrix is consistent with model
         self.contagion_correlation.assign_matrix(matrix)
 
     def assign_adjacency_matrix(self, matrix):
+        # TODO check if matrix is consistent with model
         self.adjacency.assign_matrix(matrix)
 
-    def assign_thresholds_matrix(self, thresholds_vector):
-        # TODO Implement this method
+    def assign_thresholds_matrix(self, matrix):
+        # TODO check if matrix is consistent with model
         pass
 
     def assign_state_matrix(self, state_matrix):

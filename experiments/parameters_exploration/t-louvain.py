@@ -41,7 +41,7 @@ def ParallelExecutor(use_bar='tqdm', **joblib_args):
         return tmp
     return aprun
 
-aprun = ParallelExecutor(n_jobs=24)
+aprun = ParallelExecutor(n_jobs=22)
 
 directory = '/nfs/maciej/mcdoi/louvain/'
 
@@ -104,6 +104,8 @@ def estimate_t_and_predict(path_dataset_history, batch_type, batch_sizes, num_pr
                 save_results(result, path_dataset_history + '/' + batch_type + '/size_' + str(batch_size), num_predictions)
                 with open(directory+'estimated_t+predict', 'a+', encoding='utf-8') as handle:
                     handle.write(path_dataset_history + '/' + batch_type + '/size_' + str(batch_size) + '\n')
+                with open(directory + 'predicted_7days', 'a+', encoding='utf-8') as handle:
+                    handle.write(path_dataset_history + '/' + batch_type + '/size_' + str(batch_size) + '\n')
 
 
 # def make_dataset_history_paths():
@@ -114,7 +116,7 @@ def estimate_t_and_predict(path_dataset_history, batch_type, batch_sizes, num_pr
 #     return paths
 
 if __name__ == '__main__':
-    aprun(bar='txt')(delayed(estimate_t_and_predict)(dat, 'time', batch_sizes, 3, estimated) for dat in sets_to_estimate)
+    aprun(bar='txt')(delayed(estimate_t_and_predict)(dat, 'time', batch_sizes, 7, estimated) for dat in sets_to_estimate)
 
 
 

@@ -84,8 +84,14 @@ def estimate_t_and_predict(path_dataset_history, batch_type, batch_sizes, num_pr
             a = pickle.load(file)
         for batch_size in batch_sizes:
             if path_dataset_history+ '/' + batch_type + '/size_' + str(batch_size) not in estimated:
-                d = Data()
-                d.load_data_data_frame(event_log, edges)
+                if os.path.isfile(path_dataset_history + '/data_obj.pickle'):
+                    with open(path_dataset_history + '/data_obj.pickle', 'rb') as f:
+                        d = pickle.load(f)
+                else:
+                    d = Data()
+                    d.load_data_data_frame(event_log, edges)
+                    with open(path_dataset_history + '/data_obj.pickle', 'wb') as f:
+                        pickle.dump(d, f)
                 m = MCDOI()
                 m.assign_contagions_correlation_matrix(cc)
                 m.assign_adjacency_matrix(a)

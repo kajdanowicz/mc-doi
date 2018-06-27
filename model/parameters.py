@@ -319,8 +319,9 @@ class Threshold(BaseParameter):
             raise NameError('Can not estimate thresholds. No such method as '+batch_type)
 
     def assign_matrix(self, matrix):
-        #TODO Implement this method
-        pass
+        self.matrix = matrix
+        self.initial_matrix = copy.copy(matrix)
+        self.num_users = matrix.shape[0]
 
     def estimate_volume_batch(self, data, a_matrix, cc_matrix, batch_size):
         # TODO I->sparse

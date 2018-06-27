@@ -41,7 +41,7 @@ def ParallelExecutor(use_bar='tqdm', **joblib_args):
         return tmp
     return aprun
 
-aprun = ParallelExecutor(n_jobs=1)
+aprun = ParallelExecutor(n_jobs=10)
 
 directory = '/nfs/maciej/mcdoi/louvain/'
 
@@ -73,11 +73,12 @@ def predict(path, num_predictions, predicted):
             d.load_data_data_frame(event_log, edges)
             with open(event_log_dir+'/data_obj.pickle', 'wb') as f:
                 pickle.dump(d, f)
+            # print(event_log_dir)
         with open(os.path.dirname(os.path.dirname(path)) + '/contagion.pickle', 'rb') as file:
             cc = pickle.load(file)
         with open(os.path.dirname(os.path.dirname(path)) + '/adjacency.pickle', 'rb') as file:
             a = pickle.load(file)
-        with open(path + 'threshold.pickle', 'rb') as f:
+        with open(path + '/threshold.pickle', 'rb') as f:
             t = pickle.load(f)
         m = MCDOI()
         m.assign_contagions_correlation_matrix(cc)
@@ -97,7 +98,7 @@ def predict(path, num_predictions, predicted):
 #     return paths
 
 if __name__ == '__main__':
-    aprun(bar='txt')(delayed(predict)(dat, 'time', batch_sizes, 3, predicted) for dat in sets_to_predict)
+    aprun(bar='txt')(delayed(predict)(path, 7, predicted) for path in sets_to_predict)
 
 
 

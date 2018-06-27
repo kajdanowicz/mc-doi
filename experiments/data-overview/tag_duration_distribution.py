@@ -48,9 +48,11 @@ def tag_dist_for_set(set):
             event_log.columns = ['ts', 'user', 'contagion']
             tags_list = event_log['contagion'].unique()
             for tag in tags_list:
-                diff.append(event_log[event_log['contagion']==tag]['ts'].max()-event_log[event_log['contagion']==tag]['ts'].min())
+                d = event_log[event_log['contagion']==tag]['ts'].max()-event_log[event_log['contagion']==tag]['ts'].min()
+                if d>0:
+                    diff.append(d)
             plt.figure()
-            plt.hist(diff, density=True, bins=30)
+            plt.hist(diff, bins=50)
             plt.title('Num of tags: '+ str(len(tags_list)) +', history ' + str(i))
             plt.xlabel('Tag duration (last-first)')
             plt.savefig(directory+'data-overview/'+num_users+'_'+set_id+'_hist_'+str(i)+'_duration_dist.png', dpi=72)

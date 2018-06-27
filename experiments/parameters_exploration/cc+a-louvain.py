@@ -175,6 +175,10 @@ def proceed_with_history_path(path_dataset_history, edges):
         if len(event_log.iloc[:, 2].unique()) <= 50000:
             d = Data()
             d.load_data_data_frame(event_log, edges)
+            data_obj_file_name = path_dataset_history + '/data_obj.pickle'
+            os.makedirs(os.path.dirname(data_obj_file_name), exist_ok=True)
+            with open(data_obj_file_name, 'wb') as f:
+                pickle.dump(d, f)
             cc = ContagionCorrelation()
             cc.estimate(d)
             contagion_dict_file_name = path_dataset_history + '/contagion_dict.pickle'

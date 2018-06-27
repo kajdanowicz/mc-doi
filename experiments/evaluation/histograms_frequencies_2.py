@@ -52,6 +52,9 @@ def histogram(list_of_directories,batch_size):
         plt.hist(pred[i], bins=50)
         plt.title('Fractions from pred')
         plt.savefig(directory+'histograms/batch_'+str(batch_size)+'_pred_'+str(i)+'.png', dpi=72)
+        plt.figure()
+        plt.scatter(x=org[i],y=pred[i], marker='o')
+        plt.savefig(directory+'histograms/scatter_batch_'+str(batch_size)+'_pred_'+str(i)+'.png', dpi=72)
 
 
 if __name__ == '__main__':

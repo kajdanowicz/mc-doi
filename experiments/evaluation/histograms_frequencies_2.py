@@ -55,7 +55,7 @@ def histogram(list_of_directories,batch_size):
         plt.close('all')
         plt.figure()
         plt.scatter(x=org[i],y=pred[i], marker='o')
-        plt.plot([0,1],[0,1], 'r')
+        plt.plot(x=[0,1],y=[0,1], color = 'r', linestyle="dashed", linewidth=3.0)
         plt.xlabel('Freq. from data')
         plt.ylabel('Freq. from pred')
         plt.savefig(directory+'histograms/scatter_batch_'+str(batch_size)+'_pred_'+str(i)+'.png', dpi=72)

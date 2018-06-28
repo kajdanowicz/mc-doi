@@ -74,7 +74,7 @@ end_time = 1335416399
 duration_24h_in_sec = 60*60*24
 time_grid = np.arange(start_time+duration_24h_in_sec,end_time+duration_24h_in_sec,duration_24h_in_sec)
 
-def evaluate(path, iter_length):
+def evaluate(path, iter_length, evaluated):
     batch_size = int(path.split('/')[8].split('_')[1])
     history = int(path.split('/')[6].split('_')[1])
     event_log = pd.read_csv(os.path.dirname(os.path.dirname(path)) + '/event_log',header=None)
@@ -87,16 +87,17 @@ def evaluate(path, iter_length):
         with open(path+'/result_'+str(i)+'.pickle', 'rb') as result:
             results.append(pickle.load(result))
     for i in range(1,min(7,33-history)+1):
-        open(path+'/frequencies_'+str(i-1), 'w', encoding='utf-8').close()
-        e = event_log[event_log['ts'] <= time_grid[history-1]+i*iter_length].drop_duplicates(subset=['contagion', 'user'], keep='first')
-        e = e.groupby(by=['contagion']).count()['ts']
-        for key, value in dict.items():
-            with open(path+'/frequencies_'+str(i-1), 'a', encoding='utf-8') as file:
-                file.write(key + ',' + str(e.loc[key]/results[0].shape[0]) + ',' + str(np.sum(results[i-1], axis=0)[value]/results[0].shape[0]) + '\n')
-        with open(directory+ 'frequencies/frequencies_'+str(batch_size), 'a', encoding='utf-8') as file:
-            file.write(path+'/frequencies_'+str(i-1) + '\n')
+        if path+'/frequencies_'+str(i-1) not in evaluated:
+            open(path+'/frequencies_'+str(i-1), 'w', encoding='utf-8').close()
+            e = event_log[event_log['ts'] <= time_grid[history-1]+i*iter_length].drop_duplicates(subset=['contagion', 'user'], keep='first')
+            e = e.groupby(by=['contagion']).count()['ts']
+            for key, value in dict.items():
+                with open(path+'/frequencies_'+str(i-1), 'a', encoding='utf-8') as file:
+                    file.write(key + ',' + str(e.loc[key]/results[0].shape[0]) + ',' + str(np.sum(results[i-1], axis=0)[value]/results[0].shape[0]) + '\n')
+            with open(directory+ 'frequencies/frequencies_'+str(batch_size), 'a', encoding='utf-8') as file:
+                file.write(path+'/frequencies_'+str(i-1) + '\n')
 
 if __name__ == '__main__':
-    paths = diff(sets_to_evaluate,evaluated)
-    for path in tqdm(paths):
-        evaluate(path,86400)
+    # paths = diff(sets_to_evaluate,evaluated)
+    for path in tqdm(sets_to_evaluate):
+        evaluate(path,86400,evaluated)

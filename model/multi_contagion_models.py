@@ -3,7 +3,7 @@ import math
 import pickle
 from model.parameters import ContagionCorrelation
 from model.parameters import Adjacency
-from model.parameters import Threshold
+from model.parameters import ThresholdMultiContagion
 from model.results import SingleIterResult
 from model.results import Results
 from data.data import Data
@@ -45,7 +45,7 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
         Stores the contagion correlation matrix of contagions in event log.
     adjacency : Adjacency
         Stores the adjacency matrix of the underlying social network.
-    thresholds : Threshold
+    thresholds : ThresholdMultiContagion
         Stores dynamic threshold of all users in the form of a matrix. Entries for specific user are equal
         across all columns.
     state_matrix_ : SingleIterResult
@@ -58,7 +58,7 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
 
         self.contagion_correlation = ContagionCorrelation()
         self.adjacency = Adjacency()
-        self.thresholds = Threshold()
+        self.thresholds = ThresholdMultiContagion()
 
     def fit(self, data: Data, **kwargs):
         """

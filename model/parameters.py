@@ -15,6 +15,7 @@ class BaseParameter:
     """
     Base class for model's parameters
     """
+
     def __init__(self):
         self.matrix = None
 
@@ -23,7 +24,7 @@ class BaseParameter:
         pass
 
     @abstractmethod
-    def assign_matrix(self,matrix: ndarray):
+    def assign_matrix(self, matrix: ndarray):
         pass
 
 
@@ -41,6 +42,7 @@ class Adjacency(BaseParameter):
     matrix_transposed_ : numpy.array
         Transposition of matrix
     """
+
     def __init__(self):
         super(Adjacency, self).__init__()
 
@@ -77,8 +79,8 @@ class Adjacency(BaseParameter):
             prev_contagion = self.__verify_contagion(row, prev_contagion)
             self.__propagate(row[0], row[1], data.graph)
         self.__reset_event_queue()
-        function = kwargs.get('function','bernoulli')
-        edge_probability_func = {'bernoulli': self.__MLE_Bernoulli_trial, 'jaccard' : self.__jaccard_index}
+        function = kwargs.get('function', 'bernoulli')
+        edge_probability_func = {'bernoulli': self.__MLE_Bernoulli_trial, 'jaccard': self.__jaccard_index}
         self._calculate_weights(data.graph, edge_probability_func[function])
         self.__clean_counters()
         # review function
@@ -91,19 +93,19 @@ class Adjacency(BaseParameter):
         """
         Creates :name:`matrix_transposed_` attribute containing transposition of :name:`matrix`.
         """
-        if self.__dict__.get('matrix_transposed_',None) is None:
+        if self.__dict__.get('matrix_transposed_', None) is None:
             self.matrix_transposed_ = self.matrix.transpose()
 
     def __clean_counters(self):
-        if self.__dict__.get('v_2_u_',None) is None:
+        if self.__dict__.get('v_2_u_', None) is None:
             raise NameError('Can not delete self.v_2_u_, it does not exist')
         else:
             del self.v_2_u_
-        if self.__dict__.get('v_and_u_',None) is None:
+        if self.__dict__.get('v_and_u_', None) is None:
             raise NameError('Can not delete self.v_and_u_, it does not exist')
         else:
             del self.v_and_u_
-        if self.__dict__.get('u_',None) is None:
+        if self.__dict__.get('u_', None) is None:
             raise NameError('Can not delete self.u_, it does not exist')
         else:
             del self.u_
@@ -160,7 +162,7 @@ class Adjacency(BaseParameter):
         """
         return round(float(self.v_2_u_[(v, u)]) / float(self.u_[v]), 6)
 
-    def __jaccard_index(self, v:int, u:int) -> float:
+    def __jaccard_index(self, v: int, u: int) -> float:
         """
         Computes (v,u) edge probability in sense of the Independent Cascade Model using Jaccard index.
 
@@ -190,7 +192,8 @@ class Adjacency(BaseParameter):
 
         """
         if self.v_2_u_[(v, u)] != 0:
-            return round(float(self.v_2_u_[(v, u)]) / float(self.u_[v]+self.u_[u]-(self.v_and_u_[(u,v)]+self.v_and_u_[(v,u)])), 6)
+            return round(float(self.v_2_u_[(v, u)]) / float(
+                self.u_[v] + self.u_[u] - (self.v_and_u_[(u, v)] + self.v_and_u_[(v, u)])), 6)
         else:
             return 0
 
@@ -224,10 +227,11 @@ class ContagionCorrelation(BaseParameter):
     num_users_performing_events_ : int
         Number of users active in at least one contagion.
     """
+
     def __init__(self):
         super(ContagionCorrelation, self).__init__()
 
-    def estimate(self,data, **kwargs):
+    def estimate(self, data, **kwargs):
         # TODO write docstring
         # TODO consider L1 normalisation
         """
@@ -243,20 +247,26 @@ class ContagionCorrelation(BaseParameter):
         # TODO Reconsider sparse matrix implementation
         # TODO Consider using PyTables
         data.add_contagion_id()
-        self.num_contagions_=data.num_contagions
+        self.num_contagions_ = data.num_contagions
         self.matrix = np.eye(N=self.num_contagions_)
-        self.num_users_performing_events_=len(data.event_log.user.unique())
-        unique_event_log = data.event_log[[Data.user, Data.contagion_id]].drop_duplicates(subset=None, keep='first', inplace=False)
-        co_occurrence_counter = pd.merge(unique_event_log[[Data.user, Data.contagion_id]], unique_event_log[[Data.user, Data.contagion_id]], on=Data.user,suffixes=('_1','_2')).groupby([Data.contagion_id+'_1',Data.contagion_id+'_2']).count()
+        self.num_users_performing_events_ = len(data.event_log.user.unique())
+        unique_event_log = data.event_log[[Data.user, Data.contagion_id]].drop_duplicates(subset=None, keep='first',
+                                                                                          inplace=False)
+        co_occurrence_counter = pd.merge(unique_event_log[[Data.user, Data.contagion_id]],
+                                         unique_event_log[[Data.user, Data.contagion_id]], on=Data.user,
+                                         suffixes=('_1', '_2')).groupby(
+            [Data.contagion_id + '_1', Data.contagion_id + '_2']).count()
         for i in range(self.num_contagions_):
             count_i = float(co_occurrence_counter.loc[(i, i)].values[0])
             for j in range(i + 1, self.num_contagions_):
                 count_j = float(co_occurrence_counter.loc[(j, j)].values[0])
-                if (i,j) in co_occurrence_counter.index:
+                if (i, j) in co_occurrence_counter.index:
                     count_ij = float(co_occurrence_counter.loc[(i, j)].values[0])
                 else:
                     count_ij = 0.
-                contagion_correlation = count_ij / math.sqrt(count_i * count_j) - ((count_j-count_ij) / math.sqrt((self.num_users_performing_events_ - count_i) * count_j) + (count_i - count_ij) / math.sqrt(count_i * (self.num_users_performing_events_ - count_j))) / 2
+                contagion_correlation = count_ij / math.sqrt(count_i * count_j) - ((count_j - count_ij) / math.sqrt(
+                    (self.num_users_performing_events_ - count_i) * count_j) + (count_i - count_ij) / math.sqrt(
+                    count_i * (self.num_users_performing_events_ - count_j))) / 2
                 self.matrix[i][j] = contagion_correlation
                 self.matrix[j][i] = contagion_correlation
 
@@ -265,27 +275,26 @@ class ContagionCorrelation(BaseParameter):
         self.matrix = matrix
         self.num_contagions_ = matrix.shape[0]
 
-
     def verify_matrix_symmetry(self, matrix=None):
         if matrix is None:
             for i in range(self.num_contagions_):
-                for j in range(i+1, self.num_contagions_):
+                for j in range(i + 1, self.num_contagions_):
                     if self.matrix[i][j] != self.matrix[j][i]:
                         return False
             return True
         else:
-            num_contagions=matrix.shape[0]
+            num_contagions = matrix.shape[0]
             for i in range(num_contagions):
-                for j in range(i+1,num_contagions):
+                for j in range(i + 1, num_contagions):
                     if matrix[i][j] != matrix[j][i]:
                         return False
             return True
 
 
-class Threshold(BaseParameter):
+class ThresholdBase(BaseParameter):
 
     def __init__(self):
-        super(Threshold, self).__init__()
+        super(ThresholdBase, self).__init__()
         self.initial_matrix = None
         self.num_users = None
 
@@ -299,21 +308,16 @@ class Threshold(BaseParameter):
         args
         kwargs
         """
-        batch_type = kwargs.get('batch_type',None)
-        adjacency_matrix = kwargs.get('adjacency',None)
-        correlation_matrix = kwargs.get('correlation',None)
+        batch_type = kwargs.get('batch_type', None)
+        adjacency_matrix = kwargs.get('adjacency', None)
+        correlation_matrix = kwargs.get('correlation', None)
         batch_size = kwargs.get('batch_size')
         if batch_type == 'volume':
             self.estimate_volume_batch(data, adjacency_matrix, correlation_matrix, batch_size)
         elif batch_type == 'time':
             self.estimate_time_batch(data, adjacency_matrix, correlation_matrix, batch_size)
         else:
-            raise NameError('Can not estimate thresholds. No such method as '+batch_type)
-
-    def assign_matrix(self, matrix):
-        self.matrix = matrix
-        self.initial_matrix = copy.copy(matrix)
-        self.num_users = matrix.shape[0]
+            raise NameError('Can not estimate thresholds. No such method as ' + batch_type)
 
     def estimate_volume_batch(self, data, a_matrix, cc_matrix, batch_size):
         # TODO I->sparse
@@ -323,7 +327,8 @@ class Threshold(BaseParameter):
         I = np.full((data.num_users, data.num_contagions), False, dtype=bool)
         event_id = 0
         while event_id < data.event_log[Data.event_id].max():
-            for index, row in data.event_log[(data.event_log[Data.event_id] > event_id) & (data.event_log[Data.event_id] <= event_id + batch_size)].iterrows():
+            for index, row in data.event_log[(data.event_log[Data.event_id] > event_id) & (
+                    data.event_log[Data.event_id] <= event_id + batch_size)].iterrows():
                 I[row[Data.user]][row[Data.contagion_id]] = True
             indicators.append(I)
             I = copy.deepcopy(I)
@@ -337,7 +342,8 @@ class Threshold(BaseParameter):
         I = np.full((data.num_users, data.num_contagions), False, dtype=bool)
         ts = 0
         while ts < data.event_log[Data.time_stamp].max():
-            for index, row in data.event_log[(data.event_log[Data.time_stamp] > ts) & (data.event_log[Data.time_stamp] <= ts + batch_size)].iterrows():
+            for index, row in data.event_log[(data.event_log[Data.time_stamp] > ts) & (
+                    data.event_log[Data.time_stamp] <= ts + batch_size)].iterrows():
                 I[row[Data.user]][row[Data.contagion_id]] = True
             indicators.append(I)
             I = copy.deepcopy(I)
@@ -345,22 +351,24 @@ class Threshold(BaseParameter):
         Y = np.sum(indicators[0], axis=1)
         self._estimate(Y, a_matrix, cc_matrix, data, indicators)
 
-    def estimate_hybrid_batch(self, data):
-        # TODO Implement
-        pass
+    def assign_matrix(self, matrix):
+        self.matrix = matrix
+        self.initial_matrix = copy.copy(matrix)
+        self.num_users = matrix.shape[0]
 
-    def _estimate(self, Y, adjacency: Adjacency, correlation : ContagionCorrelation, data : Data, indicators : list):
+    def _estimate(self, Y, adjacency: Adjacency, correlation: ContagionCorrelation, data: Data, indicators: list):
         # TODO refactor
         adjacency.transposed()
-        max_neg = defaultdict(lambda : -2)
-        min_pos = defaultdict(lambda : 2)
+        max_neg = defaultdict(lambda: -2)
+        min_pos = defaultdict(lambda: 2)
         for l in range(len(indicators) - 1):
             # TODO refactor according to MCDOI
             U = adjacency.matrix_transposed_.dot(indicators[l])
             F = U.dot(correlation.matrix) / data.num_contagions
             # TODO export xor to indicators creation procedure
             temp = np.logical_xor(indicators[l], indicators[l + 1])  # aktywowane z l na l+1
-            temp1 = np.logical_or(temp, indicators[l])  # nieaktywowane z l na l+1 z wylaczeniem wczesniej aktywnych (po nalozeniu nagacji)
+            temp1 = np.logical_or(temp, indicators[
+                l])  # nieaktywowane z l na l+1 z wylaczeniem wczesniej aktywnych (po nalozeniu nagacji)
             activated = set()
             for i in range(data.num_users):
                 for j in range(data.num_contagions):
@@ -383,3 +391,24 @@ class Threshold(BaseParameter):
         self.matrix = np.repeat(np.asarray(results)[np.newaxis].T, data.num_contagions, axis=1)
         self.initial_matrix = copy.copy(self.matrix)
 
+    def estimate_hybrid_batch(self, data):
+        # TODO Implement
+        pass
+
+    @abstractmethod
+    def f(self, U, correlation: ContagionCorrelation, data: Data):
+        pass
+
+
+class ThresholdMultiContagion(ThresholdBase):
+
+    def f(self, U, correlation: ContagionCorrelation, data: Data):
+        return U.dot(correlation.matrix) / data.num_contagions
+
+    def __init__(self):
+        super(ThresholdMultiContagion, self).__init__()
+
+
+class ThresholdSingleContagion(ThresholdBase):
+    def f(self, U, correlation: ContagionCorrelation, data: Data):
+        return U  # tutaj była normalizacja, ale chyba jest niepotrzebna @macio232

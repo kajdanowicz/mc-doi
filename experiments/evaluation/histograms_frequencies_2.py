@@ -12,35 +12,21 @@ directory = '/nfs/maciej/mcdoi/louvain/'
 
 def histogram(list_of_directories,batch_size):
     abs_diffs = dict()
-    abs_diffs[0] = []
-    abs_diffs[1] = []
-    abs_diffs[2] = []
     org = dict()
-    org[0] = []
-    org[1] = []
-    org[2] = []
     pred = dict()
-    pred[0] = []
-    pred[1] = []
-    pred[2] = []
+    for i in range(7):
+        abs_diffs[i] = []
+        org[i] = []
+        pred[i] = []
     for d in list_of_directories:
-        for i in range(3):
-            if batch_size==604800:
-                if os.path.isfile(d+'/frequencies_'+str(i)):
-                    with open(d+'/frequencies_'+str(i), 'r', encoding='utf-8') as file:
-                        spamreader = csv.reader(file, delimiter=',', quotechar='"')
-                        for row in spamreader:
-                            abs_diffs[i].append(np.absolute(float(row[1])-float(row[2])))
-                            org[i].append(float(row[1]))
-                            pred[i].append(float(row[2]))
-            else:
-                with open(d + '/frequencies_' + str(i), 'r', encoding='utf-8') as file:
-                    spamreader = csv.reader(file, delimiter=',', quotechar='"')
-                    for row in spamreader:
-                        abs_diffs[i].append(np.absolute(float(row[1]) - float(row[2])))
-                        org[i].append(float(row[1]))
-                        pred[i].append(float(row[2]))
-    for i in range(3):
+        i = int(d[-1])
+        with open(d, 'r', encoding='utf-8') as file:
+            spamreader = csv.reader(file, delimiter=',', quotechar='"')
+            for row in spamreader:
+                abs_diffs[i].append(np.absolute(float(row[1]) - float(row[2])))
+                org[i].append(float(row[1]))
+                pred[i].append(float(row[2]))
+    for i in range(7):
         plt.figure(figsize=(18, 6))
         plt.subplot(1,3,1)
         plt.hist(abs_diffs[i], bins=50)

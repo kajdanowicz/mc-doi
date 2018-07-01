@@ -22,7 +22,7 @@ for count, time in tqdm(enumerate(time_grid,1)):
     diffs = []
     non_zero = 0
     tags = 0
-    for tag in e.index.unique():
+    for tag in e.index:
         diffs.append((e[tag]-d[tag])/num_users)
         tags += 1
         if e[tag]-d[tag]>0:

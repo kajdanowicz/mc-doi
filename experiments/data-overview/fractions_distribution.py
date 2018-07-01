@@ -19,7 +19,7 @@ d = defaultdict(lambda: 0)
 
 for count, time in tqdm(enumerate(time_grid,1)):
     e = event_log[event_log['ts'] <= time].groupby(by=['contagion']).count()['ts']
-    for tag in e.index.unique():
+    for tag in e.index:
         d[tag] = e[tag]/num_users
     plt.figure(figsize=(12,6))
     plt.hist(d.values(), range=(0, 1), bins=50)

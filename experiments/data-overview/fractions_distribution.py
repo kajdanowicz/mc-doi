@@ -22,7 +22,7 @@ for count, time in tqdm(enumerate(time_grid,1)):
     e = event_log[event_log['ts'] <= time].groupby(by=['contagion']).count()['ts']
     for tag in e.index:
         d[tag] = e[tag]/num_users
-    with open(directory + 'data-overview/fractions/day_' + str(count), 'w', encoding='utf-8') as f:
+    with open(directory + 'data-overview/fractions/csv/day_' + str(count), 'w', encoding='utf-8') as f:
         f.write('\n'.join('%s %s' % x for x in sorted(d.items(), key=lambda kv: kv[1], reverse=True)))
     # open(directory + 'data-overview/fractions/day_' + str(count), 'w', encoding='utf-8').close()
     # for pair in sorted(d.items(), key=lambda kv: kv[1], reverse=True):

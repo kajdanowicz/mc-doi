@@ -9,13 +9,14 @@ event_log = pd.read_csv('/nfs/maciej/twitter/Prediction_of_Viral_Memes_on_Twitte
 event_log.columns = ['ts', 'user', 'contagion']
 num_users = len(event_log['user'].unique())
 event_log = event_log.drop_duplicates(subset=['contagion', 'user'], keep='first')
+d = dict()
+for tag in event_log['contagion'].unique():
+    d[tag] = 0
 
 start_time = 1332565200
 end_time = 1335416399
 duration_24h_in_sec = 60 * 60 * 24
 time_grid = np.arange(start_time + duration_24h_in_sec, end_time + duration_24h_in_sec, duration_24h_in_sec)
-
-d = defaultdict(lambda: 0)
 
 for count, time in tqdm(enumerate(time_grid,1)):
     e = event_log[event_log['ts'] <= time].groupby(by=['contagion']).count()['ts']

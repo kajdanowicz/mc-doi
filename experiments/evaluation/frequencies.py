@@ -77,7 +77,7 @@ time_grid = np.arange(start_time+duration_24h_in_sec,end_time+duration_24h_in_se
 def evaluate(path, iter_length, evaluated):
     batch_size = int(path.split('/')[8].split('_')[1])
     history = int(path.split('/')[6].split('_')[1])
-    event_log = pd.read_csv(os.path.dirname(os.path.dirname(path)) + '/event_log',header=None)
+    event_log = pd.read_csv(os.path.dirname(os.path.dirname(os.path.dirname(path))) + '/event_log',header=None)
     event_log.columns = ['ts', 'user', 'contagion']
     with open(os.path.dirname(os.path.dirname(path)) + '/contagion_dict' + '.pickle', 'rb') as file:
         dict = pickle.load(file)

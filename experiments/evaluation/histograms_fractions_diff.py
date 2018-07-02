@@ -21,10 +21,10 @@ def histogram(list_of_directories,batch_size):
                 org.append(float(row[1]))
     plt.figure(figsize=(12, 6))
     plt.subplot(1,2,1)
-    plt.hist(abs_diffs, bins=50)
+    plt.hist(abs_diffs, bins=50, range=(0,1))
     plt.title('Absolute differences of increase')
     plt.subplot(1,2,2)
-    plt.hist(org, bins=50)
+    plt.hist(org, bins=50, range=(0,1))
     plt.title('Increase of frequencies from data')
     plt.savefig(directory+'histograms/fractions_diff/hist_'+str(batch_size)+'.png', dpi=72)
 

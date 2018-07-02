@@ -74,16 +74,18 @@ end_time = 1335416399
 duration_24h_in_sec = 60*60*24
 time_grid = np.arange(start_time+duration_24h_in_sec,end_time+duration_24h_in_sec,duration_24h_in_sec)
 
+
 def evaluate(path, iter_length, evaluated):
     batch_size = int(path.split('/')[8].split('_')[1])
     history = int(path.split('/')[6].split('_')[1])
-    event_log = pd.read_csv(os.path.dirname(os.path.dirname(path)) + '/event_log',header=None)
+    original_fractions = pd.read_csv(os.path.dirname(os.path.dirname(path)) + '/event_log',header=None)
+    original_fractions.columns = ['ts', 'user', 'contagion']
+    original_fractions = original_fractions.drop_duplicates(subset=['contagion', 'user'], keep='first')
+    original_fractions = original_fractions.groupby(by=['contagion']).count()['ts']
+    event_log = pd.read_csv(os.path.dirname(os.path.dirname(os.path.dirname(path))) + '/event_log',header=None)
     event_log.columns = ['ts', 'user', 'contagion']
     with open(os.path.dirname(os.path.dirname(path)) + '/contagion_dict' + '.pickle', 'rb') as file:
-        dict = pickle.load(file)
-    # inv_dict = {v: k for k, v in dict.items()}
-    original_fractions = event_log[event_log['ts'] <= time_grid[history-1]].drop_duplicates(subset=['contagion', 'user'], keep='first')
-    original_fractions = original_fractions.groupby(by=['contagion']).count()['ts']
+        d = pickle.load(file)
     results = []
     for i in range(0,7):
         with open(path+'/result_'+str(i)+'.pickle', 'rb') as result:
@@ -93,13 +95,12 @@ def evaluate(path, iter_length, evaluated):
             open(path+'/fractions_diff_'+str(i-1), 'w', encoding='utf-8').close()
             e = event_log[event_log['ts'] <= time_grid[history-1]+i*iter_length].drop_duplicates(subset=['contagion', 'user'], keep='first')
             e = e.groupby(by=['contagion']).count()['ts']
-            for key, value in dict.items():
+            for key, value in d.items():
                 with open(path+'/fractions_diff_'+str(i-1), 'a', encoding='utf-8') as file:
-                    file.write(key + ',' + str((e.loc[key]-original_fractions[key])/results[0].shape[0]) + ',' + str((np.sum(results[i-1], axis=0)[value]-original_fractions[key])/results[0].shape[0]) + '\n')
+                    file.write(key + ',' + str((e.loc[key]-original_fractions.loc[key])/results[0].shape[0]) + ',' + str((np.sum(results[i-1], axis=0)[value]-original_fractions.loc[key])/results[0].shape[0]) + '\n')
             with open(directory+ 'frequencies/fractions_diff_'+str(batch_size), 'a', encoding='utf-8') as file:
                 file.write(path+'/fractions_diff_'+str(i-1) + '\n')
 
 if __name__ == '__main__':
-    # paths = diff(sets_to_evaluate,evaluated)
     for path in tqdm(sets_to_evaluate):
         evaluate(path,86400, evaluated)

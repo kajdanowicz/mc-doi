@@ -56,7 +56,7 @@ def ParallelExecutor(use_bar='tqdm', **joblib_args):
         return tmp
     return aprun
 
-aprun = ParallelExecutor(n_jobs=6)
+aprun = ParallelExecutor(n_jobs=12)
 
 batch_sizes = [3600, 43200, 86400, 604800]
 

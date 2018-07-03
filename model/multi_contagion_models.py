@@ -222,7 +222,7 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
 
     def assign_thresholds_matrix(self, matrix):
         # TODO check if matrix is consistent with model
-        pass
+        self.thresholds.assign_matrix(matrix)
 
     def assign_state_matrix(self, state_matrix):
         # TODO Implement this method

@@ -37,14 +37,14 @@ def histogram(list_of_directories,batch_size):
         plt.subplot(1,3,3)
         plt.hist(pred[i], bins=50)
         plt.title('Fractions from pred')
-        plt.savefig(directory+'histograms/batch_'+str(batch_size)+'_pred_'+str(i)+'.png', dpi=72)
+        plt.savefig(directory+'histograms/fractions/batch_'+str(batch_size)+'_pred_'+str(i)+'.png', dpi=72)
         plt.close('all')
         plt.figure()
         plt.scatter(x=org[i],y=pred[i], marker='o')
         plt.plot([(0,0),(1,1)],'r')
         plt.xlabel('Freq. from data')
         plt.ylabel('Freq. from pred')
-        plt.savefig(directory+'histograms/scatter_batch_'+str(batch_size)+'_pred_'+str(i)+'.png', dpi=72)
+        plt.savefig(directory+'histograms/fractions/scatter_batch_'+str(batch_size)+'_pred_'+str(i)+'.png', dpi=72)
         plt.close('all')
 
 

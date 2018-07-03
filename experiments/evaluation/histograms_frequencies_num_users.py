@@ -7,18 +7,22 @@ import numpy as np
 import pandas as pd
 import csv
 from matplotlib import pyplot as plt
+import os
 
 directory = '/nfs/maciej/mcdoi/louvain/'
+
+num_users = 100
 
 def histogram(list_of_directories,batch_size):
     abs_diffs = []
     org = []
     for d in list_of_directories:
-        with open(d, 'r', encoding='utf-8') as f:
-            spamreader = csv.reader(f, delimiter=',', quotechar='"')
-            for row in spamreader:
-                abs_diffs.append(np.absolute(float(row[1]) - float(row[2])))
-                org.append(float(row[1]))
+        if int(d.split('/')[5].split('_')[2]) >=num_users:
+            with open(d, 'r', encoding='utf-8') as f:
+                spamreader = csv.reader(f, delimiter=',', quotechar='"')
+                for row in spamreader:
+                    abs_diffs.append(np.absolute(float(row[1]) - float(row[2])))
+                    org.append(float(row[1]))
     plt.figure(figsize=(12, 6))
     plt.subplot(1,2,1)
     plt.hist(abs_diffs, bins=50)
@@ -26,7 +30,8 @@ def histogram(list_of_directories,batch_size):
     plt.subplot(1,2,2)
     plt.hist(org, bins=50)
     plt.title('Frequencies from data')
-    plt.savefig(directory+'histograms/fractions/hist_'+str(batch_size)+'.png', dpi=72)
+    os.makedirs(directory+'histograms/fractions_'+str(num_users), exist_ok=True)
+    plt.savefig(directory+'histograms/fractions_'+str(num_users)+'/hist_'+str(batch_size)+'.png', dpi=72)
 
 
 if __name__ == '__main__':

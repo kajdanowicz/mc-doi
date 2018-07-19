@@ -364,7 +364,7 @@ class ThresholdBase(BaseParameter):
         for l in range(len(indicators) - 1):
             # TODO refactor according to MCDOI
             U = adjacency.matrix_transposed_.dot(indicators[l])
-            F = U.dot(correlation.matrix) / data.num_contagions
+            F = self.f(U, correlation, data)
             # TODO export xor to indicators creation procedure
             temp = np.logical_xor(indicators[l], indicators[l + 1])  # aktywowane z l na l+1
             temp1 = np.logical_or(temp, indicators[

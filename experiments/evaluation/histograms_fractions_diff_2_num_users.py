@@ -36,7 +36,7 @@ def histogram(list_of_directories,batch_size):
         plt.hist(abs_diffs[i], bins=50)
         plt.title('Absolute differences of increase')
         plt.subplot(1,3,2)
-        plt.hist(org[i], bins=50, range=(0,1))
+        plt.hist(org[i], bins=50)
         plt.title('Increase of frequencies from data')
         plt.subplot(1,3,3)
         plt.hist(pred[i], bins=50)

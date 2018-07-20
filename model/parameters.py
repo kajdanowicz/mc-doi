@@ -10,6 +10,8 @@ from numpy import ndarray
 
 from data.data import Data
 
+from tqdm import trange
+
 
 class BaseParameter:
     """
@@ -246,19 +248,25 @@ class ContagionCorrelation(BaseParameter):
         self.num_contagions_=data.num_contagions
         self.matrix = np.eye(N=self.num_contagions_)
         self.num_users_performing_events_=len(data.event_log.user.unique())
-        unique_event_log = data.event_log[[Data.user, Data.contagion_id]].drop_duplicates(subset=None, keep='first', inplace=False)
-        co_occurrence_counter = pd.merge(unique_event_log[[Data.user, Data.contagion_id]], unique_event_log[[Data.user, Data.contagion_id]], on=Data.user,suffixes=('_1','_2')).groupby([Data.contagion_id+'_1',Data.contagion_id+'_2']).count()
-        for i in range(self.num_contagions_):
-            count_i = float(co_occurrence_counter.loc[(i, i)].values[0])
-            for j in range(i + 1, self.num_contagions_):
-                count_j = float(co_occurrence_counter.loc[(j, j)].values[0])
-                if (i,j) in co_occurrence_counter.index:
-                    count_ij = float(co_occurrence_counter.loc[(i, j)].values[0])
-                else:
-                    count_ij = 0.
-                contagion_correlation = count_ij / math.sqrt(count_i * count_j) - ((count_j-count_ij) / math.sqrt((self.num_users_performing_events_ - count_i) * count_j) + (count_i - count_ij) / math.sqrt(count_i * (self.num_users_performing_events_ - count_j))) / 2
-                self.matrix[i][j] = contagion_correlation
-                self.matrix[j][i] = contagion_correlation
+        # print(self.num_users_performing_events_)
+        if self.num_users_performing_events_ > 1: # review
+            unique_event_log = data.event_log[[Data.user, Data.contagion_id]].drop_duplicates(subset=None, keep='first', inplace=False)
+            co_occurrence_counter = pd.merge(unique_event_log[[Data.user, Data.contagion_id]], unique_event_log[[Data.user, Data.contagion_id]], on=Data.user,suffixes=('_1','_2')).groupby([Data.contagion_id+'_1',Data.contagion_id+'_2']).count()
+            for i in range(self.num_contagions_):
+                count_i = float(co_occurrence_counter.loc[(i, i)].values[0])
+                for j in range(i + 1, self.num_contagions_):
+                    count_j = float(co_occurrence_counter.loc[(j, j)].values[0])
+                    if (i,j) in co_occurrence_counter.index:
+                        count_ij = float(co_occurrence_counter.loc[(i, j)].values[0])
+                    else:
+                        count_ij = 0.
+                    # review
+                    if (self.num_users_performing_events_ != count_i) and  (self.num_users_performing_events_ != count_j):
+                        contagion_correlation = count_ij / math.sqrt(count_i * count_j) - ((count_j-count_ij) / math.sqrt((self.num_users_performing_events_ - count_i) * count_j) + (count_i - count_ij) / math.sqrt(count_i * (self.num_users_performing_events_ - count_j))) / 2
+                    else:
+                        contagion_correlation = 0
+                    self.matrix[i][j] = contagion_correlation
+                    self.matrix[j][i] = contagion_correlation
 
     def assign_matrix(self, matrix: ndarray):
         # TODO Handle self.num_users_performing_events_ attribute

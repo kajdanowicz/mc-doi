@@ -54,7 +54,7 @@ def save_results(result: Results, dir, num_predictions):
     for iter in range(num_predictions):
         matrix = result.get_result(iter).matrix
         file_name = dir + '/result_' + str(iter) + '.pickle'
-        os.makedirs(os.path.dirname(file_name), exist_ok=True)
+        os.makedirs(dir, exist_ok=True)
         with open(file_name, 'wb') as file:
             pickle.dump(matrix, file)
 
@@ -86,7 +86,9 @@ def predict(path, num_predictions, predicted):
         m.assign_thresholds_matrix(t)
         m.fill_state_matrix(d)
         result = m.predict(num_predictions)
-        save_results(result, path, num_predictions)
+        new_path = path.split('/')
+        new_path[4] = 'negative-random-activation'
+        save_results(result, '/'+os.path.join(*new_path), num_predictions)
         with open(directory+'predicted_7days', 'a+', encoding='utf-8') as handle:
             handle.write(path + '\n')
 

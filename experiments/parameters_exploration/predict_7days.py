@@ -86,7 +86,9 @@ def predict(path, num_predictions, predicted):
         m.assign_thresholds_matrix(t)
         m.fill_state_matrix(d)
         result = m.predict(num_predictions)
-        save_results(result, path, num_predictions)
+        new_path = path.split('/')
+        new_path[4] = 'no-negative-exclusion'
+        save_results(result, '/'+os.path.join(*new_path), num_predictions)
         with open(directory+'predicted_7days', 'a+', encoding='utf-8') as handle:
             handle.write(path + '\n')
 

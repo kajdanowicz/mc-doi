@@ -41,9 +41,9 @@ def ParallelExecutor(use_bar='tqdm', **joblib_args):
         return tmp
     return aprun
 
-aprun = ParallelExecutor(n_jobs=10)
+aprun = ParallelExecutor(n_jobs=18)
 
-directory = '/nfs/maciej/mcdoi/louvain/'
+directory = '/nfs/maciej/mcdoi/negative-random-activation/'
 
 with open(directory+'predicted_7days', 'r', encoding='utf-8') as file:
     predicted = file.readlines()

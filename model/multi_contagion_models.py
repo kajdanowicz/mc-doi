@@ -164,7 +164,7 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
             active_contagions = self.active_contagions(user)  # contagions in which user is already active
             contagions_above_threshold_not_active = self.__contagions_above_threshold_not_active(active_contagions,
                                                                                                  contagions_above_threshold)  # delete active_contagions from contagions_above_threshold
-            if self.__check_negative_contagion_correlation(contagions_above_threshold_not_active):  # check weather
+            if not contagions_above_threshold_not_active.size == 0:  # check weather
                 # candidates are not negatively correlated
                 self.__activation(contagions_above_threshold_not_active, user)
                 self.__increase_activity_index(user)

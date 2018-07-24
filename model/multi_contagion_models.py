@@ -72,38 +72,34 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
         **kwargs
             Arbitrary keyword arguments.
         """
-        if (self.contagion_correlation.matrix is None) and (self.adjacency.matrix is None) and (
-                self.thresholds.matrix is None):
+        if (self.contagion_correlation.matrix is None) and (self.adjacency.matrix is None) and (self.thresholds.matrix is None):
             self.estimate_contagion_correlation_matrix(data)
-            # print('ContagionCorrelation')
+            print('ContagionCorrelation')
             self.estimate_adjacency_matrix(data)
-            # print('Adjacency')
-            self.estimate_threshold_matrix(data, adjacency=self.adjacency, correlation=self.contagion_correlation,
-                                           **kwargs)
-            # print('Threshold')
+            print('Adjacency')
+            self.estimate_threshold_matrix(data, adjacency = self.adjacency, correlation = self.contagion_correlation, **kwargs)
+            print('Threshold')
             self.fill_state_matrix(data)
-            # print('State')
+            print('State')
         else:
             raise NameError('Can not estimate parameters when any of them is already assigned')
 
     def fit_only_thresholds_states(self, data: Data, **kwargs):
         if (self.contagion_correlation.matrix is not None) and (self.adjacency.matrix is not None):
-            self.estimate_threshold_matrix(data, adjacency=self.adjacency, correlation=self.contagion_correlation,
-                                           **kwargs)
+            self.estimate_threshold_matrix(data, adjacency=self.adjacency, correlation=self.contagion_correlation, **kwargs)
             # print('Threshold')
             self.fill_state_matrix(data)
             # print('State')
         else:
-            raise NameError(
-                'Can not estimate threshold - contagion correlation matrix or adjacency matrix not assigned')
+            raise NameError('Can not estimate threshold - contagion correlation matrix or adjacency matrix not assigned')
+
 
     def fill_state_matrix(self, data):
         # TODO state_matrix_.matrix -> sparse
         self.state_matrix_ = StateMatrix()
         self.state_matrix_.num_contagions = data.num_contagions
         self.state_matrix_.num_users = data.num_users
-        self.state_matrix_.matrix = np.full((self.state_matrix_.num_users, self.state_matrix_.num_contagions), False,
-                                            dtype=bool)
+        self.state_matrix_.matrix = np.full((self.state_matrix_.num_users, self.state_matrix_.num_contagions), False, dtype=bool)
         for index, row in data.event_log.iterrows():
             self.state_matrix_.matrix[row[Data.user]][row[Data.contagion_id]] = True
         self.activity_index_vector_ = np.sum(self.state_matrix_.matrix, axis=1)
@@ -124,7 +120,7 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
     @staticmethod
     def from_pickle(directory):
         # TODO directory + ... -> fileName
-        return pickle.load(open(directory + 'MultiContagionDynamicThresholdModel.p', 'rb'))
+        return pickle.load(open(directory+'MultiContagionDynamicThresholdModel.p','rb'))
 
     def predict(self, num_iterations: int) -> Results:
         # TODO "method" rst
@@ -164,20 +160,13 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
         activation_candidates = self.__find_activation_candidates(activation_matrix)
         for user in self.__users_above_threshold(activation_candidates):
             contagions_above_threshold = self.__contagions_above_threshold(activation_candidates,
-                                                                           user)  # contagions for user in which threshold has been exceeded
+                                                      user)  # contagions for user in which threshold has been exceeded
             active_contagions = self.active_contagions(user)  # contagions in which user is already active
             contagions_above_threshold_not_active = self.__contagions_above_threshold_not_active(active_contagions,
                                                                                                  contagions_above_threshold)  # delete active_contagions from contagions_above_threshold
             if self.__check_negative_contagion_correlation(contagions_above_threshold_not_active):  # check weather
                 # candidates are not negatively correlated
                 self.__activation(contagions_above_threshold_not_active, user)
-                self.__increase_activity_index(user)
-                num_activations += 1
-                self.__update_threshold(user)
-            elif contagions_above_threshold_not_active.size > 0:
-                # select one random contagion to activate
-                contagion_to_activate = np.random.choice(contagions_above_threshold_not_active)
-                self.__activation(contagion_to_activate, user)
                 self.__increase_activity_index(user)
                 num_activations += 1
                 self.__update_threshold(user)

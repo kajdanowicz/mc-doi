@@ -85,7 +85,6 @@ def evaluate(path, iter_length, evaluated):
     new_path = path.split('/')
     new_path[4] = 'negative-random-activation'
     new_path = '/'+os.path.join(*new_path)
-    print(new_path)
     results = []
     for i in range(0,7):
         with open(new_path+'/result_'+str(i)+'.pickle', 'rb') as result:

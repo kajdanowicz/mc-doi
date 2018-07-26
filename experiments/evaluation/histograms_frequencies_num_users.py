@@ -9,7 +9,7 @@ import csv
 from matplotlib import pyplot as plt
 import os
 
-directory = '/nfs/maciej/mcdoi/louvain/'
+directory = '/nfs/maciej/mcdoi/negative-random-activation/'
 
 num_users = 100
 

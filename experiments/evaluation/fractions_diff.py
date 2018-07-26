@@ -58,7 +58,7 @@ def ParallelExecutor(use_bar='tqdm', **joblib_args):
         return tmp
     return aprun
 
-aprun = ParallelExecutor(n_jobs=1)
+aprun = ParallelExecutor(n_jobs=20)
 
 # def directories_to_evaluate(directory):
 #     paths = []
@@ -102,5 +102,6 @@ def evaluate(path, iter_length, evaluated):
                 file.write(path+'/fractions_diff_'+str(i-1) + '\n')
 
 if __name__ == '__main__':
-    for path in tqdm(sets_to_evaluate):
-        evaluate(path,86400, evaluated)
+    # for path in tqdm(sets_to_evaluate):
+    #     evaluate(path,86400, evaluated)
+    aprun(bar='txt')(delayed(evaluate)(path,86400,evaluated) for path in sets_to_evaluate)

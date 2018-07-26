@@ -19,11 +19,11 @@ with open(sets_to_evaluate_file, 'r', encoding='utf-8') as sets_to_evaluate:
     sets_to_evaluate = sets_to_evaluate.readlines()
 sets_to_evaluate = [x.strip() for x in sets_to_evaluate]
 
-directory = '/nfs/maciej/mcdoi/louvain/'
+directory = '/nfs/maciej/mcdoi/negative-random-activation/'
 
 evaluated = set()
 for batch_size in [3600, 43200, 86400, 604800]:
-    with open(directory + 'frequencies/frequencies_'+str(batch_size), 'r', encoding='utf-8') as file:
+    with open(directory + 'frequencies/frequencies_'+str(batch_size), 'r+', encoding='utf-8') as file:
         e = file.readlines()
     evaluated.update([x.strip() for x in e])
 
@@ -82,20 +82,24 @@ def evaluate(path, iter_length, evaluated):
     with open(os.path.dirname(os.path.dirname(path)) + '/contagion_dict' + '.pickle', 'rb') as file:
         dict = pickle.load(file)
     # inv_dict = {v: k for k, v in dict.items()}
-    results = []
-    for i in range(0,7):
-        with open(path+'/result_'+str(i)+'.pickle', 'rb') as result:
-            results.append(pickle.load(result))
-    for i in range(1,min(7,33-history)+1):
-        if path+'/frequencies_'+str(i-1) not in evaluated:
-            open(path+'/frequencies_'+str(i-1), 'w', encoding='utf-8').close()
-            e = event_log[event_log['ts'] <= time_grid[history-1]+i*iter_length].drop_duplicates(subset=['contagion', 'user'], keep='first')
-            e = e.groupby(by=['contagion']).count()['ts']
-            for key, value in dict.items():
-                with open(path+'/frequencies_'+str(i-1), 'a', encoding='utf-8') as file:
-                    file.write(key + ',' + str(e.loc[key]/results[0].shape[0]) + ',' + str(np.sum(results[i-1], axis=0)[value]/results[0].shape[0]) + '\n')
-            with open(directory+ 'frequencies/frequencies_'+str(batch_size), 'a', encoding='utf-8') as file:
-                file.write(path+'/frequencies_'+str(i-1) + '\n')
+    new_path = path.split('/')
+    new_path[4] = 'negative-random-activation'
+    new_path = '/'+os.path.join(*new_path)
+    print(new_path)
+    # results = []
+    # for i in range(0,7):
+    #     with open(new_path+'/result_'+str(i)+'.pickle', 'rb') as result:
+    #         results.append(pickle.load(result))
+    # for i in range(1,min(7,33-history)+1):
+    #     if new_path+'/frequencies_'+str(i-1) not in evaluated:
+    #         open(new_path+'/frequencies_'+str(i-1), 'w', encoding='utf-8').close()
+    #         e = event_log[event_log['ts'] <= time_grid[history-1]+i*iter_length].drop_duplicates(subset=['contagion', 'user'], keep='first')
+    #         e = e.groupby(by=['contagion']).count()['ts']
+    #         for key, value in dict.items():
+    #             with open(new_path+'/frequencies_'+str(i-1), 'a', encoding='utf-8') as file:
+    #                 file.write(key + ',' + str(e.loc[key]/results[0].shape[0]) + ',' + str(np.sum(results[i-1], axis=0)[value]/results[0].shape[0]) + '\n')
+    #         with open(directory+ 'frequencies/frequencies_'+str(batch_size), 'a', encoding='utf-8') as file:
+    #             file.write(new_path+'/frequencies_'+str(i-1) + '\n')
 
 if __name__ == '__main__':
     # paths = diff(sets_to_evaluate,evaluated)

@@ -58,7 +58,7 @@ def ParallelExecutor(use_bar='tqdm', **joblib_args):
         return tmp
     return aprun
 
-aprun = ParallelExecutor(n_jobs=1)
+aprun = ParallelExecutor(n_jobs=18)
 
 # def directories_to_evaluate(directory):
 #     paths = []
@@ -86,22 +86,23 @@ def evaluate(path, iter_length, evaluated):
     new_path[4] = 'negative-random-activation'
     new_path = '/'+os.path.join(*new_path)
     print(new_path)
-    # results = []
-    # for i in range(0,7):
-    #     with open(new_path+'/result_'+str(i)+'.pickle', 'rb') as result:
-    #         results.append(pickle.load(result))
-    # for i in range(1,min(7,33-history)+1):
-    #     if new_path+'/frequencies_'+str(i-1) not in evaluated:
-    #         open(new_path+'/frequencies_'+str(i-1), 'w', encoding='utf-8').close()
-    #         e = event_log[event_log['ts'] <= time_grid[history-1]+i*iter_length].drop_duplicates(subset=['contagion', 'user'], keep='first')
-    #         e = e.groupby(by=['contagion']).count()['ts']
-    #         for key, value in dict.items():
-    #             with open(new_path+'/frequencies_'+str(i-1), 'a', encoding='utf-8') as file:
-    #                 file.write(key + ',' + str(e.loc[key]/results[0].shape[0]) + ',' + str(np.sum(results[i-1], axis=0)[value]/results[0].shape[0]) + '\n')
-    #         with open(directory+ 'frequencies/frequencies_'+str(batch_size), 'a', encoding='utf-8') as file:
-    #             file.write(new_path+'/frequencies_'+str(i-1) + '\n')
+    results = []
+    for i in range(0,7):
+        with open(new_path+'/result_'+str(i)+'.pickle', 'rb') as result:
+            results.append(pickle.load(result))
+    for i in range(1,min(7,33-history)+1):
+        if new_path+'/frequencies_'+str(i-1) not in evaluated:
+            open(new_path+'/frequencies_'+str(i-1), 'w', encoding='utf-8').close()
+            e = event_log[event_log['ts'] <= time_grid[history-1]+i*iter_length].drop_duplicates(subset=['contagion', 'user'], keep='first')
+            e = e.groupby(by=['contagion']).count()['ts']
+            for key, value in dict.items():
+                with open(new_path+'/frequencies_'+str(i-1), 'a', encoding='utf-8') as file:
+                    file.write(key + ',' + str(e.loc[key]/results[0].shape[0]) + ',' + str(np.sum(results[i-1], axis=0)[value]/results[0].shape[0]) + '\n')
+            with open(directory+ 'frequencies/frequencies_'+str(batch_size), 'a', encoding='utf-8') as file:
+                file.write(new_path+'/frequencies_'+str(i-1) + '\n')
 
 if __name__ == '__main__':
     # paths = diff(sets_to_evaluate,evaluated)
-    for path in tqdm(sets_to_evaluate):
-        evaluate(path,86400,evaluated)
+    # for path in tqdm(sets_to_evaluate):
+    #     evaluate(path,86400,evaluated)
+    aprun(bar='txt')(delayed(evaluate)(path,86400,evaluated) for path in sets_to_evaluate)

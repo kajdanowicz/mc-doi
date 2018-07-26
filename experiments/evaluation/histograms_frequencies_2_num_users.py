@@ -8,8 +8,7 @@ import pandas as pd
 import csv
 from matplotlib import pyplot as plt
 
-directory = '/nfs/maciej/mcdoi/louvain/'
-
+directory = '/nfs/maciej/mcdoi/no-negative-exclusion/'
 num_users = 100
 
 def histogram(list_of_directories,batch_size):

@@ -97,7 +97,6 @@ def estimate_t_and_predict(path_dataset_history, batch_type, batch_sizes, num_pr
                 new_path_dataset_history = path_dataset_history.split('/')
                 new_path_dataset_history[4] = 'dynamic-linear-threshold'
                 new_path_dataset_history = '/'+os.path.join(*new_path_dataset_history)
-                print(new_path_dataset_history)
                 file_name = new_path_dataset_history + '/' + batch_type + '/size_' + str(batch_size) + '/threshold.pickle'
                 os.makedirs(os.path.dirname(file_name), exist_ok=True)
                 with open(file_name, 'wb') as threshold_file:

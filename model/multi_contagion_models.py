@@ -93,7 +93,6 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
         else:
             raise NameError('Can not estimate threshold - contagion correlation matrix or adjacency matrix not assigned')
 
-
     def fill_state_matrix(self, data):
         # TODO state_matrix_.matrix -> sparse
         self.state_matrix_ = StateMatrix()

@@ -410,5 +410,9 @@ class ThresholdMultiContagion(ThresholdBase):
 
 
 class ThresholdSingleContagion(ThresholdBase):
+
+    def __init__(self):
+        super(ThresholdSingleContagion, self).__init__()
+
     def f(self, U, correlation: ContagionCorrelation, data: Data):
         return U  # tutaj była normalizacja, ale chyba jest niepotrzebna @macio232

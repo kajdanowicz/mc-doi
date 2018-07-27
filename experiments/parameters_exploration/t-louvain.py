@@ -6,7 +6,8 @@ from model.results import Results
 import pandas as pd
 from data.data import Data
 from model.parameters import ContagionCorrelation, Adjacency
-from model.multi_contagion_models import MultiContagionDynamicThresholdModel as MCDOI
+from model.single_contagion_models import SingleContagionDynamicThresholdModel as DynamicLinearThreshold
+
 import numpy as np
 
 sets_to_estimate_file = list(sys.argv)[1]
@@ -78,8 +79,6 @@ def estimate_t_and_predict(path_dataset_history, batch_type, batch_sizes, num_pr
     if flag:
         edges = pd.read_csv(os.path.dirname(path_dataset_history) + '/edges', header = None)
         event_log = pd.read_csv(path_dataset_history + '/event_log', header=None)
-        with open(path_dataset_history + '/contagion.pickle', 'rb') as file:
-            cc = pickle.load(file)
         with open(path_dataset_history + '/adjacency.pickle', 'rb') as file:
             a = pickle.load(file)
         for batch_size in batch_sizes:
@@ -92,8 +91,7 @@ def estimate_t_and_predict(path_dataset_history, batch_type, batch_sizes, num_pr
                     d.load_data_data_frame(event_log, edges)
                     with open(path_dataset_history + '/data_obj.pickle', 'wb') as f:
                         pickle.dump(d, f)
-                m = MCDOI()
-                m.assign_contagions_correlation_matrix(cc)
+                m = DynamicLinearThreshold()
                 m.assign_adjacency_matrix(a)
                 m.fit_only_thresholds_states(d, batch_type = batch_type, batch_size = batch_size)
                 file_name = path_dataset_history + '/' + batch_type + '/size_' + str(batch_size) + '/threshold.pickle'

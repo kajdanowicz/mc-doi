@@ -106,7 +106,7 @@ def estimate_t_and_predict(path_dataset_history, batch_type, batch_sizes, num_pr
                 with open(directory+'estimated_t+predict', 'a+', encoding='utf-8') as handle:
                     handle.write(path_dataset_history + '/' + batch_type + '/size_' + str(batch_size) + '\n')
                 with open(directory + 'predicted_7days', 'a+', encoding='utf-8') as handle:
-                    handle.write(new_path_dataset_history + '/' + batch_type + '/size_' + str(batch_size) + '\n')
+                    handle.write(path_dataset_history + '/' + batch_type + '/size_' + str(batch_size) + '\n')
 
 
 # def make_dataset_history_paths():

@@ -86,20 +86,23 @@ def evaluate(path, iter_length, evaluated):
     event_log.columns = ['ts', 'user', 'contagion']
     with open(os.path.dirname(os.path.dirname(path)) + '/contagion_dict' + '.pickle', 'rb') as file:
         d = pickle.load(file)
+    new_path = path.split('/')
+    new_path[4] = 'dynamic-linear-threshold'
+    new_path = '/'+os.path.join(*new_path)
     results = []
     for i in range(0,7):
-        with open(path+'/result_'+str(i)+'.pickle', 'rb') as result:
+        with open(new_path+'/result_'+str(i)+'.pickle', 'rb') as result:
             results.append(pickle.load(result))
     for i in range(1,min(7,33-history)+1):
-        if path+'/fractions_diff_'+str(i-1) not in evaluated:
-            open(path+'/fractions_diff_'+str(i-1), 'w', encoding='utf-8').close()
+        if new_path+'/fractions_diff_'+str(i-1) not in evaluated:
+            open(new_path+'/fractions_diff_'+str(i-1), 'w', encoding='utf-8').close()
             e = event_log[event_log['ts'] <= time_grid[history-1]+i*iter_length].drop_duplicates(subset=['contagion', 'user'], keep='first')
             e = e.groupby(by=['contagion']).count()['ts']
             for key, value in d.items():
-                with open(path+'/fractions_diff_'+str(i-1), 'a', encoding='utf-8') as file:
+                with open(new_path+'/fractions_diff_'+str(i-1), 'a', encoding='utf-8') as file:
                     file.write(key + ',' + str((e.loc[key]-original_fractions.loc[key])/results[0].shape[0]) + ',' + str((np.sum(results[i-1], axis=0)[value]-original_fractions.loc[key])/results[0].shape[0]) + '\n')
             with open(directory+ 'frequencies/fractions_diff_'+str(batch_size), 'a', encoding='utf-8') as file:
-                file.write(path+'/fractions_diff_'+str(i-1) + '\n')
+                file.write(new_path+'/fractions_diff_'+str(i-1) + '\n')
 
 if __name__ == '__main__':
     # for path in tqdm(sets_to_evaluate):

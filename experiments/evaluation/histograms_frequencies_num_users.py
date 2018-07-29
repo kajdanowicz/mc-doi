@@ -9,7 +9,7 @@ import csv
 from matplotlib import pyplot as plt
 import os
 
-directory = '/nfs/maciej/mcdoi/louvain/'
+directory = '/nfs/maciej/mcdoi/dynamic-linear-threshold/'
 
 num_users = 100
 
@@ -35,7 +35,7 @@ def histogram(list_of_directories,batch_size):
 
 
 if __name__ == '__main__':
-    for batch_size in tqdm([3600, 43200, 86400, 604800]):
+    for batch_size in tqdm([86400, 604800]):  # tqdm([3600, 43200, 86400, 604800])
         with open(directory + 'frequencies/frequencies_' + str(batch_size), 'r', encoding='utf-8') as file:
             e = file.readlines()
         evaluated = set([x.strip() for x in e])

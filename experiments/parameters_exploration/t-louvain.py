@@ -44,7 +44,7 @@ def ParallelExecutor(use_bar='tqdm', **joblib_args):
 
 aprun = ParallelExecutor(n_jobs=12)
 
-directory = '/nfs/maciej/mcdoi/dynamic-linear-threshold/'
+directory = '/nfs/maciej/mcdoi/linear-threshold/'
 
 with open(directory+'estimated_t+predict', 'r', encoding='utf-8') as file:
     estimated = file.readlines()
@@ -95,7 +95,7 @@ def estimate_t_and_predict(path_dataset_history, batch_type, batch_sizes, num_pr
                 m.assign_adjacency_matrix(a)
                 m.fit_only_thresholds_states(d, batch_type = batch_type, batch_size = batch_size)
                 new_path_dataset_history = path_dataset_history.split('/')
-                new_path_dataset_history[4] = 'dynamic-linear-threshold'
+                new_path_dataset_history[4] = 'linear-threshold'
                 new_path_dataset_history = '/'+os.path.join(*new_path_dataset_history)
                 file_name = new_path_dataset_history + '/' + batch_type + '/size_' + str(batch_size) + '/threshold.pickle'
                 os.makedirs(os.path.dirname(file_name), exist_ok=True)

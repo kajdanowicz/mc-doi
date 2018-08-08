@@ -336,8 +336,7 @@ class Threshold(BaseParameter):
             indicators.append(I)
             I = copy.deepcopy(I)
             event_id += batch_size
-        Y = np.sum(indicators[0], axis=1)
-        self._estimate(Y, a_matrix, cc_matrix, data, indicators)
+        self._estimate(a_matrix, cc_matrix, data, indicators)
 
     def estimate_time_batch(self, data, a_matrix, cc_matrix, batch_size):
         data.add_contagion_id()
@@ -350,14 +349,13 @@ class Threshold(BaseParameter):
             indicators.append(I)
             I = copy.deepcopy(I)
             ts += batch_size
-        Y = np.sum(indicators[0], axis=1)
-        self._estimate(Y, a_matrix, cc_matrix, data, indicators)
+        self._estimate(a_matrix, cc_matrix, data, indicators)
 
     def estimate_hybrid_batch(self, data):
         # TODO Implement
         pass
 
-    def _estimate(self, Y, adjacency: Adjacency, correlation : ContagionCorrelation, data : Data, indicators : list):
+    def _estimate(self, adjacency: Adjacency, correlation : ContagionCorrelation, data : Data, indicators : list):
         # TODO refactor
         adjacency.transposed()
         max_neg = defaultdict(lambda : -2)
@@ -369,19 +367,15 @@ class Threshold(BaseParameter):
             # TODO export xor to indicators creation procedure
             temp = np.logical_xor(indicators[l], indicators[l + 1])  # aktywowane z l na l+1
             temp1 = np.logical_or(temp, indicators[l])  # nieaktywowane z l na l+1 z wylaczeniem wczesniej aktywnych (po nalozeniu nagacji)
-            activated = set()
             for i in range(data.num_users):
                 for j in range(data.num_contagions):
                     if temp[i][j]:
                         if F[i][j] > 0:
-                            min_pos[i] = min(min_pos[i], 1 - math.pow(1 - F[i][j], 1 / float(Y[i] + 1)))
+                            min_pos[i] = min(min_pos[i],F[i][j])
                         else:
                             min_pos[i] = min(min_pos[i], 0)  # czy chcemy wyeliminować aktywacje, przy ujemnym wpływie?
-                        activated.add(i)
                     if not temp1[i][j]:
-                        max_neg[i] = max(max_neg[i], 1 - math.pow(1 - F[i][j], 1 / float(Y[i] + 1)))
-            for i in activated:
-                Y[i] += 1
+                        max_neg[i] = max(max_neg[i], F[i][j])
         results = []
         for user in range(data.num_users):
             if min_pos[user] > 1:

@@ -32,11 +32,11 @@ class BaseMultiContagionDiffusionModel:
         pass
 
 
-class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
+class MultiContagionLinearThresholdModel(BaseMultiContagionDiffusionModel):
     """
-    The base class for Mutli-Contagion Diffusion of Information MultiContagionDynamicThresholdModel.
+    The base class for Mutli-Contagion Diffusion of Information MultiContagionLinearThresholdModel.
 
-    A MultiContagionDynamicThresholdModel stores all the model parameters required to perform prediction of
+    A MultiContagionLinearThresholdModel stores all the model parameters required to perform prediction of
     multi-contagious diffusion precess.
 
     Attributes
@@ -102,7 +102,6 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
         self.state_matrix_.matrix = np.full((self.state_matrix_.num_users, self.state_matrix_.num_contagions), False, dtype=bool)
         for index, row in data.event_log.iterrows():
             self.state_matrix_.matrix[row[Data.user]][row[Data.contagion_id]] = True
-        self.activity_index_vector_ = np.sum(self.state_matrix_.matrix, axis=1)
 
     def estimate_contagion_correlation_matrix(self, data):
         self.contagion_correlation.estimate(data)
@@ -115,12 +114,12 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
 
     def to_pickle(self, directory):
         # TODO directory + ... -> fileName
-        pickle.dump(self, open(directory + 'MultiContagionDynamicThresholdModel.p', 'wb'))
+        pickle.dump(self, open(directory + 'MultiContagionLinearThresholdModel.p', 'wb'))
 
     @staticmethod
     def from_pickle(directory):
         # TODO directory + ... -> fileName
-        return pickle.load(open(directory+'MultiContagionDynamicThresholdModel.p','rb'))
+        return pickle.load(open(directory+'MultiContagionLinearThresholdModel.p','rb'))
 
     def predict(self, num_iterations: int) -> Results:
         # TODO "method" rst
@@ -167,25 +166,12 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
             if self.__check_negative_contagion_correlation(contagions_above_threshold_not_active):  # check weather
                 # candidates are not negatively correlated
                 self.__activation(contagions_above_threshold_not_active, user)
-                self.__increase_activity_index(user)
-                num_activations += 1
-                self.__update_threshold(user)
 
     def __check_negative_contagion_correlation(self, contagions_above_threshold_not_active):
         # TODO review of correctness of condition
         return (not np.any(self.contagion_correlation.matrix[contagions_above_threshold_not_active[:,
                                                              None], contagions_above_threshold_not_active] < 0)) and (
                    not contagions_above_threshold_not_active.size == 0)
-
-    def __update_threshold(self, user):
-        # TODO assign vector in one line
-        for contagion in range(self.state_matrix_.num_contagions):  # temporary solution
-            self.thresholds.matrix[user][contagion] = 1 - math.pow(
-                1 - self.thresholds.initial_matrix[user][contagion],
-                self.activity_index_vector_[user] + 1)  # aktualizacja thety
-
-    def __increase_activity_index(self, user):
-        self.activity_index_vector_[user] += 1  # Y[user]+=1 #zwiekszenie licznika aktywacji uzytkownika user
 
     def __activation(self, contagions_above_threshold_not_active, user):
         self.state_matrix_.matrix[user][

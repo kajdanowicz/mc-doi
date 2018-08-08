@@ -3,7 +3,7 @@ import os
 sys.path.append('/home/maciek/pyCharmProjects/mc-doi')
 from datetime import datetime
 import logging
-from model.multi_contagion_models import MultiContagionDynamicThresholdModel as MCDOI
+from model.multi_contagion_models import MultiContagionLinearThresholdModel as MCDOI
 from data.data import Data
 from model.results import Results
 import pickle

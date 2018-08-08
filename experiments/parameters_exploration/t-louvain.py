@@ -6,7 +6,7 @@ from model.results import Results
 import pandas as pd
 from data.data import Data
 from model.parameters import ContagionCorrelation, Adjacency
-from model.single_contagion_models import SingleContagionDynamicThresholdModel as DynamicLinearThreshold
+from model.single_contagion_models import SingleContagionDynamicThresholdModel as LinearThreshold
 
 import numpy as np
 
@@ -91,7 +91,7 @@ def estimate_t_and_predict(path_dataset_history, batch_type, batch_sizes, num_pr
                     d.load_data_data_frame(event_log, edges)
                     with open(path_dataset_history + '/data_obj.pickle', 'wb') as f:
                         pickle.dump(d, f)
-                m = DynamicLinearThreshold()
+                m = LinearThreshold()
                 m.assign_adjacency_matrix(a)
                 m.fit_only_thresholds_states(d, batch_type = batch_type, batch_size = batch_size)
                 new_path_dataset_history = path_dataset_history.split('/')

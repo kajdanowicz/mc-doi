@@ -376,12 +376,12 @@ class ThresholdBase(BaseParameter):
                         # print(min(F[i][j],1))
                         # print(1 / float(Y[i] + 1))
                         if F[i][j] > 0:
-                            min_pos[i] = min(min_pos[i], 1 - math.pow(1 - min(F[i][j],1), 1 / float(Y[i] + 1)))
+                            min_pos[i] = min(min_pos[i],min(F[i][j],1))
                         else:
                             min_pos[i] = min(min_pos[i], 0)  # czy chcemy wyeliminować aktywacje, przy ujemnym wpływie?
                         activated.add(i)
                     if not temp1[i][j]:
-                        max_neg[i] = max(max_neg[i], 1 - math.pow(1 - min(F[i][j],1), 1 / float(Y[i] + 1)))
+                        max_neg[i] = max(max_neg[i], min(F[i][j],1))
             for i in activated:
                 Y[i] += 1
         results = []

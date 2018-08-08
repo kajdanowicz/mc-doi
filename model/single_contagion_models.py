@@ -69,7 +69,6 @@ class SingleContagionDynamicThresholdModel(MultiContagionDynamicThresholdModel):
         self.state_matrix_.matrix = np.full((self.state_matrix_.num_users, self.state_matrix_.num_contagions), False, dtype=bool)
         for index, row in data.event_log.iterrows():
             self.state_matrix_.matrix[row[Data.user]][row[Data.contagion_id]] = True
-        self.activity_index_vector_ = np.sum(self.state_matrix_.matrix, axis=1)
 
     def estimate_threshold_matrix(self, data: Data, adjacency, **kwargs):
         self.thresholds.estimate(data, adjacency=adjacency, **kwargs)
@@ -131,19 +130,6 @@ class SingleContagionDynamicThresholdModel(MultiContagionDynamicThresholdModel):
             if self.__check_negative_contagion_correlation(contagions_above_threshold_not_active):  # check weather
                 # candidates are not negatively correlated
                 self.__activation(contagions_above_threshold_not_active, user)
-                self.__increase_activity_index(user)
-                num_activations += 1
-                self.__update_threshold(user)
-
-    def __update_threshold(self, user):
-        # TODO assign vector in one line
-        for contagion in range(self.state_matrix_.num_contagions):  # temporary solution
-            self.thresholds.matrix[user][contagion] = 1 - math.pow(
-                1 - self.thresholds.initial_matrix[user][contagion],
-                self.activity_index_vector_[user] + 1)  # aktualizacja thety
-
-    def __increase_activity_index(self, user):
-        self.activity_index_vector_[user] += 1  # Y[user]+=1 #zwiekszenie licznika aktywacji uzytkownika user
 
     def __activation(self, contagions_above_threshold_not_active, user):
         self.state_matrix_.matrix[user][

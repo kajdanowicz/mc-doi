@@ -11,7 +11,7 @@ import seaborn as sns; sns.set(color_codes=True)
 from scipy import stats
 from sklearn.metrics import mean_squared_error
 
-directory = '/nfs/maciej/mcdoi/louvain/'
+directory = '/nfs/maciej/mcdoi/correlated-linear-threshold/'
 
 num_users = 100
 
@@ -49,7 +49,7 @@ def histogram(list_of_directories,batch_size):
 
 
 if __name__ == '__main__':
-    for batch_size in tqdm([3600, 43200, 86400, 604800]):
+    for batch_size in tqdm([86400, 604800]):
         with open(directory + 'frequencies/fractions_diff_' + str(batch_size), 'r', encoding='utf-8') as file:
             e = file.readlines()
         evaluated = set([x.strip() for x in e])

@@ -19,7 +19,7 @@ with open(sets_to_evaluate_file, 'r', encoding='utf-8') as sets_to_evaluate:
     sets_to_evaluate = sets_to_evaluate.readlines()
 sets_to_evaluate = [x.strip() for x in sets_to_evaluate]
 
-directory = '/nfs/maciej/mcdoi/dynamic-linear-threshold/'
+directory = '/nfs/maciej/mcdoi/linear-threshold/'
 
 evaluated = set()
 for batch_size in [3600, 43200, 86400, 604800]:
@@ -87,7 +87,7 @@ def evaluate(path, iter_length, evaluated):
     with open(os.path.dirname(os.path.dirname(path)) + '/contagion_dict' + '.pickle', 'rb') as file:
         d = pickle.load(file)
     new_path = path.split('/')
-    new_path[4] = 'dynamic-linear-threshold'
+    new_path[4] = 'linear-threshold'
     new_path = '/'+os.path.join(*new_path)
     results = []
     for i in range(0,7):

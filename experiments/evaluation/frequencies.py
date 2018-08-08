@@ -19,7 +19,7 @@ with open(sets_to_evaluate_file, 'r', encoding='utf-8') as sets_to_evaluate:
     sets_to_evaluate = sets_to_evaluate.readlines()
 sets_to_evaluate = [x.strip() for x in sets_to_evaluate]
 
-directory = '/nfs/maciej/mcdoi/louvain/'
+directory = '/nfs/maciej/mcdoi/correlated-linear-threshold/'
 
 evaluated = set()
 for batch_size in [3600, 43200, 86400, 604800]:

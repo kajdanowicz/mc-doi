@@ -9,7 +9,7 @@ import csv
 from matplotlib import pyplot as plt
 import os
 
-directory = '/nfs/maciej/mcdoi/dynamic-linear-threshold/'
+directory = '/nfs/maciej/mcdoi/linear-threshold/'
 
 num_users = 100
 

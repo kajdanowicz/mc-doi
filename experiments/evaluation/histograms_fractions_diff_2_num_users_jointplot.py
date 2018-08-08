@@ -11,7 +11,7 @@ import seaborn as sns; sns.set(color_codes=True)
 from scipy import stats
 from sklearn.metrics import mean_squared_error
 
-directory = '/nfs/maciej/mcdoi/dynamic-linear-threshold/'
+directory = '/nfs/maciej/mcdoi/linear-threshold/'
 
 num_users = 100
 

@@ -78,8 +78,6 @@ def estimate_t_and_predict(path_dataset_history, batch_type, batch_sizes, num_pr
     if flag:
         edges = pd.read_csv(os.path.dirname(path_dataset_history) + '/edges', header = None)
         event_log = pd.read_csv(path_dataset_history + '/event_log', header=None)
-        with open(path_dataset_history + '/contagion.pickle', 'rb') as file:
-            cc = pickle.load(file)
         with open(path_dataset_history + '/adjacency.pickle', 'rb') as file:
             a = pickle.load(file)
         for batch_size in batch_sizes:
@@ -93,15 +91,17 @@ def estimate_t_and_predict(path_dataset_history, batch_type, batch_sizes, num_pr
                     with open(path_dataset_history + '/data_obj.pickle', 'wb') as f:
                         pickle.dump(d, f)
                 m = MCDOI()
-                m.assign_contagions_correlation_matrix(cc)
                 m.assign_adjacency_matrix(a)
                 m.fit_only_thresholds_states(d, batch_type = batch_type, batch_size = batch_size)
-                file_name = path_dataset_history + '/' + batch_type + '/size_' + str(batch_size) + '/threshold.pickle'
+                new_path_dataset_history = path_dataset_history.split('/')
+                new_path_dataset_history[4] = 'correlated-linear-threshold'
+                new_path_dataset_history = '/'+os.path.join(*new_path_dataset_history)
+                file_name = new_path_dataset_history + '/' + batch_type + '/size_' + str(batch_size) + '/threshold.pickle'
                 os.makedirs(os.path.dirname(file_name), exist_ok=True)
                 with open(file_name, 'wb') as threshold_file:
                     pickle.dump(m.thresholds.matrix, threshold_file)
                 result = m.predict(num_predictions)
-                save_results(result, path_dataset_history + '/' + batch_type + '/size_' + str(batch_size), num_predictions)
+                save_results(result, new_path_dataset_history + '/' + batch_type + '/size_' + str(batch_size), num_predictions)
                 with open(directory+'estimated_t+predict', 'a+', encoding='utf-8') as handle:
                     handle.write(path_dataset_history + '/' + batch_type + '/size_' + str(batch_size) + '\n')
                 with open(directory + 'predicted_7days', 'a+', encoding='utf-8') as handle:

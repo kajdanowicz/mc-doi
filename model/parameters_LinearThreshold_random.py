@@ -308,16 +308,7 @@ class ThresholdBase(BaseParameter):
         args
         kwargs
         """
-        batch_type = kwargs.get('batch_type', None)
-        adjacency_matrix = kwargs.get('adjacency', None)
-        correlation_matrix = kwargs.get('correlation', None)
-        batch_size = kwargs.get('batch_size')
-        if batch_type == 'volume':
-            self.estimate_volume_batch(data, adjacency_matrix, correlation_matrix, batch_size)
-        elif batch_type == 'time':
-            self.estimate_time_batch(data, adjacency_matrix, correlation_matrix, batch_size)
-        else:
-            raise NameError('Can not estimate thresholds. No such method as ' + batch_type)
+        self.matrix = np.random.random((data.num_users,data.num_contagions))
 
     def estimate_volume_batch(self, data, a_matrix, cc_matrix, batch_size):
         # TODO I->sparse
@@ -415,7 +406,6 @@ class ThresholdSingleContagion(ThresholdBase):
 
     def __init__(self):
         super(ThresholdSingleContagion, self).__init__()
-
 
     def f(self, U, correlation: ContagionCorrelation, data: Data):
         return U  # tutaj była normalizacja, ale chyba jest niepotrzebna @macio232

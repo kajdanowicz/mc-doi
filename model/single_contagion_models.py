@@ -1,6 +1,11 @@
 from abc import abstractmethod
 from model.parameters_DynamicLinearThreshold import Adjacency as Adjacency_DynamicLinearThreshold
 from model.parameters_DynamicLinearThreshold import ThresholdSingleContagion as Threshold_DynamicLinearThreshold
+from model.multi_contagion_models import *
+from model.results import SingleIterResult
+from model.results import Results
+from data.data import Data
+import numpy as np
 
 
 

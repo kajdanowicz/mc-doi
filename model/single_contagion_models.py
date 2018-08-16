@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from model.parameters_DynamicLinearThreshold import Adjacency as Adjacency_DynamicLinearThreshold
-from model.parameters_DynamicLinearThreshold import Threshold as Threshold_DynamicLinearThreshold
+from model.parameters_DynamicLinearThreshold import ThresholdSingleContagion as Threshold_DynamicLinearThreshold
 
 
 

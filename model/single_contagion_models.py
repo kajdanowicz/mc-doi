@@ -1,4 +1,7 @@
 from abc import abstractmethod
+from model.parameters_DynamicLinearThreshold import Adjacency as Adjacency_DynamicLinearThreshold
+from model.parameters_DynamicLinearThreshold import Threshold as Threshold_DynamicLinearThreshold
+
 
 
 class BaseSingleContagionDiffusionModel:
@@ -28,8 +31,8 @@ class SingleContagionDynamicThresholdModel(MultiContagionDynamicLinearThresholdM
     def __init__(self):
 
         # super(SingleContagionDynamicThresholdModel, self).__init__()
-        self.adjacency = Adjacency()
-        self.thresholds = ThresholdSingleContagion()
+        self.adjacency = Adjacency_DynamicLinearThreshold()
+        self.thresholds = Threshold_DynamicLinearThreshold()
         self.contagion_correlation = None
 
     def fit(self, data: Data, **kwargs):

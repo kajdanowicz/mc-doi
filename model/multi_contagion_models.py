@@ -4,6 +4,9 @@ import pickle
 from model.parameters import ContagionCorrelation
 from model.parameters import Adjacency
 from model.parameters import Threshold
+from model.parameters_MultiContagionLinearThresholdModel import ContagionCorrelation as ContagionCorrelation_MultiContagionLinearThresholdModel
+from model.parameters_MultiContagionLinearThresholdModel import Adjacency as Adjacency_MultiContagionLinearThresholdModel
+from model.parameters_MultiContagionLinearThresholdModel import Threshold as Threshold_MultiContagionLinearThresholdModel
 from model.results import SingleIterResult
 from model.results import Results
 from data.data import Data
@@ -257,9 +260,9 @@ class MultiContagionLinearThresholdModel(BaseMultiContagionDiffusionModel):
 
     def __init__(self):
 
-        self.contagion_correlation = ContagionCorrelation()
-        self.adjacency = Adjacency()
-        self.thresholds = Threshold()
+        self.contagion_correlation = ContagionCorrelation_MultiContagionLinearThresholdModel()
+        self.adjacency = Adjacency_MultiContagionLinearThresholdModel()
+        self.thresholds = Threshold_MultiContagionLinearThresholdModel()
 
     def fit(self, data: Data, **kwargs):
         """

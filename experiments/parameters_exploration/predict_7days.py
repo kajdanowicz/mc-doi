@@ -6,7 +6,7 @@ from model.results import Results
 import pandas as pd
 from data.data import Data
 from model.parameters import ContagionCorrelation, Adjacency
-from model.multi_contagion_models import MultiContagionDynamicThresholdModel as MCDOI
+from model.multi_contagion_models import MultiContagionDynamicLinearThresholdModel as MCDOI
 import numpy as np
 
 sets_to_predict_file = list(sys.argv)[1]

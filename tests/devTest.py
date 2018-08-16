@@ -9,7 +9,7 @@ from datetime import datetime
 import pickle
 import numpy as np
 
-from model.multi_contagion_models import MultiContagionDynamicThresholdModel as MCDOI
+from model.multi_contagion_models import MultiContagionDynamicLinearThresholdModel as MCDOI
 from data.data import Data
 import config.config as config
 

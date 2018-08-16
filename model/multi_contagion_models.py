@@ -32,11 +32,11 @@ class BaseMultiContagionDiffusionModel:
         pass
 
 
-class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
+class MultiContagionDynamicLinearThresholdModel(BaseMultiContagionDiffusionModel):
     """
-    The base class for Mutli-Contagion Diffusion of Information MultiContagionDynamicThresholdModel.
+    The base class for Mutli-Contagion Diffusion of Information MultiContagionDynamicLinearThresholdModel.
 
-    A MultiContagionDynamicThresholdModel stores all the model parameters required to perform prediction of
+    A MultiContagionDynamicLinearThresholdModel stores all the model parameters required to perform prediction of
     multi-contagious diffusion precess.
 
     Attributes
@@ -115,12 +115,12 @@ class MultiContagionDynamicThresholdModel(BaseMultiContagionDiffusionModel):
 
     def to_pickle(self, directory):
         # TODO directory + ... -> fileName
-        pickle.dump(self, open(directory + 'MultiContagionDynamicThresholdModel.p', 'wb'))
+        pickle.dump(self, open(directory + 'MultiContagionDynamicLinearThresholdModel.p', 'wb'))
 
     @staticmethod
     def from_pickle(directory):
         # TODO directory + ... -> fileName
-        return pickle.load(open(directory+'MultiContagionDynamicThresholdModel.p','rb'))
+        return pickle.load(open(directory+'MultiContagionDynamicLinearThresholdModel.p','rb'))
 
     def predict(self, num_iterations: int) -> Results:
         # TODO "method" rst

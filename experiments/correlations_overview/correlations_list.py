@@ -19,6 +19,8 @@ def work_sub(string):
             for key1, value1 in d.items():
                 if value<value1:
                     container.append((key,key1,str(matrix[value, value1]),string.split('_')[-3],string.split('_')[-2].split('/')[0]))
+        with open('/nfs/maciej/mcdoi/corrs/correlations_'+string.split('_')[-3]+'.pickle', 'wb') as f:
+            pickle.dump(container, f)
 
 params = estimated
 
@@ -42,6 +44,3 @@ if use_parallel:
         pool.join()
 else:
     l = [work_sub(param) for param in params]
-
-with open('/nfs/maciej/mcdoi/correlations.pickle', 'wb') as f:
-    pickle.dump(l,f)

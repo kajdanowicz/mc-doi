@@ -9,6 +9,7 @@ estimated = [x.strip() for x in estimated]
 from multiprocessing import Pool
 
 def work_sub(string):
+    container = []
     if string.split('_')[-1] == '30':
         with open(string+'/contagion.pickle', 'rb') as f:
             matrix = pickle.load(f)
@@ -17,8 +18,7 @@ def work_sub(string):
         for key, value in d.items():
             for key1, value1 in d.items():
                 if value<value1:
-                    with open('/nfs/maciej/mcdoi/correlations_reversed2', 'a+', encoding='utf-8') as f:
-                        f.write(key + ',' + key1 + ',' + str(matrix[value, value1]) + ',' + string.split('_')[-3] + ',' +string.split('_')[-2].split('/')[0] + '\n')
+                    container.append((key,key1,str(matrix[value, value1]),string.split('_')[-3],string.split('_')[-2].split('/')[0]))
 
 params = estimated
 
@@ -42,3 +42,6 @@ if use_parallel:
         pool.join()
 else:
     l = [work_sub(param) for param in params]
+
+with open('/nfs/maciej/mcdoi/correlations.pickle', 'wb') as f:
+    pickle.dump(l,f)

@@ -32,7 +32,7 @@ class Data:
         if self.graph is None:
             self.graph = nx.from_pandas_edgelist(self.edges, Data.user_1, Data.user_2)
 
-    def load_data_file(self, directory, file_names=('event_log', 'edges')):
+    def load_data_file(self, directory, file_names=('event_log', 'edges'), **kwargs):
         # TODO extract column names as class attributes?
         event_log_df = pd.read_csv(directory + file_names[0],header=None, names=[Data.time_stamp, Data.user, Data.contagion])
         edges_df = pd.read_csv(directory + file_names[1],header=None, names=[Data.user_1, Data.user_2])
@@ -40,7 +40,12 @@ class Data:
             self.event_log = event_log_df
             self.edges = edges_df
             self.reindex_users()
-            self.add_contagion_id()
+            d = kwargs.get('contagion_dict',None)
+            if d:
+                self.contagion_id_dict = d
+                self.event_log = self.event_log.assign(contagion_id=self.event_log[Data.contagion].map(self.contagion_id_dict))
+            else:
+                self.add_contagion_id()
             self.num_contagions = max(self.contagion_id_dict.values()) + 1
             self.num_events = self.event_log.shape[0]
             self.sort_data()
@@ -49,14 +54,19 @@ class Data:
             return False
             # review
 
-    def load_data_data_frame(self, event_log_df: pd.DataFrame, edges_df: pd.DataFrame) -> bool:
+    def load_data_data_frame(self, event_log_df: pd.DataFrame, edges_df: pd.DataFrame, **kwargs) -> bool:
         event_log_df.columns = [Data.time_stamp, Data.user, Data.contagion]
         edges_df.columns = [Data.user_1, Data.user_2]
         if Data.verify_users_correct(event_log_df, edges_df):
             self.event_log = event_log_df
             self.edges = edges_df
             self.reindex_users()
-            self.add_contagion_id()
+            d = kwargs.get('contagion_dict',None)
+            if d:
+                self.contagion_id_dict = d
+                self.event_log = self.event_log.assign(contagion_id=self.event_log[Data.contagion].map(self.contagion_id_dict))
+            else:
+                self.add_contagion_id()
             self.num_contagions = max(self.contagion_id_dict.values()) + 1
             self.num_events = self.event_log.shape[0]
             self.sort_data()

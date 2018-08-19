@@ -6,7 +6,7 @@ import pickle
 with open('/nfs/maciej/mcdoi/c4/active_follower_real_csv/active_follower_real.csv', 'r', encoding='utf-8') as f:
     df = pd.read_csv(f, header=None, names=['user1','user2'])
 
-graph = nx.from_pandas_dataframe(df, 'user1', 'user2')
+graph = nx.from_pandas_edgelist(df,source='user1', target='user2',create_using=nx.Graph())
 
 partition_louvain=community.best_partition(graph)
 

@@ -42,6 +42,10 @@ with open(os.path.dirname(os.path.dirname(path))+'/contagion_dict.pickle', 'rb')
 whole_event_log[Data.contagion_id] = whole_event_log[Data.contagion].apply(lambda x: contagion_dict[x])
 whole_event_log=whole_event_log[whole_event_log[Data.contagion_id]<1451]
 
+I_beginning = np.full((d.num_users, d.num_contagions), False, dtype=bool)
+for index, row in whole_event_log[whole_event_log[Data.time_stamp]<=time_grid[history-1]].iterrows():
+    I_beginning[row[Data.user]][row[Data.contagion_id]] = True
+
 indicators = []
 I = np.full((d.num_users, d.num_contagions), False, dtype=bool)
 for i in range(1,min(7,33-history)+1):
@@ -56,7 +60,9 @@ for i in range(0, 7):
         results.append(pickle.load(result))
 
 for i in range(1,min(7,33-history)+1):
-    open(path + '/hamming_' + str(i - 1), 'w', encoding='utf-8').close()
+    open(path + '/hamming_diff_' + str(i - 1), 'w', encoding='utf-8').close()
+    result_diff = np.logical_xor(results[i - 1], I_beginning)
+    real_diff = np.logical_xor(indicators[i - 1], I_beginning)
     for user in range(d.num_users):
-        with open(path + '/hamming_' + str(i - 1), 'a', encoding='utf-8') as file:
-            file.write(str(user) + ',' + str(hamming(indicators[i-1][user,:],results[i-1][user,:])) + '\n')
+        with open(path + '/hamming_diff_' + str(i - 1), 'a', encoding='utf-8') as file:
+            file.write(str(user) + ',' + str(hamming(real_diff[user,:],result_diff[user,:])) + '\n')

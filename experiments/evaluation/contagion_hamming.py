@@ -36,9 +36,6 @@ def diff(first, second):
     second = set(second)
     return [item for item in first if item not in second]
 
-path = '/nfs/maciej/mcdoi/louvain/louvain_55_123/history_20/time/size_604800'
-history=20
-
 def evaluate(path, iter_length):
     history = int(path.split('/')[6].split('_')[1])
     batch_size = int(path.split('/')[8].split('_')[1])

@@ -28,7 +28,7 @@ directory = '/nfs/maciej/mcdoi/louvain/'
 
 evaluated = set()
 for batch_size in [3600, 43200, 86400, 604800]:
-    with open(directory + 'frequencies/contagion_hamming_'+str(batch_size), 'r', encoding='utf-8') as file:
+    with open(directory + 'frequencies/fscore_'+str(batch_size), 'r', encoding='utf-8') as file:
         e = file.readlines()
     evaluated.update([x.strip() for x in e])
 

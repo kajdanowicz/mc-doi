@@ -106,4 +106,4 @@ def evaluate(path, iter_length, model):
 if __name__ == '__main__':
     paths = diff(sets_to_evaluate,evaluated)
     for path in tqdm(paths):
-        evaluate(path,86400,path,model)
+        evaluate(path,86400,model)

@@ -11,7 +11,7 @@ from collections import defaultdict
 import functools
 import itertools
 import copy
-from sklearn.metrics import confusion_matrix
+from scipy.spatial.distance import hamming
 from tqdm import tqdm
 
 sets_to_evaluate_file = list(sys.argv)[1]
@@ -30,7 +30,7 @@ directory = '/nfs/maciej/mcdoi/'+model+'/'
 
 evaluated = set()
 for batch_size in [3600, 43200, 86400, 604800]:
-    with open(directory + 'frequencies/contagion_fscore_'+str(batch_size), 'r', encoding='utf-8') as file:
+    with open(directory + 'frequencies/hamming_'+str(batch_size), 'r', encoding='utf-8') as file:
         e = file.readlines()
     evaluated.update([x.strip() for x in e])
 
@@ -63,8 +63,6 @@ def evaluate(path, iter_length, model):
 
     max_contagion_id = max(contagion_dict.values())
 
-    rev_contagion_dict = {v:k for k,v in contagion_dict.items()}
-
     whole_event_log[Data.contagion_id] = whole_event_log[Data.contagion].apply(lambda x: contagion_dict[x])
     whole_event_log=whole_event_log[whole_event_log[Data.contagion_id]<=max_contagion_id]
 
@@ -82,13 +80,12 @@ def evaluate(path, iter_length, model):
             results.append(pickle.load(result))
 
     for i in range(1,min(7,33-history)+1):
-        open(new_path + '/contagion_fscore_' + str(i - 1), 'w', encoding='utf-8').close()
-        for contagion_id in range(d.num_contagions):
-            with open(new_path + '/contagion_fscore_' + str(i - 1), 'a', encoding='utf-8') as file:
-                score = confusion_matrix(indicators[i-1][:,contagion_id],results[i-1][:,contagion_id]).ravel()
-                file.write(rev_contagion_dict[contagion_id] + ',' + str(score[0]) + ',' + str(score[1])+ ',' + str(score[2]) + ',' + str(score[3]) + '\n')
-        with open(directory + 'frequencies/contagion_fscore_' + str(batch_size), 'a', encoding='utf-8') as file:
-            file.write(new_path + '/contagion_fscore_' + str(i - 1) + '\n')
+        open(new_path + '/hamming_' + str(i - 1), 'w', encoding='utf-8').close()
+        for user in range(d.num_users):
+            with open(new_path + '/hamming_' + str(i - 1), 'a', encoding='utf-8') as file:
+                file.write(str(user) + ',' + str(hamming(indicators[i-1][user,:],results[i-1][user,:])) + '\n')
+        with open(directory + 'frequencies/hamming_' + str(batch_size), 'a', encoding='utf-8') as file:
+            file.write(new_path + '/hamming_' + str(i - 1) + '\n')
 
 if __name__ == '__main__':
     paths = diff(sets_to_evaluate,evaluated)

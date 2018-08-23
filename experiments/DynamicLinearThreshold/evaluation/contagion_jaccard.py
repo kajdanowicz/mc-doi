@@ -11,7 +11,6 @@ from collections import defaultdict
 import functools
 import itertools
 import copy
-from sklearn.metrics import confusion_matrix
 from tqdm import tqdm
 
 sets_to_evaluate_file = list(sys.argv)[1]
@@ -19,18 +18,18 @@ with open(sets_to_evaluate_file, 'r', encoding='utf-8') as sets_to_evaluate:
     sets_to_evaluate = sets_to_evaluate.readlines()
 sets_to_evaluate = [x.strip() for x in sets_to_evaluate]
 
+model = list(sys.argv)[2]
+
+directory = '/nfs/maciej/mcdoi/'+model+'/'
+
 start_time = 1332565200
 end_time = 1335416399
 duration_24h_in_sec = 60*60*24
 time_grid = np.arange(start_time+duration_24h_in_sec,end_time+duration_24h_in_sec,duration_24h_in_sec)
 
-model = list(sys.argv)[2]
-
-directory = '/nfs/maciej/mcdoi/'+model+'/'
-
 evaluated = set()
 for batch_size in [3600, 43200, 86400, 604800]:
-    with open(directory + 'frequencies/contagion_fscore_'+str(batch_size), 'r', encoding='utf-8') as file:
+    with open(directory + 'frequencies/contagion_jaccard_'+str(batch_size), 'r', encoding='utf-8') as file:
         e = file.readlines()
     evaluated.update([x.strip() for x in e])
 
@@ -38,12 +37,15 @@ def diff(first, second):
     second = set(second)
     return [item for item in first if item not in second]
 
+path = '/nfs/maciej/mcdoi/louvain/louvain_55_123/history_20/time/size_604800'
+history=20
+
 def evaluate(path, iter_length, model):
     new_path = path.split('/')
     new_path[4] = model
     new_path = '/' + os.path.join(*new_path)
-    history = int(path.split('/')[6].split('_')[1])
     batch_size = int(path.split('/')[8].split('_')[1])
+    history = int(path.split('/')[6].split('_')[1])
     with open(os.path.dirname(os.path.dirname(os.path.dirname(path)))+'/edges', 'r', encoding='utf-8') as f:
         edges = pd.read_csv(f, header=None, names=[Data.user_1, Data.user_2])
 
@@ -66,7 +68,7 @@ def evaluate(path, iter_length, model):
     rev_contagion_dict = {v:k for k,v in contagion_dict.items()}
 
     whole_event_log[Data.contagion_id] = whole_event_log[Data.contagion].apply(lambda x: contagion_dict[x])
-    whole_event_log=whole_event_log[whole_event_log[Data.contagion_id]<=max_contagion_id]
+    whole_event_log=whole_event_log[whole_event_log[Data.contagion_id]<max_contagion_id]
 
     indicators = []
     I = np.full((d.num_users, d.num_contagions), False, dtype=bool)
@@ -82,13 +84,21 @@ def evaluate(path, iter_length, model):
             results.append(pickle.load(result))
 
     for i in range(1,min(7,33-history)+1):
-        open(new_path + '/contagion_fscore_' + str(i - 1), 'w', encoding='utf-8').close()
+        open(new_path + '/contagion_jaccard_' + str(i - 1), 'w', encoding='utf-8').close()
         for contagion_id in range(d.num_contagions):
-            with open(new_path + '/contagion_fscore_' + str(i - 1), 'a', encoding='utf-8') as file:
-                score = confusion_matrix(indicators[i-1][:,contagion_id],results[i-1][:,contagion_id]).ravel()
-                file.write(rev_contagion_dict[contagion_id] + ',' + str(score[0]) + ',' + str(score[1])+ ',' + str(score[2]) + ',' + str(score[3]) + '\n')
-        with open(directory + 'frequencies/contagion_fscore_' + str(batch_size), 'a', encoding='utf-8') as file:
-            file.write(new_path + '/contagion_fscore_' + str(i - 1) + '\n')
+            set_from_prediction = np.where(results[i-1][:,contagion_id])
+            set_real = np.where(indicators[i-1][:,contagion_id])
+            intersection = np.intersect1d(set_from_prediction,set_real)
+            union = np.union1d(set_from_prediction,set_real)
+            if union.size==0:
+                with open(new_path + '/contagion_jaccard_' + str(i - 1), 'a', encoding='utf-8') as file:
+                    file.write(rev_contagion_dict[contagion_id] + ',' + str(1) + '\n')
+            else:
+                with open(new_path + '/contagion_jaccard_' + str(i - 1), 'a', encoding='utf-8') as file:
+                    file.write(rev_contagion_dict[contagion_id] + ',' + str(intersection.size/union.size) + '\n')
+        with open(directory + 'frequencies/contagion_jaccard_' + str(batch_size), 'a', encoding='utf-8') as file:
+            file.write(new_path + '/contagion_jaccard_' + str(i - 1) + '\n')
+
 
 if __name__ == '__main__':
     paths = diff(sets_to_evaluate,evaluated)

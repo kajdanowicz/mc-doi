@@ -11,7 +11,6 @@ from collections import defaultdict
 import functools
 import itertools
 import copy
-from sklearn.metrics import confusion_matrix
 from tqdm import tqdm
 
 sets_to_evaluate_file = list(sys.argv)[1]
@@ -30,13 +29,14 @@ directory = '/nfs/maciej/mcdoi/'+model+'/'
 
 evaluated = set()
 for batch_size in [3600, 43200, 86400, 604800]:
-    with open(directory + 'frequencies/contagion_fscore_'+str(batch_size), 'r', encoding='utf-8') as file:
+    with open(directory + 'frequencies/contagion_jaccard_diff_'+str(batch_size), 'r', encoding='utf-8') as file:
         e = file.readlines()
     evaluated.update([x.strip() for x in e])
 
 def diff(first, second):
     second = set(second)
     return [item for item in first if item not in second]
+
 
 def evaluate(path, iter_length, model):
     new_path = path.split('/')
@@ -68,6 +68,10 @@ def evaluate(path, iter_length, model):
     whole_event_log[Data.contagion_id] = whole_event_log[Data.contagion].apply(lambda x: contagion_dict[x])
     whole_event_log=whole_event_log[whole_event_log[Data.contagion_id]<=max_contagion_id]
 
+    I_beginning = np.full((d.num_users, d.num_contagions), False, dtype=bool)
+    for index, row in whole_event_log[whole_event_log[Data.time_stamp]<=time_grid[history-1]].iterrows():
+        I_beginning[row[Data.user]][row[Data.contagion_id]] = True
+
     indicators = []
     I = np.full((d.num_users, d.num_contagions), False, dtype=bool)
     for i in range(1,min(7,33-history)+1):
@@ -82,15 +86,24 @@ def evaluate(path, iter_length, model):
             results.append(pickle.load(result))
 
     for i in range(1,min(7,33-history)+1):
-        open(new_path + '/contagion_fscore_' + str(i - 1), 'w', encoding='utf-8').close()
+        open(new_path + '/contagion_jaccard_diff_' + str(i - 1), 'w', encoding='utf-8').close()
+        result_diff = np.logical_xor(results[i - 1], I_beginning)
+        real_diff = np.logical_xor(indicators[i - 1], I_beginning)
         for contagion_id in range(d.num_contagions):
-            with open(new_path + '/contagion_fscore_' + str(i - 1), 'a', encoding='utf-8') as file:
-                score = confusion_matrix(indicators[i-1][:,contagion_id],results[i-1][:,contagion_id]).ravel()
-                file.write(rev_contagion_dict[contagion_id] + ',' + str(score[0]) + ',' + str(score[1])+ ',' + str(score[2]) + ',' + str(score[3]) + '\n')
-        with open(directory + 'frequencies/contagion_fscore_' + str(batch_size), 'a', encoding='utf-8') as file:
-            file.write(new_path + '/contagion_fscore_' + str(i - 1) + '\n')
+            set_from_prediction = np.where(result_diff[:,contagion_id])
+            set_real = np.where(real_diff[:,contagion_id])
+            intersection = np.intersect1d(set_from_prediction,set_real)
+            union = np.union1d(set_from_prediction,set_real)
+            if union.size==0:
+                with open(new_path + '/contagion_jaccard_diff_' + str(i - 1), 'a', encoding='utf-8') as file:
+                    file.write(rev_contagion_dict[contagion_id] + ',' + str(1) + '\n')
+            else:
+                with open(new_path + '/contagion_jaccard_diff_' + str(i - 1), 'a', encoding='utf-8') as file:
+                    file.write(rev_contagion_dict[contagion_id] + ',' + str(intersection.size/union.size) + '\n')
+        with open(directory + 'frequencies/contagion_jaccard_diff_' + str(batch_size), 'a', encoding='utf-8') as file:
+            file.write(new_path + '/contagion_jaccard_diff_' + str(i - 1) + '\n')
 
 if __name__ == '__main__':
     paths = diff(sets_to_evaluate,evaluated)
     for path in tqdm(paths):
-        evaluate(path,86400,model)
+        evaluate(path,86400,path,model)

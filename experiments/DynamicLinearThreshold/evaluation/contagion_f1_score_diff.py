@@ -30,7 +30,7 @@ directory = '/nfs/maciej/mcdoi/'+model+'/'
 
 evaluated = set()
 for batch_size in [3600, 43200, 86400, 604800]:
-    with open(directory + 'frequencies/contagion_fscore_'+str(batch_size), 'r', encoding='utf-8') as file:
+    with open(directory + 'frequencies/contagion_fscore_diff_'+str(batch_size), 'r', encoding='utf-8') as file:
         e = file.readlines()
     evaluated.update([x.strip() for x in e])
 
@@ -68,6 +68,11 @@ def evaluate(path, iter_length, model):
     whole_event_log[Data.contagion_id] = whole_event_log[Data.contagion].apply(lambda x: contagion_dict[x])
     whole_event_log=whole_event_log[whole_event_log[Data.contagion_id]<=max_contagion_id]
 
+
+    I_beginning = np.full((d.num_users, d.num_contagions), False, dtype=bool)
+    for index, row in whole_event_log[whole_event_log[Data.time_stamp]<=time_grid[history-1]].iterrows():
+        I_beginning[row[Data.user]][row[Data.contagion_id]] = True
+
     indicators = []
     I = np.full((d.num_users, d.num_contagions), False, dtype=bool)
     for i in range(1,min(7,33-history)+1):
@@ -82,13 +87,15 @@ def evaluate(path, iter_length, model):
             results.append(pickle.load(result))
 
     for i in range(1,min(7,33-history)+1):
-        open(new_path + '/contagion_fscore_' + str(i - 1), 'w', encoding='utf-8').close()
+        open(new_path + '/contagion_fscore_diff_' + str(i - 1), 'w', encoding='utf-8').close()
+        result_diff = np.logical_xor(results[i - 1], I_beginning)
+        real_diff = np.logical_xor(indicators[i - 1], I_beginning)
         for contagion_id in range(d.num_contagions):
-            with open(new_path + '/contagion_fscore_' + str(i - 1), 'a', encoding='utf-8') as file:
-                score = confusion_matrix(indicators[i-1][:,contagion_id],results[i-1][:,contagion_id]).ravel()
+            with open(new_path + '/contagion_fscore_diff_' + str(i - 1), 'a', encoding='utf-8') as file:
+                score = confusion_matrix(real_diff[:,contagion_id],result_diff[:,contagion_id], labels=[0,1]).ravel()
                 file.write(rev_contagion_dict[contagion_id] + ',' + str(score[0]) + ',' + str(score[1])+ ',' + str(score[2]) + ',' + str(score[3]) + '\n')
-        with open(directory + 'frequencies/contagion_fscore_' + str(batch_size), 'a', encoding='utf-8') as file:
-            file.write(new_path + '/contagion_fscore_' + str(i - 1) + '\n')
+        with open(directory + 'frequencies/contagion_fscore_diff_' + str(batch_size), 'a', encoding='utf-8') as file:
+            file.write(new_path + '/contagion_fscore_diff_' + str(i - 1) + '\n')
 
 if __name__ == '__main__':
     paths = diff(sets_to_evaluate,evaluated)

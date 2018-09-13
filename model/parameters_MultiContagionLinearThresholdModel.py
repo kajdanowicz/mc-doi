@@ -342,7 +342,7 @@ class Threshold(BaseParameter):
         data.add_contagion_id()
         indicators = []
         I = np.full((data.num_users, data.num_contagions), False, dtype=bool)
-        ts = 0
+        ts = 1332565200
         while ts < data.event_log[Data.time_stamp].max():
             for index, row in data.event_log[(data.event_log[Data.time_stamp] > ts) & (data.event_log[Data.time_stamp] <= ts + batch_size)].iterrows():
                 I[row[Data.user]][row[Data.contagion_id]] = True

@@ -327,54 +327,84 @@ class Threshold(BaseParameter):
         # TODO I->sparse
         data.add_contagion_id()
         data.construct_event_log_grouped()
-        indicators = []
+        activations = []
+        activity_matrices = []
         I = np.full((data.num_users, data.num_contagions), False, dtype=bool)
+        activity_matrix = np.full((data.num_users, data.num_contagions), 0, dtype=float)
         event_id = 0
         while event_id < data.event_log[Data.event_id].max():
             for index, row in data.event_log[(data.event_log[Data.event_id] > event_id) & (data.event_log[Data.event_id] <= event_id + batch_size)].iterrows():
                 I[row[Data.user]][row[Data.contagion_id]] = True
-            indicators.append(I)
-            I = copy.deepcopy(I)
+            activations.append(I)
+            activity_matrix = activity_matrix/2 + I
+            activity_matrix[activity_matrix > 1] = 1
+            activity_matrices.append(activity_matrix)
+            I = np.empty_like(I)
+            activity_matrix=copy.copy(activity_matrix)
             event_id += batch_size
-        Y = np.sum(indicators[0], axis=1)
-        self._estimate(Y, a_matrix, cc_matrix, data, indicators)
+        Y = np.sum(np.sum(activations), axis=1)
+        self._estimate(Y, a_matrix, cc_matrix, data, activations, activity_matrices)
 
     def estimate_time_batch(self, data, a_matrix, cc_matrix, batch_size):
         data.add_contagion_id()
-        indicators = []
+        # indicators = []
+        activations = []
+        activity_matrices = []
         I = np.full((data.num_users, data.num_contagions), False, dtype=bool)
+        activity_matrix = np.full((data.num_users, data.num_contagions), 0, dtype=float)
         ts = data.event_log[Data.time_stamp].min()
+        counter = 0
+        print(data.event_log[Data.time_stamp].min(),data.event_log[Data.time_stamp].max())
         while ts < data.event_log[Data.time_stamp].max():
             for index, row in data.event_log[(data.event_log[Data.time_stamp] > ts) & (data.event_log[Data.time_stamp] <= ts + batch_size)].iterrows():
                 I[row[Data.user]][row[Data.contagion_id]] = True
-            indicators.append(I)
-            I = copy.deepcopy(I)
-            ts += batch_size
-        Y = np.sum(indicators[0], axis=1)
-        self._estimate(Y, a_matrix, cc_matrix, data, indicators)
+            activations.append(copy.copy(I))
+            activity_matrix = activity_matrix/2 + I
+            activity_matrix[activity_matrix > 1] = 1
+            activity_matrices.append(activity_matrix)
+            I = np.empty_like(I)
+            activity_matrix=copy.copy(activity_matrix)
+            # ts += batch_size
+            ts += 604800
+            counter += 1
+        print(counter)
+        Y = np.sum(sum(activations), axis=1)
+        self._estimate(Y, a_matrix, cc_matrix, data, activations, activity_matrices)
 
     def estimate_hybrid_batch(self, data):
         # TODO Implement
         pass
 
-    def _estimate(self, Y, adjacency: Adjacency, correlation : ContagionCorrelation, data : Data, indicators : list):
+    def _estimate(self, Y, adjacency: Adjacency, correlation : ContagionCorrelation, data : Data, activations : list, activity_matrices : list):
         # TODO refactor
         adjacency.transposed()
         max_neg = defaultdict(lambda : -2)
         min_pos = defaultdict(lambda : 2)
-        for l in range(len(indicators) - 1):
+        print(len(activity_matrices))
+        for l in range(len(activity_matrices) - 1):
             # TODO refactor according to MCDOI
-            U = adjacency.matrix_transposed_.dot(indicators[l])
+            # if np.count_nonzero(adjacency.matrix_transposed_.todense()):
+            #     print('jestem')
+            # if np.count_nonzero(activity_matrices[l]):
+            #     print('jestem')
+            U = adjacency.matrix_transposed_.dot(activity_matrices[l])
+            # print(activity_matrices[l][np.nonzero(activity_matrices[l])])
+            # if np.count_nonzero(U):
+            #     print('jestem')
             F = U.dot(correlation.matrix) / data.num_contagions
             # TODO export xor to indicators creation procedure
-            temp = np.logical_xor(indicators[l], indicators[l + 1])  # aktywowane z l na l+1
-            temp1 = np.logical_or(temp, indicators[l])  # nieaktywowane z l na l+1 z wylaczeniem wczesniej aktywnych (po nalozeniu nagacji)
+            temp = activations[l+1]
+            # if np.count_nonzero(temp)>0:
+            #     print('jestem')
+            temp1 = np.logical_or(temp, sum(activations[:l]))  # nieaktywowane z l na l+1 z wylaczeniem wczesniej aktywnych (po nalozeniu nagacji)
             activated = set()
+            # print(temp)
             for i in range(data.num_users):
                 for j in range(data.num_contagions):
                     if temp[i][j]:
                         if F[i][j] > 0:
                             min_pos[i] = min(min_pos[i], 1 - math.pow(1 - F[i][j], 1 / float(Y[i] + 1)))
+                            # print(min_pos[i])
                         else:
                             min_pos[i] = min(min_pos[i], 0)  # czy chcemy wyeliminować aktywacje, przy ujemnym wpływie?
                         activated.add(i)
@@ -384,6 +414,7 @@ class Threshold(BaseParameter):
                 Y[i] += 1
         results = []
         for user in range(data.num_users):
+            # print(min_pos[user],max_neg[user])
             if min_pos[user] > 1:
                 results.append(max(max_neg[user], 0))
             else:

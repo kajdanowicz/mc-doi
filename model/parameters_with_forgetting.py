@@ -352,9 +352,7 @@ class Threshold(BaseParameter):
         activity_matrices = []
         I = np.full((data.num_users, data.num_contagions), False, dtype=bool)
         activity_matrix = np.full((data.num_users, data.num_contagions), 0, dtype=float)
-        ts = data.event_log[Data.time_stamp].min()
-        counter = 0
-        print(data.event_log[Data.time_stamp].min(),data.event_log[Data.time_stamp].max())
+        ts = 1332565200
         while ts < data.event_log[Data.time_stamp].max():
             for index, row in data.event_log[(data.event_log[Data.time_stamp] > ts) & (data.event_log[Data.time_stamp] <= ts + batch_size)].iterrows():
                 I[row[Data.user]][row[Data.contagion_id]] = True
@@ -366,8 +364,6 @@ class Threshold(BaseParameter):
             activity_matrix=copy.copy(activity_matrix)
             # ts += batch_size
             ts += 604800
-            counter += 1
-        print(counter)
         Y = np.sum(sum(activations), axis=1)
         self._estimate(Y, a_matrix, cc_matrix, data, activations, activity_matrices)
 
@@ -380,7 +376,6 @@ class Threshold(BaseParameter):
         adjacency.transposed()
         max_neg = defaultdict(lambda : -2)
         min_pos = defaultdict(lambda : 2)
-        print(len(activity_matrices))
         for l in range(len(activity_matrices) - 1):
             # TODO refactor according to MCDOI
             # if np.count_nonzero(adjacency.matrix_transposed_.todense()):
@@ -389,14 +384,17 @@ class Threshold(BaseParameter):
             #     print('jestem')
             U = adjacency.matrix_transposed_.dot(activity_matrices[l])
             # print(activity_matrices[l][np.nonzero(activity_matrices[l])])
-            # if np.count_nonzero(U):
+            # if np.count_nonzero(U>0):
             #     print('jestem')
             F = U.dot(correlation.matrix) / data.num_contagions
-            # TODO export xor to indicators creation procedure
+            # if np.count_nonzero(F>0):
+            #     print('jestem')
             temp = activations[l+1]
             # if np.count_nonzero(temp)>0:
             #     print('jestem')
             temp1 = np.logical_or(temp, sum(activations[:l]))  # nieaktywowane z l na l+1 z wylaczeniem wczesniej aktywnych (po nalozeniu nagacji)
+            # if np.count_nonzero(~temp1):
+            #     print('jestem')
             activated = set()
             # print(temp)
             for i in range(data.num_users):
@@ -421,4 +419,4 @@ class Threshold(BaseParameter):
                 results.append(max((max_neg[user] + min_pos[user]) / 2, 0))
         self.matrix = np.repeat(np.asarray(results)[np.newaxis].T, data.num_contagions, axis=1)
         self.initial_matrix = copy.copy(self.matrix)
-
+        # print(np.unique(self.matrix[np.nonzero(self.matrix)]))

@@ -7,3 +7,5 @@ models = ['correlated-linear-dynamic-threshold','correlated-linear-threshold','l
 for model in models:
     os.system('sudo python3 '+script_path+' '+home_path+model+'/predicted'+' '+model)
     # print('sudo python3 '+script_path+' '+home_path+model+'/predicted'+' '+model)
+
+# 'correlated-linear-dynamic-threshold-continuous'

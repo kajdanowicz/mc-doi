@@ -362,8 +362,7 @@ class Threshold(BaseParameter):
             activity_matrices.append(activity_matrix)
             I = np.empty_like(I)
             activity_matrix=copy.copy(activity_matrix)
-            # ts += batch_size
-            ts += 604800
+            ts += batch_size
         Y = np.sum(sum(activations), axis=1)
         self._estimate(Y, a_matrix, cc_matrix, data, activations, activity_matrices)
 

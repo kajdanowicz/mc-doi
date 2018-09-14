@@ -121,7 +121,8 @@ def evaluate(path, iter_length, model):
     results = []
     for i in range(0, 7):
         with open(new_path + '/result_' + str(i) + '.pickle', 'rb') as result:
-            results.append(pickle.load(result))
+            res = (pickle.load(result)==1)
+            results.append(res)
 
     for i in range(1,min(7,33-history)+1):
         contagion_fscore(batch_size, d, i, indicators, new_path, results, rev_contagion_dict)

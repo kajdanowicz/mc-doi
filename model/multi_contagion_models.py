@@ -499,14 +499,14 @@ class MultiContagionDynamicLinearThresholdModelWithForgetting(BaseMultiContagion
         max_time = data.event_log[Data.time_stamp].max()
         for time in time_grid:
             if time<=max_time:
-                temp_mat = np.empty_like(self.state_matrix_.matrix)
+                temp_mat = np.empty_like(self.state_matrix_.matrix,dtype=bool)
                 for index, row in data.event_log[data.event_log[Data.time_stamp] <= time].iterrows():
                     temp_mat[row[Data.user]][row[Data.contagion_id]] = 1.
                 self.state_matrix_.matrix = self.state_matrix_.matrix/2+temp_mat
                 self.state_matrix_.matrix[self.state_matrix_.matrix>1]=1
         # for index, row in data.event_log.iterrows():
         #     self.state_matrix_.matrix[row[Data.user]][row[Data.contagion_id]] = 1.
-        self.activity_index_vector_ = np.sum(self.state_matrix_.matrix, axis=1)
+        self.activity_index_vector_ = np.sum((self.state_matrix_.matrix>0).astype(bool), axis=1)
 
     def estimate_contagion_correlation_matrix(self, data):
         self.contagion_correlation.estimate(data)
@@ -582,6 +582,7 @@ class MultiContagionDynamicLinearThresholdModelWithForgetting(BaseMultiContagion
 
     def __update_threshold(self, user):
         # TODO assign vector in one line
+        print(self.thresholds.initial_matrix[user][0],self.activity_index_vector_[user])
         for contagion in range(self.state_matrix_.num_contagions):  # temporary solution
             self.thresholds.matrix[user][contagion] = 1 - math.pow(
                 1 - self.thresholds.initial_matrix[user][contagion],

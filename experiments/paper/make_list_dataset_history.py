@@ -3,7 +3,7 @@ datasets = ['99_5','55_123','101_7','48_2234', '46_720','53_502','31_462','54_22
 file_directory_name = '/nfs/maciej/mcdoi/paper/estimated_cc+a'
 
 # datasets = ['99_5']
-histories = [10,20]
+histories = [10,11,12,13,14,15,16,17,18,19,20]
 open(file_directory_name, 'w', encoding='utf-8').close()
 for s in datasets:
     for history in histories:

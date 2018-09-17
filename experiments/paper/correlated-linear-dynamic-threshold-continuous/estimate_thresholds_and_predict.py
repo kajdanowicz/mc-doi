@@ -10,7 +10,7 @@ from model.multi_contagion_models import MultiContagionDynamicLinearThresholdMod
 import numpy as np
 
 ##### Experiments parameters ######
-model = 'correlated-linear-dynamic-threshold'
+model = 'correlated-linear-dynamic-threshold-continuous'
 batch_sizes = [86400, 604800]
 number_prediction_intervals = 7
 ###################################

@@ -582,7 +582,7 @@ class MultiContagionDynamicLinearThresholdModelWithForgetting(BaseMultiContagion
 
     def __update_threshold(self, user):
         # TODO assign vector in one line
-        print(self.thresholds.initial_matrix[user][0],self.activity_index_vector_[user])
+        # print(self.thresholds.initial_matrix[user][0],self.activity_index_vector_[user])
         for contagion in range(self.state_matrix_.num_contagions):  # temporary solution
             self.thresholds.matrix[user][contagion] = 1 - math.pow(
                 1 - self.thresholds.initial_matrix[user][contagion],

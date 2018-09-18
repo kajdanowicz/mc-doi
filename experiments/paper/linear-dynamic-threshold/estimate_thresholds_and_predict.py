@@ -91,6 +91,8 @@ def estimate_t_and_predict(path_dataset_history, batch_type, batch_sizes, num_pr
     for batch_size in batch_sizes:
         if path_dataset_history+ '/' + batch_type + '/size_' + str(batch_size) not in estimated:
             flag = True
+        elif path_dataset_history+ '/' + batch_type + '/size_' + str(batch_size) not in predicted:
+            flag = True
     if flag:
         if os.path.isfile(path_dataset_history + '/data_obj.pickle'):
             with open(path_dataset_history + '/data_obj.pickle', 'rb') as f:

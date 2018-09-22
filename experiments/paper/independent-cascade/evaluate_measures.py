@@ -41,7 +41,7 @@ def ParallelExecutor(use_bar='tqdm', **joblib_args):
         return tmp
     return aprun
 
-aprun = ParallelExecutor(n_jobs=18)
+aprun = ParallelExecutor(n_jobs=10)
 
 sets_to_evaluate_file = list(sys.argv)[1]
 with open(sets_to_evaluate_file, 'r', encoding='utf-8') as sets_to_evaluate:
@@ -122,7 +122,7 @@ def evaluate(path, iter_length, model):
             res = (pickle.load(result)==1)
             results.append(res)
 
-    print(path,new_path)
+    # print(path,new_path)
 
     for i in range(1,min(7,33-history)+1):
         contagion_fscore(d, i, indicators, new_path, results, rev_contagion_dict)

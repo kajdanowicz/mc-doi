@@ -81,12 +81,12 @@ def evaluate(path, iter_length, model):
         edges = pd.read_csv(f, header=None, names=[Data.user_1, Data.user_2])
 
     user_dict = defaultdict(functools.partial(next, itertools.count()))
-    edges[Data.user_1] = edges[Data.user_1].map(user_dict)
-    edges[Data.user_2] = edges[Data.user_2].map(user_dict)
+    edges[Data.user_1] = edges[Data.user_1].apply(lambda x: user_dict[x])
+    edges[Data.user_2] = edges[Data.user_2].apply(lambda x: user_dict[x])
 
     with open(os.path.dirname(os.path.dirname(os.path.dirname(path)))+'/event_log', 'r', encoding='utf-8') as f:
         whole_event_log = pd.read_csv(f, header=None, names=[Data.time_stamp, Data.user, Data.contagion])
-    whole_event_log.user = whole_event_log.user.map(user_dict)
+    whole_event_log.user = whole_event_log.user.apply(lambda x: user_dict[x])
 
     with open(os.path.dirname(os.path.dirname(path))+'/data_obj.pickle', 'rb') as f:
         d=pickle.load(f)

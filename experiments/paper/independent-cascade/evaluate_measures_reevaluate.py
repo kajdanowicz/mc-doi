@@ -79,39 +79,38 @@ def evaluate(path, iter_length, model):
         edges = pd.read_csv(f, header=None, names=[Data.user_1, Data.user_2])
 
     user_dict = defaultdict(functools.partial(next, itertools.count()))
-    edges[Data.user_1] = edges[Data.user_1].map(user_dict)
-    edges[Data.user_2] = edges[Data.user_2].map(user_dict)
+    edges[Data.user_1] = edges[Data.user_1].apply(lambda x: user_dict[x])
+    edges[Data.user_2] = edges[Data.user_2].apply(lambda x: user_dict[x])
 
     with open(os.path.dirname(path)+'/event_log', 'r', encoding='utf-8') as f:
         whole_event_log = pd.read_csv(f, header=None, names=[Data.time_stamp, Data.user, Data.contagion])
-    whole_event_log.user = whole_event_log.user.map(user_dict)
-
+    whole_event_log.user = whole_event_log.user.apply(lambda x: user_dict[x])
     with open(path+'/data_obj.pickle', 'rb') as f:
         d=pickle.load(f)
 
     with open(path+'/contagion_dict.pickle', 'rb') as f:
         contagion_dict=pickle.load(f)
 
-    org_contagion_dict = copy.copy(contagion_dict)
+    # org_contagion_dict = copy.copy(contagion_dict)
 
     max_contagion_id = max(contagion_dict.values())
 
-    # rev_contagion_dict = {v:k for k,v in contagion_dict.items()}
+    rev_contagion_dict = {v:k for k,v in contagion_dict.items()}
 
     whole_event_log[Data.contagion_id] = whole_event_log[Data.contagion].apply(lambda x: contagion_dict[x])
     whole_event_log=whole_event_log[whole_event_log[Data.contagion_id]<=max_contagion_id]
 
-    # I_beginning = np.full((d.num_users, d.num_contagions), False, dtype=bool)
-    # for index, row in whole_event_log[whole_event_log[Data.time_stamp]<=time_grid[history-1]].iterrows():
-    #     I_beginning[row[Data.user]][row[Data.contagion_id]] = True
-    #
-    # indicators = []
-    # I = np.full((d.num_users, d.num_contagions), False, dtype=bool)
-    # for i in range(1,min(7,33-history)+1):
-    #     for index, row in whole_event_log[whole_event_log[Data.time_stamp]<=time_grid[history-1] + i * iter_length].iterrows():
-    #         I[row[Data.user]][row[Data.contagion_id]] = True
-    #     indicators.append(I)
-    #     I = copy.deepcopy(I)
+    I_beginning = np.full((d.num_users, d.num_contagions), False, dtype=bool)
+    for index, row in whole_event_log[whole_event_log[Data.time_stamp]<=time_grid[history-1]].iterrows():
+        I_beginning[row[Data.user]][row[Data.contagion_id]] = True
+
+    indicators = []
+    I = np.full((d.num_users, d.num_contagions), False, dtype=bool)
+    for i in range(1,min(7,33-history)+1):
+        for index, row in whole_event_log[whole_event_log[Data.time_stamp]<=time_grid[history-1] + i * iter_length].iterrows():
+            I[row[Data.user]][row[Data.contagion_id]] = True
+        indicators.append(I)
+        I = copy.deepcopy(I)
 
     event_log_train = whole_event_log[whole_event_log['ts'] <= time_grid[history - 1]].drop_duplicates(subset=['contagion', 'user'], keep='first')
     # event_log_train = event_log_train.groupby(by=['user']).count()['ts']
@@ -125,16 +124,16 @@ def evaluate(path, iter_length, model):
     # print(path,new_path)
 
     for i in range(1,min(7,33-history)+1):
-        # contagion_fscore(d, i, indicators, new_path, results, rev_contagion_dict)
-        # contagion_fscore_diff(I_beginning, d, i, indicators, new_path, results, rev_contagion_dict)
+        contagion_fscore(d, i, indicators, new_path, results, rev_contagion_dict)
+        contagion_fscore_diff(I_beginning, d, i, indicators, new_path, results, rev_contagion_dict)
         # contagion_fractions(d, history, i, iter_length, new_path, results, whole_event_log)
-        contagion_fractions_diff(d, event_log_train, history, i, iter_length, new_path, results,
-                                 whole_event_log)
+        # contagion_fractions_diff(d, event_log_train, history, i, iter_length, new_path, results,
+        #                          whole_event_log)
         # contagion_jaccard(batch_size, d, i, indicators, new_path, results, rev_contagion_dict)
         # contagion_jaccard_diff(I_beginning, batch_size, d, i, indicators, new_path, results, rev_contagion_dict)
-        # fscore(d, i, indicators, new_path, results)
-        # fscore_diff(I_beginning, d, i, indicators, new_path, results)
-        fractions_diff(org_contagion_dict, event_log_train, history, i, iter_length, new_path, results, whole_event_log)
+        fscore(d, i, indicators, new_path, results)
+        fscore_diff(I_beginning, d, i, indicators, new_path, results)
+        # fractions_diff(org_contagion_dict, event_log_train, history, i, iter_length, new_path, results, whole_event_log)
         # fractions(org_contagion_dict, history, i, iter_length, new_path, results, whole_event_log)
         # jaccard(batch_size, d, i, indicators, new_path, results)
         # jaccard_diff(I_beginning, batch_size, d, i, indicators, new_path, results)
@@ -215,8 +214,8 @@ def fscore_diff(I_beginning, d, i, indicators, new_path, results):
             score = confusion_matrix(real_diff[user, :], result_diff[user, :], labels=[0, 1]).ravel()
             file.write(str(user) + ',' + str(score[0]) + ',' + str(score[1]) + ',' + str(score[2]) + ',' + str(
                 score[3]) + '\n')
-    with open(directory + 'evaluation/fscore_diff', 'a+', encoding='utf-8') as file:
-        file.write(new_path + '/fscore_diff_' + str(i - 1) + '\n')
+    # with open(directory + 'evaluation/fscore_diff', 'a+', encoding='utf-8') as file:
+    #     file.write(new_path + '/fscore_diff_' + str(i - 1) + '\n')
 
 
 def fscore(d, i, indicators, new_path, results):
@@ -226,8 +225,8 @@ def fscore(d, i, indicators, new_path, results):
             score = confusion_matrix(indicators[i - 1][user, :], results[i - 1][user, :], labels=[0, 1]).ravel()
             file.write(str(user) + ',' + str(score[0]) + ',' + str(score[1]) + ',' + str(score[2]) + ',' + str(
                 score[3]) + '\n')
-    with open(directory + 'evaluation/fscore', 'a+', encoding='utf-8') as file:
-        file.write(new_path + '/fscore_' + str(i - 1) + '\n')
+    # with open(directory + 'evaluation/fscore', 'a+', encoding='utf-8') as file:
+    #     file.write(new_path + '/fscore_' + str(i - 1) + '\n')
 
 
 def contagion_jaccard_diff(I_beginning, batch_size, d, i, indicators, new_path, results, rev_contagion_dict):
@@ -304,8 +303,8 @@ def contagion_fscore_diff(I_beginning, d, i, indicators, new_path, results, rev_
             score = confusion_matrix(real_diff[:, contagion_id], result_diff[:, contagion_id], labels=[0, 1]).ravel()
             file.write(rev_contagion_dict[contagion_id] + ',' + str(score[0]) + ',' + str(score[1]) + ',' + str(
                 score[2]) + ',' + str(score[3]) + '\n')
-    with open(directory + 'evaluation/contagion_fscore_diff', 'a+', encoding='utf-8') as file:
-        file.write(new_path + '/contagion_fscore_diff_' + str(i - 1) + '\n')
+    # with open(directory + 'evaluation/contagion_fscore_diff', 'a+', encoding='utf-8') as file:
+    #     file.write(new_path + '/contagion_fscore_diff_' + str(i - 1) + '\n')
 
 
 def contagion_fscore(d, i, indicators, new_path, results, rev_contagion_dict):
@@ -315,8 +314,8 @@ def contagion_fscore(d, i, indicators, new_path, results, rev_contagion_dict):
             score = confusion_matrix(indicators[i - 1][:, contagion_id], results[i - 1][:, contagion_id]).ravel()
             file.write(rev_contagion_dict[contagion_id] + ',' + str(score[0]) + ',' + str(score[1]) + ',' + str(
                 score[2]) + ',' + str(score[3]) + '\n')
-    with open(directory + 'evaluation/contagion_fscore', 'a+', encoding='utf-8') as file:
-        file.write(new_path + '/contagion_fscore_' + str(i - 1) + '\n')
+    # with open(directory + 'evaluation/contagion_fscore', 'a+', encoding='utf-8') as file:
+    #     file.write(new_path + '/contagion_fscore_' + str(i - 1) + '\n')
 
 
 if __name__ == '__main__':

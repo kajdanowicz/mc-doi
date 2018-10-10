@@ -114,7 +114,7 @@ def evaluate(path, iter_length, model):
         I = copy.deepcopy(I)
 
     event_log_train = whole_event_log[whole_event_log['ts'] <= time_grid[history - 1]].drop_duplicates(subset=['contagion', 'user'], keep='first')
-    event_log_train = event_log_train.groupby(by=['user']).count()['ts']
+    # event_log_train = event_log_train.groupby(by=['user']).count()['ts']
 
     results = []
     for i in range(0, 7):
@@ -193,16 +193,15 @@ def fractions(contagion_dict, history, i, iter_length, new_path, results, whole_
 
 
 def fractions_diff(contagion_dict, event_log_train, history, i, iter_length, new_path, results, whole_event_log):
+    e_org = event_log_train.groupby(by=['contagion']).count()['ts']
     open(new_path + '/fractions_diff_' + str(i - 1), 'w', encoding='utf-8').close()
     e = whole_event_log[whole_event_log['ts'] <= time_grid[history - 1] + i * iter_length].drop_duplicates(
         subset=['contagion', 'user'], keep='first')
     e = e.groupby(by=['contagion']).count()['ts']
     for key, value in contagion_dict.items():
         with open(new_path + '/fractions_diff_' + str(i - 1), 'a', encoding='utf-8') as file:
-            file.write(
-                key + ',' + str((e.loc[key] - event_log_train.get(key,0)) / results[0].shape[0]) + ',' + str(
-                    (np.sum(results[i - 1], axis=0)[value] - event_log_train.get(key,0)) / results[0].shape[
-                        0]) + '\n')
+            file.write(key + ',' + str((e.loc[key] - e_org.get(key, 0)) / results[0].shape[0]) + ',' + str(
+                (np.sum(results[i - 1], axis=0)[value] - e_org.get(key, 0)) / results[0].shape[0]) + '\n')
     with open(directory + 'evaluation/fractions_diff', 'a+', encoding='utf-8') as file:
         file.write(new_path + '/fractions_diff_' + str(i - 1) + '\n')
 
@@ -269,6 +268,7 @@ def contagion_jaccard(batch_size, d, i, indicators, new_path, results, rev_conta
 
 def contagion_fractions_diff(d, event_log_train, history, i, iter_length, new_path, results,
                              whole_event_log):
+    e_org = event_log_train.groupby(by=['user']).count()['ts']
     open(new_path + '/contagion_fractions_diff_' + str(i - 1), 'w', encoding='utf-8').close()
     e = whole_event_log[whole_event_log['ts'] <= time_grid[history - 1] + i * iter_length].drop_duplicates(
         subset=['contagion', 'user'], keep='first')
@@ -276,8 +276,8 @@ def contagion_fractions_diff(d, event_log_train, history, i, iter_length, new_pa
     for user in range(d.num_users):
         with open(new_path + '/contagion_fractions_diff_' + str(i - 1), 'a', encoding='utf-8') as file:
             file.write(
-                str(user) + ',' + str((e.get(user, 0) - event_log_train.get(user, 0)) / d.num_contagions) + ',' + str(
-                    (np.sum(results[i - 1], axis=1)[user] - event_log_train.get(user, 0)) / d.num_contagions) + '\n')
+                str(user) + ',' + str((e.get(user, 0) - e_org.get(user, 0)) / d.num_contagions) + ',' + str(
+                    (np.sum(results[i - 1], axis=1)[user] - e_org.get(user, 0)) / d.num_contagions) + '\n')
     with open(directory + 'evaluation/contagion_fractions_diff', 'a+', encoding='utf-8') as file:
         file.write(new_path + '/contagion_fractions_diff_' + str(i - 1) + '\n')
 

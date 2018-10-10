@@ -130,8 +130,8 @@ def evaluate(path, iter_length, model):
         contagion_fractions(batch_size, d, history, i, iter_length, new_path, results, whole_event_log)
         contagion_fractions_diff(batch_size, d, event_log_train, history, i, iter_length, new_path, results,
                                  whole_event_log)
-        contagion_jaccard(batch_size, d, i, indicators, new_path, results, rev_contagion_dict)
-        contagion_jaccard_diff(I_beginning, batch_size, d, i, indicators, new_path, results, rev_contagion_dict)
+        # contagion_jaccard(batch_size, d, i, indicators, new_path, results, rev_contagion_dict)
+        # contagion_jaccard_diff(I_beginning, batch_size, d, i, indicators, new_path, results, rev_contagion_dict)
         fscore(batch_size, d, i, indicators, new_path, results)
         fscore_diff(I_beginning, batch_size, d, i, indicators, new_path, results)
         fractions_diff(batch_size, org_contagion_dict, event_log_train, history, i, iter_length, new_path, results, whole_event_log)

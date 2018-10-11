@@ -41,7 +41,7 @@ def ParallelExecutor(use_bar='tqdm', **joblib_args):
         return tmp
     return aprun
 
-aprun = ParallelExecutor(n_jobs=1)
+aprun = ParallelExecutor(n_jobs=18)
 
 sets_to_evaluate_file = list(sys.argv)[1]
 with open(sets_to_evaluate_file, 'r', encoding='utf-8') as sets_to_evaluate:

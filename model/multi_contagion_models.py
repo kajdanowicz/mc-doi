@@ -12,6 +12,7 @@ from model.results import SingleIterResult
 from model.results import Results
 from data.data import Data
 from abc import abstractmethod
+from copy import deepcopy
 
 
 class BaseMultiContagionDiffusionModel:
@@ -156,7 +157,7 @@ class MultiContagionDynamicLinearThresholdModel(BaseMultiContagionDiffusionModel
         influence_matrix = self.__influence_matrix()
         activation_matrix = self.__activation_matrix(influence_matrix)
         self.__activation_procedure(activation_matrix)
-        return self.state_matrix_
+        return deepcopy(self.state_matrix_)
 
     def __activation_procedure(self, activation_matrix):
         # TODO delete num_activations
@@ -356,7 +357,7 @@ class MultiContagionLinearThresholdModel(BaseMultiContagionDiffusionModel):
         influence_matrix = self.__influence_matrix()
         activation_matrix = self.__activation_matrix(influence_matrix)
         self.__activation_procedure(activation_matrix)
-        return self.state_matrix_
+        return deepcopy(self.state_matrix_)
 
     def __activation_procedure(self, activation_matrix):
         # TODO delete num_activations

@@ -41,7 +41,7 @@ def ParallelExecutor(use_bar='tqdm', **joblib_args):
         return tmp
     return aprun
 
-aprun = ParallelExecutor(n_jobs=18)
+aprun = ParallelExecutor(n_jobs=22)
 
 sets_to_evaluate_file = list(sys.argv)[1]
 with open(sets_to_evaluate_file, 'r', encoding='utf-8') as sets_to_evaluate:
@@ -121,7 +121,8 @@ def evaluate(path, iter_length, model):
     results = []
     for i in range(0, 7):
         with open(new_path + '/result_' + str(i) + '.pickle', 'rb') as result:
-            res = (pickle.load(result)==1)
+            # res = (pickle.load(result)==1)
+            res = pickle.load(result)
             results.append(res)
 
     for i in range(1,min(7,33-history)+1):
@@ -132,10 +133,10 @@ def evaluate(path, iter_length, model):
                                  whole_event_log)
         # contagion_jaccard(batch_size, d, i, indicators, new_path, results, rev_contagion_dict)
         # contagion_jaccard_diff(I_beginning, batch_size, d, i, indicators, new_path, results, rev_contagion_dict)
-        fscore(batch_size, d, i, indicators, new_path, results)
-        fscore_diff(I_beginning, batch_size, d, i, indicators, new_path, results)
-        fractions_diff(batch_size, org_contagion_dict, event_log_train, history, i, iter_length, new_path, results, whole_event_log)
-        fractions(batch_size, org_contagion_dict, history, i, iter_length, new_path, results, whole_event_log)
+        # fscore(batch_size, d, i, indicators, new_path, results)
+        # fscore_diff(I_beginning, batch_size, d, i, indicators, new_path, results)
+        # fractions_diff(batch_size, org_contagion_dict, event_log_train, history, i, iter_length, new_path, results, whole_event_log)
+        # fractions(batch_size, org_contagion_dict, history, i, iter_length, new_path, results, whole_event_log)
         # jaccard(batch_size, d, i, indicators, new_path, results)
         # jaccard_diff(I_beginning, batch_size, d, i, indicators, new_path, results)
 

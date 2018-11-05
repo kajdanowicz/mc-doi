@@ -121,7 +121,7 @@ def estimate_a_and_predict(path_dataset_history, num_predictions, estimated):
 
 if __name__ == '__main__':
     aprun(bar='txt')(delayed(proceed_dataset)(dat, estimated.union(not_estimated)) for dat in sets_to_estimate)
-    # for dat in sets_to_estimate:
+    # for dat in sets_to_predict:
     #     proceed_dataset(dat, estimated.union(not_estimated))
 
 

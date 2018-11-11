@@ -856,6 +856,9 @@ class SingleContagionIndependentCascade(MultiContagionDynamicLinearThresholdMode
         self.fill_state_matrix(data)
         # print('State')
 
+    def estimate_adjacency_matrix(self, data: Data, **kwargs):
+        self.adjacency.estimate(data, **kwargs)
+
     def fill_state_matrix(self, data):
         # TODO state_matrix_.matrix -> sparse
         self.state_matrix_ = StateMatrix()

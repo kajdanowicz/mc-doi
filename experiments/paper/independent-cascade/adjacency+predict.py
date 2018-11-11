@@ -49,7 +49,7 @@ with open(directory+'estimated_adjacency', 'r', encoding='utf-8') as file:
     estimated = file.readlines()
 estimated = set([x.strip() for x in estimated])
 
-with open(directory+'predicted', 'r+', encoding='utf-8') as file:
+with open(directory+'predicted', 'r', encoding='utf-8') as file:
     predicted = file.readlines()
 predicted = set([x.strip() for x in predicted])
 

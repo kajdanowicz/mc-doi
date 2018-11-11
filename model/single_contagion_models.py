@@ -924,7 +924,7 @@ class SingleContagionIndependentCascade(MultiContagionDynamicLinearThresholdMode
                     self.newly_activated_future_[1].append(self.newly_activated_[1][counter])
                     self.state_matrix_.matrix[candidate, self.newly_activated_[1][counter]] = True
         self.newly_activated_ = copy.copy(self.newly_activated_future_)
-        return self.state_matrix_
+        return deepcopy(self.state_matrix_)
 
     def __activation_procedure(self, activation_matrix):
         # TODO delete num_activations

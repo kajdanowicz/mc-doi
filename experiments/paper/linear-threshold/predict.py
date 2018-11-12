@@ -88,8 +88,6 @@ def predict(path_dataset_history, batch_type, batch_sizes, num_predictions):
         d.load_data_data_frame(event_log, edges)
         with open(path_dataset_history + '/data_obj.pickle', 'wb') as f:
             pickle.dump(d, f)
-    with open(path_dataset_history + '/contagion.pickle', 'rb') as file:
-        cc = pickle.load(file)
     with open(path_dataset_history + '/adjacency.pickle', 'rb') as file:
         a = pickle.load(file)
     new_path_dataset_history = path_dataset_history.split('/')
@@ -97,7 +95,6 @@ def predict(path_dataset_history, batch_type, batch_sizes, num_predictions):
     new_path_dataset_history = '/' + os.path.join(*new_path_dataset_history)
     for batch_size in batch_sizes:
         m = MCDOI()
-        m.assign_contagions_correlation_matrix(cc)
         m.assign_adjacency_matrix(a)
         with open(new_path_dataset_history + '/' + batch_type + '/size_' + str(batch_size) + '/threshold.pickle', 'rb') as f:
             t = pickle.load(f)

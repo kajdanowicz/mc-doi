@@ -11,6 +11,7 @@ import numpy as np
 
 ##### Experiments parameters ######
 model = 'correlated-linear-dynamic-threshold'
+#batch_sizes = [86400, 172800, 259200, 345600, 432000, 518400, 604800]
 batch_sizes = [86400, 604800]
 number_prediction_intervals = 7
 ###################################

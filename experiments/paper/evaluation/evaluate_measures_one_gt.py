@@ -62,7 +62,8 @@ directory = '/nfs/maciej/mcdoi/paper/'+model+'/'
 evaluation_folder = 'evaluation_one_gt_'+str(iter_length)+'/'
 
 evaluated = set()
-for batch_size in [3600, 43200, 86400, 604800]:
+# for batch_size in [3600, 43200, 86400, 604800]:
+for batch_size in [86400, 172800, 259200, 345600, 432000, 518400, 604800]:
     if os.path.isfile(directory + evaluation_folder + 'evaluated_'+str(batch_size)):
         with open(directory + evaluation_folder + 'evaluated_'+str(batch_size), 'r', encoding='utf-8') as file:
             e = file.readlines()

@@ -39,45 +39,64 @@ def df_empty(columns, dtypes, index=None):
     return df
 
 
+# def measure_aggregation(argument, row):
+#     df = row
+#     #     ['tag','TN', 'FP', 'FN', 'TP']
+#     if argument == 'contagion_f1':
+#         return 2 * df[4] / (2 * df[4] + df[2] + df[3])
+#     elif argument == 'contagion_precision':
+#         return df[4] / (df[4] + df[2])
+#     elif argument == 'contagion_recall':
+#         return df[4] / (df[4] + df[3])
+#
+#     elif argument == 'contagion_f1_diff':
+#         return 2 * df[4] / (2 * df[4] + df[2] + df[3])
+#     elif argument == 'contagion_precision_diff':
+#         return df[4] / (df[4] + df[2])
+#     elif argument == 'contagion_recall_diff':
+#         return df[4] / (df[4] + df[3])
+#
+#     elif argument == 'contagion_f1_fillna_diff':
+#         return (2 * df[4] / (2 * df[4] + df[2] + df[3])).fillna(1)
+#     elif argument == 'contagion_precision_fillna_diff':
+#         return (df[4] / (df[4] + df[2])).fillna(1)
+#     elif argument == 'contagion_recall_fillna_diff':
+#         return (df[4] / (df[4] + df[3])).fillna(1)
+#
+#     elif argument == 'contagion_f1_laplace_diff':
+#         return (2 * df[4]+1) / (2 * df[4] + df[2] + df[3]+1)
+#     elif argument == 'contagion_precision_laplace_diff':
+#         return (df[4]+1) / (df[4] + df[2] + 1)
+#     elif argument == 'contagion_recall_laplace_diff':
+#         return (df[4]+1) / (df[4] + df[3] + 1)
+#
+#     elif argument == 'contagion_f1_reversed_diff':
+#         return 2 * df[1] / (2 * df[1] + df[3] + df[2])
+#     elif argument == 'contagion_f1_average_diff':
+#         return 2 * (df[4] + df[1]) / (2 * (df[4] + df[1]) + (df[2] + df[3]) + (df[3] + df[2]))
+#
+#     elif argument == 'contagion_fractions_diff':
+#         return df[1] - df[2]  # real - predicted
+
 def measure_aggregation(argument, row):
     df = row
     #     ['tag','TN', 'FP', 'FN', 'TP']
     if argument == 'contagion_f1':
-        return 2 * df[4] / (2 * df[4] + df[2] + df[3])
-    elif argument == 'contagion_precision':
-        return df[4] / (df[4] + df[2])
-    elif argument == 'contagion_recall':
-        return df[4] / (df[4] + df[3])
-
-    elif argument == 'contagion_f1_diff':
-        return 2 * df[4] / (2 * df[4] + df[2] + df[3])
-    elif argument == 'contagion_precision_diff':
-        return df[4] / (df[4] + df[2])
-    elif argument == 'contagion_recall_diff':
-        return df[4] / (df[4] + df[3])
-
-    elif argument == 'contagion_f1_fillna_diff':
-        return (2 * df[4] / (2 * df[4] + df[2] + df[3])).fillna(1)
-    elif argument == 'contagion_precision_fillna_diff':
-        return (df[4] / (df[4] + df[2])).fillna(1)
-    elif argument == 'contagion_recall_fillna_diff':
-        return (df[4] / (df[4] + df[3])).fillna(1)
-
-    elif argument == 'contagion_f1_laplace_diff':
         return (2 * df[4]+1) / (2 * df[4] + df[2] + df[3]+1)
-    elif argument == 'contagion_precision_laplace_diff':
+    elif argument == 'contagion_precision':
         return (df[4]+1) / (df[4] + df[2] + 1)
-    elif argument == 'contagion_recall_laplace_diff':
+    elif argument == 'contagion_recall':
         return (df[4]+1) / (df[4] + df[3] + 1)
 
-    elif argument == 'contagion_f1_reversed_diff':
-        return 2 * df[1] / (2 * df[1] + df[3] + df[2])
-    elif argument == 'contagion_f1_average_diff':
-        return 2 * (df[4] + df[1]) / (2 * (df[4] + df[1]) + (df[2] + df[3]) + (df[3] + df[2]))
+    elif argument == 'contagion_f1_diff':
+        return (2 * df[4]+1) / (2 * df[4] + df[2] + df[3]+1)
+    elif argument == 'contagion_precision_diff':
+        return (df[4]+1) / (df[4] + df[2] + 1)
+    elif argument == 'contagion_recall_diff':
+        return (df[4]+1) / (df[4] + df[3] + 1)
 
     elif argument == 'contagion_fractions_diff':
         return df[1] - df[2]  # real - predicted
-
 
 def proceed_normal_model(model, batch_size, history):
     results = df_empty(
@@ -100,7 +119,7 @@ def proceed_normal_model(model, batch_size, history):
                 prediction_period = int(line[-1].split('_')[-1])
                 measure_name = '_'.join(line[-1].split('_')[0:-1])
                 if 'fscore_diff' in measure_name:
-                    for measure in ['f1','precision','recall','f1_fillna','precision_fillna','recall_fillna','f1_laplace','precision_laplace','recall_laplace','f1_average', 'f1_reversed']:
+                    for measure in ['f1','precision','recall']:
                         results_measure = pd.DataFrame()
                         measure_name_new = measure_name.replace('fscore',measure)
                         results_measure['measure_value'] = measure_aggregation(measure_name_new, df)
@@ -160,7 +179,7 @@ def proceed_ic_model(history):
                 prediction_period = int(line[-1].split('_')[-1])
                 measure_name = '_'.join(line[-1].split('_')[0:-1])
                 if 'fscore_diff' in measure_name:
-                    for measure in ['f1','precision','recall','f1_fillna','precision_fillna','recall_fillna','f1_laplace','precision_laplace','recall_laplace','f1_average', 'f1_reversed']:
+                    for measure in ['f1','precision','recall']:
                         results_measure = pd.DataFrame()
                         measure_name_new = measure_name.replace('fscore',measure)
                         results_measure['measure_value'] = measure_aggregation(measure_name_new, df)

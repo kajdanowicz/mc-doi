@@ -218,6 +218,120 @@ def proceed_ic_model(history):
     return results
 
 
+def proceed_normal_model_parallel(model, batch_size, history):
+    # results = df_empty(
+    #     columns=['community_id', 'community_size', 'model', 'train_len', 'prediction_period', 'measure_name',
+    #              'measure_value','contagion'],
+    #     dtypes=['int', 'int', 'str', 'int', 'int', 'str', 'float', 'float','str'])
+    base_path = '/nfs/maciej/mcdoi/paper/' + model + '/evaluation/'
+    onlyfiles = [f for f in listdir(base_path) if
+                 (isfile(join(base_path, f)) & f.endswith(str(batch_size)) & (('contagion_fractions_diff' in f) or ('contagion_fscore' in f) or ('contagion_fscore_diff' in f)))]
+
+    def proceed_file(file_name):
+        with open(join(base_path, file_name), 'r') as current_file:
+            for line in [f for f in current_file if ('history_'+str(history) in f)]:
+                line = line.strip()
+                with open(line, 'r') as file_with_results:
+                    df = pd.read_csv(file_with_results, header=None)
+                line = line.split('/')
+                community_id = int(line[6].split('_')[1])
+                community_size = int(line[6].split('_')[2])
+                train_len = int(line[7].split('_')[1])
+                prediction_period = int(line[-1].split('_')[-1])
+                measure_name = '_'.join(line[-1].split('_')[0:-1])
+                if 'fscore_diff' in measure_name:
+                    for measure in ['f1','precision','recall']:
+                        results_measure = pd.DataFrame()
+                        measure_name_new = measure_name.replace('fscore',measure)
+                        results_measure['measure_value'] = measure_aggregation(measure_name_new, df)
+                        results_measure['community_id'] = community_id
+                        results_measure['community_size'] = community_size
+                        results_measure['model'] = model
+                        results_measure['train_len'] = train_len
+                        results_measure['prediction_period'] = prediction_period
+                        results_measure['measure_name'] = measure_name_new
+                        results_measure['contagion'] = df[0]
+                        # results = pd.concat([results, results_measure], ignore_index = True, sort=False)
+                elif 'fscore' in measure_name:
+                    for measure in ['f1','precision','recall']:
+                        results_measure = pd.DataFrame()
+                        measure_name_new = measure_name.replace('fscore',measure)
+                        results_measure['measure_value'] = measure_aggregation(measure_name_new, df)
+                        results_measure['community_id'] = community_id
+                        results_measure['community_size'] = community_size
+                        results_measure['model'] = model
+                        results_measure['train_len'] = train_len
+                        results_measure['prediction_period'] = prediction_period
+                        results_measure['measure_name'] = measure_name_new
+                        results_measure['contagion'] = df[0]
+                        # results = pd.concat([results, results_measure], ignore_index = True, sort=False)
+                else:
+                    results_measure = pd.DataFrame()
+                    results_measure['measure_value'] = measure_aggregation(measure_name, df)
+                    results_measure['community_id'] = community_id
+                    results_measure['community_size'] = community_size
+                    results_measure['model'] = model
+                    results_measure['train_len'] = train_len
+                    results_measure['prediction_period'] = prediction_period
+                    results_measure['measure_name'] = measure_name
+                    results_measure['contagion'] = df[0]
+                    # results = pd.concat([results, results_measure], ignore_index=True, sort=False)
+        return results_measure
+
+    list_of_dataframes = aprun(bar='txt')(delayed(proceed_file)(file_name) for file_name in onlyfiles)
+
+    # for file_name in onlyfiles:
+    #     with open(join(base_path, file_name), 'r') as current_file:
+    #         for line in [f for f in current_file if ('history_'+str(history) in f)]:
+    #             line = line.strip()
+    #             with open(line, 'r') as file_with_results:
+    #                 df = pd.read_csv(file_with_results, header=None)
+    #             line = line.split('/')
+    #             community_id = int(line[6].split('_')[1])
+    #             community_size = int(line[6].split('_')[2])
+    #             train_len = int(line[7].split('_')[1])
+    #             prediction_period = int(line[-1].split('_')[-1])
+    #             measure_name = '_'.join(line[-1].split('_')[0:-1])
+    #             if 'fscore_diff' in measure_name:
+    #                 for measure in ['f1','precision','recall']:
+    #                     results_measure = pd.DataFrame()
+    #                     measure_name_new = measure_name.replace('fscore',measure)
+    #                     results_measure['measure_value'] = measure_aggregation(measure_name_new, df)
+    #                     results_measure['community_id'] = community_id
+    #                     results_measure['community_size'] = community_size
+    #                     results_measure['model'] = model
+    #                     results_measure['train_len'] = train_len
+    #                     results_measure['prediction_period'] = prediction_period
+    #                     results_measure['measure_name'] = measure_name_new
+    #                     results_measure['contagion'] = df[0]
+    #                     results = pd.concat([results, results_measure], ignore_index = True, sort=False)
+    #             elif 'fscore' in measure_name:
+    #                 for measure in ['f1','precision','recall']:
+    #                     results_measure = pd.DataFrame()
+    #                     measure_name_new = measure_name.replace('fscore',measure)
+    #                     results_measure['measure_value'] = measure_aggregation(measure_name_new, df)
+    #                     results_measure['community_id'] = community_id
+    #                     results_measure['community_size'] = community_size
+    #                     results_measure['model'] = model
+    #                     results_measure['train_len'] = train_len
+    #                     results_measure['prediction_period'] = prediction_period
+    #                     results_measure['measure_name'] = measure_name_new
+    #                     results_measure['contagion'] = df[0]
+    #                     results = pd.concat([results, results_measure], ignore_index = True, sort=False)
+    #             else:
+    #                 results_measure = pd.DataFrame()
+    #                 results_measure['measure_value'] = measure_aggregation(measure_name, df)
+    #                 results_measure['community_id'] = community_id
+    #                 results_measure['community_size'] = community_size
+    #                 results_measure['model'] = model
+    #                 results_measure['train_len'] = train_len
+    #                 results_measure['prediction_period'] = prediction_period
+    #                 results_measure['measure_name'] = measure_name
+    #                 results_measure['contagion'] = df[0]
+    #                 results = pd.concat([results, results_measure], ignore_index=True, sort=False)
+    return pd.concat(list_of_dataframes, ignore_index=True, sort=False)
+
+
 models = ['correlated-linear-dynamic-threshold','correlated-linear-threshold','linear-dynamic-threshold','linear-threshold','linear-threshold-random','linear-threshold-random-single-theta']
 
 
